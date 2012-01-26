@@ -6,9 +6,11 @@ package com.rnlib.net
 	import com.rnlib.queue.IQueue;
 
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
+	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
 
@@ -18,7 +20,7 @@ package com.rnlib.net
 	{
 		protected var _queue:IQueue;
 
-		protected var _nc:NetConnection;
+		protected var _nc:NetConnection = new NetConnection();
 
 		protected var _service:String;
 
@@ -30,8 +32,40 @@ package com.rnlib.net
 
 		protected var _remoteMethods:Array = [];
 
+		protected var _defaultMethods:Array;
+
+		protected var _dispatcher:IEventDispatcher = new EventDispatcher();
+
+		protected var _concurrency:String = RequestConcurrency.QUEUING_REQUESTS;
+
+		protected var _isPendingRequest:Boolean = false;
+
+		protected var _requests:Dictionary = new Dictionary();
+
+		private var _reqCount:int = 10;
+
 		public function RemoteAmfService()
 		{
+			defaultMethods();
+		}
+
+		private function defaultMethods():void
+		{
+			_defaultMethods = [
+				"toString",
+				"toLocaleString",
+				"valueOf"
+			];
+		}
+
+		public function get concurrency():String
+		{
+			return _concurrency;
+		}
+
+		public function set concurrency(value:String):void
+		{
+			_concurrency = value;
 		}
 
 		public function addMethod(name:String):Boolean
@@ -78,9 +112,6 @@ package com.rnlib.net
 				return;
 
 			_endpoint = value;
-
-			_nc.close();
-			_nc.connect(value);
 		}
 
 		//---------------------------------------------------------------
@@ -113,10 +144,29 @@ package com.rnlib.net
 
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
-			if (hasProperty(name))
+			if (hasOwnProperty(name))
 			{
-				var arg:Array = [name];
-				callRemoteMethod.apply(this, arg.concat(rest));
+				var vo:RemoteMethodVO = new RemoteMethodVO();
+				vo.name = name;
+				vo.args = rest;
+
+				_nc.connect(_endpoint);
+
+				switch (_concurrency)
+				{
+					case RequestConcurrency.QUEUING_REQUESTS:
+						concurrencyQueueing(vo);
+						break;
+					case RequestConcurrency.MULTIPLE:
+						concurrencyMultiple(vo);
+						break;
+					case RequestConcurrency.LAST:
+						concurrencyLast(vo);
+						break;
+					case RequestConcurrency.SINGLE:
+						concurrencySingle(vo);
+						break;
+				}
 			}
 			else
 			{
@@ -144,14 +194,79 @@ package com.rnlib.net
 		}
 
 		//---------------------------------------------------------------
+		//              <------ CONCURRENCY METHODS ------>
+		//---------------------------------------------------------------
+
+		protected function concurrencyQueueing(vo:RemoteMethodVO):void
+		{
+
+		}
+
+		protected function concurrencyLast(vo:RemoteMethodVO):void
+		{
+
+		}
+
+		protected function concurrencySingle(vo:RemoteMethodVO):void
+		{
+			/*if (_isPendingRequest)
+			{
+				_nc.close();
+			}*/
+			callRemoteMethod(vo);
+		}
+
+		protected function concurrencyMultiple(vo:RemoteMethodVO):void
+		{
+
+		}
+
+		//---------------------------------------------------------------
 		//              <------ CALLING REMOTE SERVICE ------>
 		//---------------------------------------------------------------
 
-		public function callRemoteMethod(name:String, result:Function, fault:Function, ...rest):void
+		protected function callRemoteMethod(vo:RemoteMethodVO):void
 		{
-			var fullName:String = _service ? _service + "." + name : name;
-			var args:Array = [fullName, new Responder(result, fault)];
-			_nc.call.apply(_nc, args.concat(rest));
+			_isPendingRequest = true;
+
+			var rm:ResultMediatorVO = new ResultMediatorVO();
+			rm.id = _reqCount++;
+			rm.faultHandler = vo.fault;
+			rm.resultHandler = vo.result;
+			rm.internalFaultHandler = onFault;
+			rm.internalResultHandler = onResult;
+
+			_requests[rm.id] = rm;
+
+			var fullName:String = _service ? _service + "." + vo.name : vo.name;
+			var args:Array = [fullName, new Responder(rm.result, rm.fault)];
+			_nc.call.apply(_nc, args.concat(vo.args));
+		}
+
+		protected function onResult(result:Object, id:int):void
+		{
+			trace("onResult id: " + id);
+
+			var vo:ResultMediatorVO = _requests[id];
+			_requests[id] = null;
+
+			if (vo.resultHandler)
+				vo.resultHandler(result);
+			else
+				this.result(result);
+		}
+
+		protected function onFault(fault:Object, id:int):void
+		{
+			trace("onFault id: " + id);
+
+			var vo:ResultMediatorVO = _requests[id];
+			_requests[id] = null;
+
+			if (vo.faultHandler)
+				vo.faultHandler(result);
+			else
+				this.fault(fault);
 		}
 
 		//---------------------------------------------------------------
@@ -160,25 +275,48 @@ package com.rnlib.net
 
 		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
 		{
+			_dispatcher.addEventListener.apply(null, arguments);
 		}
 
 		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void
 		{
+			_dispatcher.removeEventListener.apply(null, arguments);
 		}
 
 		public function dispatchEvent(event:Event):Boolean
 		{
-			return false;
+			return _dispatcher.dispatchEvent(event);
 		}
 
 		public function hasEventListener(type:String):Boolean
 		{
-			return false;
+			return _dispatcher.hasEventListener(type);
 		}
 
 		public function willTrigger(type:String):Boolean
 		{
-			return false;
+			return _dispatcher.willTrigger(type);
 		}
+	}
+}
+
+class ResultMediatorVO
+{
+	public var id:int;
+
+	public var resultHandler:Function;
+	public var internalResultHandler:Function;
+
+	public function result(r:Object):void
+	{
+		internalResultHandler(r, id);
+	}
+
+	public var faultHandler:Function;
+	public var internalFaultHandler:Function;
+
+	public function fault(f:Object):void
+	{
+		internalFaultHandler(f, id);
 	}
 }
