@@ -26,10 +26,7 @@ package com.rnlib.queue
 			}
 		}
 
-		public function dispose():void
-		{
-			_source = [];
-		}
+		public function dispose():void { _source = [];}
 
 		/**
 		 * Push items into queue.

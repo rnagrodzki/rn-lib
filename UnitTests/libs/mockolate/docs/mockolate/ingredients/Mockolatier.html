@@ -1,0 +1,986 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd"><!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="../../style.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="../../print.css" type="text/css" media="print">
+    <link rel="stylesheet" href="../../override.css" type="text/css">
+    <meta name="keywords"
+          content="Mockolatier,mockolate.ingredients.Mockolatier,ALL,CONSTRUCTOR,FIRST,GETTER,LAST,METHOD,NICE,NONE,PARTIAL,SETTER,STRICT,_answers,_constraints,_invokedCount,answers,applicationDomain,argsMatcher,arguments,classRecipe,classToPrepare,constraints,constructorArgs,constructorArgsFunction,expectations,expecter,hasCaptured,inject,instance,invocationType,invocationType,invocations,invokeCountEligiblityMatcher,invokeCountVerificationMatcher,invokedCount,isConstructor,isGetter,isGetter,isMethod,isMethod,isSetter,isSetter,mockType,mockType,mocker,mockolateFactory,mockolateInstance,mockolate,name,name,name,name,name,nameMatcher,namespace,namespaceURI,namespacesToProxy,numRecipes,numRecipes,proxyClass,recorder,returnValue,satisfied,target,target,targetClass,uri,value,values,values,verifier,aClassRecipe,addAnswer,addConstraint,addInvocation,add,add,allow,allow,anInstanceRecipe,answers,answers,answers,anyArgs,anyArgs,anyArgs,arg,arg,arg,arg,arg,args,args,args,args,asEventDispatcher,asHTTPService,atLeast,atLeast,atLeast,atLeast,atLeast,atMost,atMost,atMost,atMost,atMost,build,build,calls,calls,calls,callsSuper,callsSuper,callsSuper,callsWithArguments,callsWithArguments,callsWithArguments,callsWithInvocation,callsWithInvocation,callsWithInvocation,captureAll,captureFirst,captureLast,captureNone,check,constrainAsNextInSequence,decorate,defineExpectationFrom,describeTo,dispatches,dispatches,dispatches,eligible,eligibleByArguments,eligibleByConstraints,eligibleByInvocationCount,eligibleByInvocationType,eligibleByName,eligibleByNamespaceURI,enumFor,expect,expect,expectArg,expectGetter,expectMethod,expectNSGetter,expectNSMethod,expectNSSetter,expectSetter,expectationAdded,getRecipeFor,getRecipeFor,getter,getter,getter,getters,getters,hasRecipeFor,invoke,invoked,invoked,invoked,matches,matches,method,method,method,methods,methods,mock,mock,never,never,never,never,never,nice,noArgs,noArgs,noArgs,noArgs,nsGetter,nsGetter,nsGetterByNamespaceURI,nsMethod,nsMethod,nsMethodByNamespaceURI,nsSetter,nsSetter,nsSetterByNamespaceURI,once,once,once,once,once,ordered,ordered,ordered,partial,pass,prepare,prepareClassRecipes,prepareClasses,prepareInstance,prepareInstance,prepareInstances,prepareInstances,preparedClassRecipeFor,proceed,removeInvocation,removeRecordedInvocation,reset,returns,returns,returns,returns,returns,satisfiedToIndex,setDefaultExpectedInvocationCount,setter,setter,setter,setters,setters,strict,stub,stub,thrice,thrice,thrice,thrice,thrice,throws,throws,throws,times,times,times,times,times,toArray,toArray,toString,toString,toString,toString,toString,twice,twice,twice,twice,twice,verify,verify,verify,withClassRecipe,withClassToPrepare,withConstructorArgsFunction,withConstructorArgs,withInject,withMockType,withName,withNamespacesToProxy">
+    <title>mockolate.ingredients.Mockolatier</title></head>
+<body>
+<script language="javascript" type="text/javascript" src="../../asdoc.js"></script>
+<script language="javascript" type="text/javascript" src="../../help.js"></script>
+<script language="javascript" type="text/javascript" src="../../cookies.js"></script>
+<script language="javascript" type="text/javascript"><!--
+				asdocTitle = 'Mockolatier - Mockolate Documentation';
+				var baseRef = '../../';
+				window.onload = configPage;
+			--></script>
+<script type="text/javascript">
+    scrollToNameAnchor();
+</script>
+<table class="titleTable" cellpadding="0" cellspacing="0" id="titleTable" style="display:none">
+    <tr>
+        <td class="titleTableTitle" align="left">Mockolate Documentation</td>
+        <td class="titleTableTopNav" align="right"><a href="../../package-summary.html"
+                                                      onclick="loadClassListFrame('../../all-classes.html')">All
+            Packages</a>&nbsp;|&nbsp;<a href="../../class-summary.html"
+                                        onclick="loadClassListFrame('../../all-classes.html')">All Classes</a>&nbsp;|&nbsp;<a
+                href="../../all-index-A.html" onclick="loadClassListFrame('../../index-list.html')">Index</a>&nbsp;|&nbsp;<a
+                id="framesLink1"
+                href="../../index.html?mockolate/ingredients/Mockolatier.html&amp;mockolate/ingredients/class-list.html">Frames</a><a
+                id="noFramesLink1" style="display:none" href="" onclick="parent.location=document.location"> No
+            Frames </a></td>
+        <td class="titleTableLogo" align="right" rowspan="3"><img src="../../images/logo.jpg" class="logoImage"
+                                                                  alt=" Adobe Logo " title=" Adobe Logo "></td>
+    </tr>
+    <tr class="titleTableRow2">
+        <td class="titleTableSubTitle" id="subTitle" align="left">Mockolatier</td>
+        <td class="titleTableSubNav" id="subNav" align="right"><a href="#propertySummary">Properties</a>&nbsp;| <a
+                href="#methodSummary">Methods</a></td>
+    </tr>
+    <tr class="titleTableRow3">
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>
+<script language="javascript" type="text/javascript" xml:space="preserve">
+				<!--
+				
+					if (!isEclipse() || window.name != ECLIPSE_FRAME_NAME) {titleBar_setSubTitle("Mockolatier"); titleBar_setSubNav(false,true,false,false,false,false,false,false,true,false,false	,false,false,false,false,false);}	
+				-->
+			</script>
+<div xmlns:fn="http://www.w3.org/2005/xpath-functions" class="MainContent">
+    <table class="classHeaderTable" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="classHeaderTableLabel">Package</td>
+            <td><a href="package-detail.html" onclick="javascript:loadClassListFrame('class-list.html')">mockolate.ingredients</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="classHeaderTableLabel">Class</td>
+            <td class="classSignature">public class Mockolatier</td>
+        </tr>
+        <tr>
+            <td class="classHeaderTableLabel">Inheritance</td>
+            <td class="inheritanceList">Mockolatier <img src="../../images/inherit-arrow.gif" title="Inheritance"
+                                                         alt="Inheritance" class="inheritArrow">
+                flash.events.EventDispatcher
+            </td>
+        </tr>
+        <tr>
+            <td class="classHeaderTableLabel">Subclasses</td>
+            <td><a href="../../mockolate/ingredients/faux/FauxMockolatier.html">FauxMockolatier</a></td>
+        </tr>
+    </table>
+    <p></p>
+
+    <p></p>
+
+    <p></p>
+    Maker of the Mockolates.
+
+    Used by MockolatierMaster and the <code>mockolate.</code> package-level functions.
+
+    Do not reference directly.
+
+    <p></p><br/>
+    <hr>
+</div>
+<a name="propertySummary"></a>
+
+<div class="summarySection">
+    <div class="summaryTableTitle">Public Properties</div>
+    <table cellspacing="0" cellpadding="3" class="summaryTable " id="summaryTableProperty">
+        <tr>
+            <th>&nbsp;</th>
+            <th colspan="2">Property</th>
+            <th class="summaryTableOwnerCol">Defined By</th>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol"><a href="#applicationDomain"
+                                                    class="signatureLink">applicationDomain</a> : ApplicationDomain
+                <div class="summaryTableDescription"></div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol"><a href="#mockolateFactory" class="signatureLink">mockolateFactory</a>
+                : <a href="../../mockolate/ingredients/IMockolateFactory.html">IMockolateFactory</a>
+
+                <div class="summaryTableDescription"></div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+    </table>
+</div>
+<a name="methodSummary"></a>
+
+<div class="summarySection">
+    <div class="summaryTableTitle">Public Methods</div>
+    <table cellspacing="0" cellpadding="3" class="summaryTable " id="summaryTableMethod">
+        <tr>
+            <th>&nbsp;</th>
+            <th colspan="2">Method</th>
+            <th class="summaryTableOwnerCol">Defined By</th>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#Mockolatier()" class="signatureLink">Mockolatier</a>()</div>
+                <div class="summaryTableDescription">
+                    Constructor.
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#allow()" class="signatureLink">allow</a>(instance:*):<a
+                        href="../../mockolate/ingredients/ExpectingCouverture.html">ExpectingCouverture</a></div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#expect()" class="signatureLink">expect</a>(instance:*):<a
+                        href="../../mockolate/ingredients/ExpectingCouverture.html">ExpectingCouverture</a></div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#expectArg()" class="signatureLink">expectArg</a>(value:*):*
+                </div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#mock()" class="signatureLink">mock</a>(instance:*):<a
+                        href="../../mockolate/ingredients/MockingCouverture.html">MockingCouverture</a></div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#nice()" class="signatureLink">nice</a>(classReference:Class,
+                    name:String = null, constructorArgs:Array = null):*
+                </div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#partial()" class="signatureLink">partial</a>(classReference:Class,
+                    name:String = null, constructorArgs:Array = null):*
+                </div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#prepare()" class="signatureLink">prepare</a>(...
+                    rest):IEventDispatcher
+                </div>
+                <div class="summaryTableDescription">
+                    Prepares the given Class references for creating proxy instances.
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#prepareClassRecipes()"
+                                                 class="signatureLink">prepareClassRecipes</a>(classRecipes:<a
+                        href="../../mockolate/ingredients/ClassRecipes.html">ClassRecipes</a>):IEventDispatcher
+                </div>
+                <div class="summaryTableDescription">
+
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#preparedClassRecipeFor()" class="signatureLink">preparedClassRecipeFor</a>(classToPrepare:Class,
+                    namespacesToProxy:Array):<a href="../../mockolate/ingredients/ClassRecipe.html">ClassRecipe</a>
+                </div>
+                <div class="summaryTableDescription"></div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#prepareInstance()" class="signatureLink">prepareInstance</a>(instanceRecipe:<a
+                        href="../../mockolate/ingredients/InstanceRecipe.html">InstanceRecipe</a>):*
+                </div>
+                <div class="summaryTableDescription"></div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#prepareInstances()" class="signatureLink">prepareInstances</a>(instanceRecipes:<a
+                        href="../../mockolate/ingredients/InstanceRecipes.html">InstanceRecipes</a>):IEventDispatcher
+                </div>
+                <div class="summaryTableDescription"></div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#strict()" class="signatureLink">strict</a>(classReference:Class,
+                    name:String = null, constructorArgs:Array = null):*
+                </div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#stub()" class="signatureLink">stub</a>(instance:*):<a
+                        href="../../mockolate/ingredients/MockingCouverture.html">MockingCouverture</a></div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#verify()" class="signatureLink">verify</a>(instance:*):<a
+                        href="../../mockolate/ingredients/VerifyingCouverture.html">VerifyingCouverture</a></div>
+                <div class="summaryTableDescription">
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+    </table>
+</div>
+<a name="protectedMethodSummary"></a>
+
+<div class="summarySection">
+    <div class="summaryTableTitle">Protected Methods</div>
+    <table cellspacing="0" cellpadding="3" class="summaryTable " id="summaryTableProtectedMethod">
+        <tr>
+            <th>&nbsp;</th>
+            <th colspan="2">Method</th>
+            <th class="summaryTableOwnerCol">Defined By</th>
+        </tr>
+        <tr class="">
+            <td class="summaryTablePaddingCol">&nbsp;</td>
+            <td class="summaryTableInheritanceCol">&nbsp;</td>
+            <td class="summaryTableSignatureCol">
+                <div class="summarySignature"><a href="#check()" class="signatureLink">check</a>(args:Array,
+                    matcher:Matcher, errorMessage:String):void
+                </div>
+                <div class="summaryTableDescription">
+                    Checks the args Array matches the given Matcher, throws an ArgumentError if not.
+                </div>
+            </td>
+            <td class="summaryTableOwnerCol">Mockolatier</td>
+        </tr>
+    </table>
+</div>
+<script language="javascript" type="text/javascript"><!--
+										showHideInherited();
+										--></script>
+<div class="MainContent">
+    <div class="detailSectionHeader">Property Detail</div>
+    <a name="propertyDetail"></a><a name="applicationDomain"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">applicationDomain</td>
+            <td class="detailHeaderType">property</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code>applicationDomain:ApplicationDomain</code>
+
+        <p></p><br/><span class="label"> Implementation </span><br/><code>&nbsp;&nbsp;&nbsp;&nbsp;public function get
+            applicationDomain():ApplicationDomain</code><br/><code>&nbsp;&nbsp;&nbsp;&nbsp;public function set
+            applicationDomain(value:ApplicationDomain):void</code><br/></div>
+    <a name="propertyDetail"></a><a name="mockolateFactory"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">mockolateFactory</td>
+            <td class="detailHeaderType">property</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code>mockolateFactory:<a href="../../mockolate/ingredients/IMockolateFactory.html">IMockolateFactory</a></code>
+
+        <p></p><br/><span class="label"> Implementation </span><br/><code>&nbsp;&nbsp;&nbsp;&nbsp;public function get
+            mockolateFactory():<a href="../../mockolate/ingredients/IMockolateFactory.html">IMockolateFactory</a></code><br/><code>
+            &nbsp;&nbsp;&nbsp;&nbsp;public function set mockolateFactory(value:<a
+                href="../../mockolate/ingredients/IMockolateFactory.html">IMockolateFactory</a>):void</code><br/></div>
+    <a name="constructorDetail"></a>
+
+    <div class="detailSectionHeader">Constructor Detail</div>
+    <a name="Mockolatier()"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">Mockolatier</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">Constructor</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code>public function Mockolatier()</code>
+
+        <p></p>
+
+        <p>
+            Constructor.
+        </p></div>
+    <a name="methodDetail"></a>
+
+    <div class="detailSectionHeader">Method Detail</div>
+    <a name="allow()"></a><a name="allow(any)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">allow</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function allow(instance:*):<a
+            href="../../mockolate/ingredients/ExpectingCouverture.html">ExpectingCouverture</a></code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instance</span>:*</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code><a href="../../mockolate/ingredients/ExpectingCouverture.html">ExpectingCouverture</a></code>
+                </td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.allow()</div>
+    </div>
+    <a name="check()"></a><a name="check(Array,org.hamcrest.Matcher,String)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">check</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> protected function check(args:Array, matcher:Matcher,
+        errorMessage:String):void</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+            Checks the args Array matches the given Matcher, throws an ArgumentError if not.
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">args</span>:Array</code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">matcher</span>:Matcher</code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">errorMessage</span>:String</code></td>
+            </tr>
+        </table>
+        </p></div>
+    <a name="expect()"></a><a name="expect(any)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">expect</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function expect(instance:*):<a
+            href="../../mockolate/ingredients/ExpectingCouverture.html">ExpectingCouverture</a></code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instance</span>:*</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code><a href="../../mockolate/ingredients/ExpectingCouverture.html">ExpectingCouverture</a></code>
+                </td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.expect()</div>
+    </div>
+    <a name="expectArg()"></a><a name="expectArg(any)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">expectArg</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function expectArg(value:*):*</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">value</span>:*</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>*</code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.arg()</div>
+    </div>
+    <a name="mock()"></a><a name="mock(any)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">mock</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function mock(instance:*):<a
+            href="../../mockolate/ingredients/MockingCouverture.html">MockingCouverture</a></code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instance</span>:*</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code><a href="../../mockolate/ingredients/MockingCouverture.html">MockingCouverture</a></code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.mock()</div>
+    </div>
+    <a name="nice()"></a><a name="nice(Class,String,Array)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">nice</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function nice(classReference:Class, name:String = null, constructorArgs:Array
+        = null):*</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">classReference</span>:Class</code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">name</span>:String</code> (default = <code>null</code>)<code></code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">constructorArgs</span>:Array</code> (default =
+                    <code>null</code>)<code></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>*</code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.nice()</div>
+    </div>
+    <a name="partial()"></a><a name="partial(Class,String,Array)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">partial</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function partial(classReference:Class, name:String = null,
+        constructorArgs:Array = null):*</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">classReference</span>:Class</code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">name</span>:String</code> (default = <code>null</code>)<code></code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">constructorArgs</span>:Array</code> (default =
+                    <code>null</code>)<code></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>*</code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.partial()</div>
+    </div>
+    <a name="prepare()"></a><a name="prepare(restParam)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">prepare</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function prepare(... rest):IEventDispatcher</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+            Prepares the given Class references for creating proxy instances.
+
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code>... <span class="label">rest</span></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>IEventDispatcher</code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.prepare()</div>
+    </div>
+    <a name="prepareClassRecipes()"></a><a name="prepareClassRecipes(mockolate.ingredients.ClassRecipes)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">prepareClassRecipes</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function prepareClassRecipes(classRecipes:<a
+            href="../../mockolate/ingredients/ClassRecipes.html">ClassRecipes</a>):IEventDispatcher</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">classRecipes</span>:<a
+                        href="../../mockolate/ingredients/ClassRecipes.html">ClassRecipes</a></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>IEventDispatcher</code></td>
+            </tr>
+        </table>
+    </div>
+    <a name="preparedClassRecipeFor()"></a><a name="preparedClassRecipeFor(Class,Array)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">preparedClassRecipeFor</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function preparedClassRecipeFor(classToPrepare:Class,
+        namespacesToProxy:Array):<a href="../../mockolate/ingredients/ClassRecipe.html">ClassRecipe</a></code>
+
+        <p></p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">classToPrepare</span>:Class</code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">namespacesToProxy</span>:Array</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code><a href="../../mockolate/ingredients/ClassRecipe.html">ClassRecipe</a></code></td>
+            </tr>
+        </table>
+    </div>
+    <a name="prepareInstance()"></a><a name="prepareInstance(mockolate.ingredients.InstanceRecipe)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">prepareInstance</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function prepareInstance(instanceRecipe:<a
+            href="../../mockolate/ingredients/InstanceRecipe.html">InstanceRecipe</a>):*</code>
+
+        <p></p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instanceRecipe</span>:<a
+                        href="../../mockolate/ingredients/InstanceRecipe.html">InstanceRecipe</a></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>*</code></td>
+            </tr>
+        </table>
+    </div>
+    <a name="prepareInstances()"></a><a name="prepareInstances(mockolate.ingredients.InstanceRecipes)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">prepareInstances</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function prepareInstances(instanceRecipes:<a
+            href="../../mockolate/ingredients/InstanceRecipes.html">InstanceRecipes</a>):IEventDispatcher</code>
+
+        <p></p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instanceRecipes</span>:<a
+                        href="../../mockolate/ingredients/InstanceRecipes.html">InstanceRecipes</a></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>IEventDispatcher</code></td>
+            </tr>
+        </table>
+    </div>
+    <a name="strict()"></a><a name="strict(Class,String,Array)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">strict</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function strict(classReference:Class, name:String = null,
+        constructorArgs:Array = null):*</code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">classReference</span>:Class</code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">name</span>:String</code> (default = <code>null</code>)<code></code></td>
+            </tr>
+            <tr>
+                <td class="paramSpacer">&nbsp;</td>
+            </tr>
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">constructorArgs</span>:Array</code> (default =
+                    <code>null</code>)<code></code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code>*</code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.strict()</div>
+    </div>
+    <a name="stub()"></a><a name="stub(any)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">stub</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function stub(instance:*):<a
+            href="../../mockolate/ingredients/MockingCouverture.html">MockingCouverture</a></code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instance</span>:*</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code><a href="../../mockolate/ingredients/MockingCouverture.html">MockingCouverture</a></code></td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.stub()</div>
+    </div>
+    <a name="verify()"></a><a name="verify(any)"></a>
+    <table class="detailHeader" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="detailHeaderName">verify</td>
+            <td class="detailHeaderParens">()</td>
+            <td class="detailHeaderType">method</td>
+            <td class="detailHeaderRule">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="detailBody"><code> public function verify(instance:*):<a
+            href="../../mockolate/ingredients/VerifyingCouverture.html">VerifyingCouverture</a></code>
+
+        <p></p>
+
+        <p></p>
+
+        <p>
+        </p>
+
+        <p><span class="label"> Parameters </span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20px"></td>
+                <td><code><span class="label">instance</span>:*</code></td>
+            </tr>
+        </table>
+        </p><p></p><span class="label">Returns</span>
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"></td>
+                <td><code><a href="../../mockolate/ingredients/VerifyingCouverture.html">VerifyingCouverture</a></code>
+                </td>
+            </tr>
+        </table>
+        <p><span class="label">See also</span></p>
+
+        <div class="seeAlso">mockolate.verify()</div>
+    </div>
+    <br/><br/>
+    <hr>
+    <br/>
+
+    <p></p>
+    <center class="copyright">
+        <footer></footer>
+        <br/>Fri Sep 16 2011, 09:02 AM +10:00
+    </center>
+</div>
+</body>
+</html><!--<br/>Fri Sep 16 2011, 09:02 AM +10:00  -->
