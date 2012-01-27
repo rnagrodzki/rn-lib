@@ -434,8 +434,6 @@ package com.rnlib.net
 				this.fault(fault);
 
 			_requests[id] = null;
-			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0)
-				callRemoteMethod(_queue.item);
 		}
 
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
