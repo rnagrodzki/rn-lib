@@ -4,6 +4,7 @@
 package com.rnlib.net
 {
 	import com.rnlib.queue.IQueue;
+	import com.rnlib.queue.PriorityQueue;
 
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
@@ -179,7 +180,7 @@ package com.rnlib.net
 		public function set concurrency(value:String):void
 		{
 			if (value == RequestConcurrency.QUEUE && !_queue)
-				throw new Error("Queue mode require specified queue property");
+				_queue = new PriorityQueue();
 
 			_concurrency = value;
 		}
