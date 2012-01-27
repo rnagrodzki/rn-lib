@@ -42,6 +42,7 @@ package tests.queue
 			Assert.assertEquals(pq.length, 4);
 			pq.dispose();
 			Assert.assertEquals(pq.length, 0);
+			Assert.assertStrictlyEquals(pq.item,undefined);
 		}
 
 		[Test(description="Basic test queue with priority range", order="3")]
@@ -65,7 +66,7 @@ package tests.queue
 			assertThat(array("7_-1", "3_1", "4_1", "1_2", "2_2", "5_10", "6_10"), result);
 		}
 
-		[Test(description="", order="4")]
+		[Test(description="Test dynamic sorting while adding and remowing items from queue", order="4")]
 		public function advancedTestDynamicPriority():void
 		{
 			var pq:PriorityQueue = new PriorityQueue();
