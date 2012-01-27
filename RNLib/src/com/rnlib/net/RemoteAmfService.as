@@ -54,7 +54,7 @@ package com.rnlib.net
 
 		private var _reqCount:int = 0;
 
-		public var proceedAfterError : Boolean = true;
+		public var proceedAfterError:Boolean = true;
 
 		public function RemoteAmfService()
 		{
@@ -100,20 +100,20 @@ package com.rnlib.net
 
 				if (_queue && _queue.length > 0)
 				{
-					if(proceedAfterError)
+					if (proceedAfterError)
 					{
 						registerNetConnection();
 						callRemoteMethod(_queue.item);
 					}
 					else
 					{
-					    _queue.dispose();
+						_queue.dispose();
 					}
 				}
 
 				dispatchEvent(e);
 			}
-			else if( e.info == "NetConnection.Connect.Closed" )
+			else if (e.info == "NetConnection.Connect.Closed")
 			{
 				disconnect();
 			}
@@ -141,6 +141,9 @@ package com.rnlib.net
 		//              <------ DEVELOPER INTERFACE METHODS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Dispose all request, connections and remote methods.
+		 */
 		public function dispose():void
 		{
 			disconnect();
@@ -172,6 +175,24 @@ package com.rnlib.net
 			];
 		}
 
+		/**
+		 * Value that indicates how to handle multiple calls to the same service. The default
+		 * value is queue. The following values are permitted:
+		 * <ul>
+		 * <li>queue - All requests are queued and called sequentially one after the other.</li>
+		 * <li>multiple - Existing requests are not cancelled, and the developer is
+		 * responsible for ensuring the consistency of returned data by carefully
+		 * managing the event stream. This is the default.</li>
+		 * <li>single - Making only one request at a time is allowed on the method; additional requests made
+		 * while a request is outstanding are immediately faulted on the client and are not sent to the server.</li>
+		 * <li>last - Making a request causes the client to ignore a result or fault for any current outstanding request.
+		 * Only the result or fault for the most recent request will be dispatched on the client.
+		 * This may simplify event handling in the client application, but care should be taken to only use
+		 * this mode when results or faults for requests may be safely ignored.</li>
+		 * </ul>
+		 *
+		 * @see com.rnlib.net.RequestConcurrency
+		 */
 		public function get concurrency():String
 		{
 			return _concurrency;
@@ -185,6 +206,9 @@ package com.rnlib.net
 			_concurrency = value;
 		}
 
+		/**
+		 * Property to change default queue class
+		 */
 		public function get queue():IQueue
 		{
 			return _queue;
@@ -197,7 +221,25 @@ package com.rnlib.net
 			_queue = value;
 		}
 
-		public function addMethod(name:String, result:Function = null, fault:Function = null):Boolean
+		/**
+		 * Add remote method to dynamic invoke at runtime
+		 * @param name Name of remote method to invoke
+		 * @param result Result handler
+		 * @param fault Fault handler
+		 *
+		 * @example <code>
+		 *	 var ras : RemoteAmfService = new RemoteAmfService();
+		 *	 ras.endpoint = "http://example.com/gateway";
+		 *	 ras.service = "MyExampleService";
+		 *	 ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
+		 *	 ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"
+		 *	 // or you can also send parameters to remote method as shown below
+		 *	 ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures
+		 * </code>
+		 *
+		 * @see #removeMethod()
+		 */
+		public function addMethod(name:String, result:Function = null, fault:Function = null):void
 		{
 			var vo:MethodVO = new MethodVO(name);
 			vo.result = result || _result;
@@ -209,12 +251,28 @@ package com.rnlib.net
 			}
 
 			removeMethod(name);
-			_remoteMethods[name] = vo;
-
-			return true;
+			_remoteMethods[name] = vo
 		}
 
-		public function removeMethod(name:String):Boolean
+		/**
+		 * Remove remote method to dynamic invoke at runtime
+		 * @param name
+		 *
+		 * @example <code>
+		 *	 var ras : RemoteAmfService = new RemoteAmfService();
+		 *	 ras.endpoint = "http://example.com/gateway";
+		 *	 ras.service = "MyExampleService";
+		 *	 ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
+		 *	 ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);
+		 *	 ras.myRemoteFunction(); // ok
+		 *	 ras.mySecondRemoteFunction(); // ok
+		 *	 ras.removeMethod("mySecondRemoteFunction");
+		 *	 ras.mySecondRemoteFunction(); // throw Error
+		 * </code>
+		 *
+		 * @see #addMethod()
+		 */
+		public function removeMethod(name:String):void
 		{
 			try
 			{
@@ -222,13 +280,14 @@ package com.rnlib.net
 					MethodVO(_remoteMethods[name]).dispose();
 			} catch (e:Error)
 			{
-				return false;
 			}
 
 			_remoteMethods[name] = null;
-			return true;
 		}
 
+		/**
+		 * Declare service for remote calls
+		 */
 		public function get service():String
 		{
 			return _service;
@@ -242,6 +301,10 @@ package com.rnlib.net
 			_service = value;
 		}
 
+		/**
+		 * AMF endpoint.
+		 * @exampleText endpoint = "http://myhost.com/amf"
+		 */
 		public function get endpoint():String
 		{
 			return _endpoint;
@@ -259,6 +322,9 @@ package com.rnlib.net
 		//              <------ GLOBAL RESULT HANDLERS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Global result handler for all invoke remote methods
+		 */
 		public function get result():Function
 		{
 			return _result;
@@ -269,6 +335,9 @@ package com.rnlib.net
 			_result = value;
 		}
 
+		/**
+		 * Global fault handler for all invoke remote methods
+		 */
 		public function get fault():Function
 		{
 			return _fault;
