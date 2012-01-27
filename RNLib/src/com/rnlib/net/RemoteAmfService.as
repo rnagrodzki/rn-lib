@@ -5,15 +5,23 @@ package com.rnlib.net
 {
 	import com.rnlib.queue.IQueue;
 
+	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import flash.events.IOErrorEvent;
+	import flash.events.NetStatusEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
-	import flash.utils.getTimer;
+
+	[Event(name="netStatus", type="flash.events.NetStatusEvent")]
+	[Event(name="ioError", type="flash.events.IOErrorEvent")]
+	[Event(name="securityError", type="flash.events.SecurityErrorEvent")]
+	[Event(name="asyncError", type="flash.events.AsyncErrorEvent")]
 
 	use namespace flash_proxy;
 
@@ -45,18 +53,113 @@ package com.rnlib.net
 
 		private var _reqCount:int = 0;
 
+		public var proceedAfterError : Boolean = true;
+
 		public function RemoteAmfService()
 		{
 			defaultMethods();
 		}
+
+		//---------------------------------------------------------------
+		//              <------ NETCONNECTION ------>
+		//---------------------------------------------------------------
 
 		protected function registerNetConnection():void
 		{
 			if (!_nc)
 			{
 				_nc = new NetConnection();
+				_nc.addEventListener(NetStatusEvent.NET_STATUS, onStatusEvent, false, 0, true);
+				_nc.addEventListener(IOErrorEvent.IO_ERROR, onIOErrorEvent, false, 0, true);
+				_nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityErrorEvent, false, 0, true);
+				_nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncErrorEvent, false, 0, true);
 				_nc.connect(_endpoint);
 			}
+		}
+
+		protected function disconnect():void
+		{
+			_nc.removeEventListener(NetStatusEvent.NET_STATUS, onStatusEvent);
+			_nc.removeEventListener(IOErrorEvent.IO_ERROR, onIOErrorEvent);
+			_nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityErrorEvent);
+			_nc.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncErrorEvent);
+
+			if (_nc)
+				_nc.close();
+
+			_nc = null;
+		}
+
+		protected function onStatusEvent(e:NetStatusEvent):void
+		{
+			if (e.info == "NetConnection.Call.BadVersion" || e.info == "NetConnection.Call.Failed")
+			{
+				disconnect();
+				ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
+
+				if (_queue && _queue.length > 0)
+				{
+					if(proceedAfterError)
+					{
+						registerNetConnection();
+						callRemoteMethod(_queue.item);
+					}
+					else
+					{
+					    _queue.dispose();
+					}
+				}
+
+				dispatchEvent(e);
+			}
+			else if( e.info == "NetConnection.Connect.Closed" )
+			{
+				disconnect();
+			}
+		}
+
+		protected function onAsyncErrorEvent(e:AsyncErrorEvent):void
+		{
+			disconnect();
+			dispatchEvent(e);
+		}
+
+		protected function onSecurityErrorEvent(e:SecurityErrorEvent):void
+		{
+			disconnect();
+			dispatchEvent(e);
+		}
+
+		protected function onIOErrorEvent(e:IOErrorEvent):void
+		{
+			disconnect();
+			dispatchEvent(e);
+		}
+
+		//---------------------------------------------------------------
+		//              <------ DEVELOPER INTERFACE METHODS ------>
+		//---------------------------------------------------------------
+
+		public function dispose():void
+		{
+			disconnect();
+
+			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
+
+			for each (var vo:MethodVO in _remoteMethods)
+			{
+				_remoteMethods[vo.name] = null;
+				vo.dispose();
+			}
+
+			if (_queue)
+			{
+				_queue.dispose();
+			}
+
+			_isPendingRequest = false;
+			_remoteMethods = new Dictionary();
+			_requests = new Dictionary();
 		}
 
 		private function defaultMethods():void
@@ -88,6 +191,8 @@ package com.rnlib.net
 
 		public function set queue(value:IQueue):void
 		{
+			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
+
 			_queue = value;
 		}
 
@@ -193,7 +298,7 @@ package com.rnlib.net
 				switch (_concurrency)
 				{
 					case RequestConcurrency.QUEUE:
-						concurrencyQueueing(vo);
+						concurrencyQueue(vo);
 						break;
 					case RequestConcurrency.MULTIPLE:
 						concurrencyMultiple(vo);
@@ -235,7 +340,7 @@ package com.rnlib.net
 		//              <------ CONCURRENCY METHODS ------>
 		//---------------------------------------------------------------
 
-		protected function concurrencyQueueing(vo:RemoteMethodVO):void
+		protected function concurrencyQueue(vo:RemoteMethodVO):void
 		{
 			if (_isPendingRequest)
 				_queue.push(vo);
@@ -245,12 +350,13 @@ package com.rnlib.net
 
 		protected function concurrencyLast(vo:RemoteMethodVO):void
 		{
-
+			ignoreAllPendingRequests(false);
+			callRemoteMethod(vo);
 		}
 
 		protected function concurrencySingle(vo:RemoteMethodVO):void
 		{
-			ignoreAllPendingRequests();
+			ignoreAllPendingRequests(true);
 			callRemoteMethod(vo);
 		}
 
@@ -295,7 +401,7 @@ package com.rnlib.net
 		protected function onResult(result:Object, name:String, id:int):void
 		{
 			_isPendingRequest = false;
-			trace("onResult id: " + id + " time: " + getTimer());
+//			trace("onResult id: " + id + " time: " + getTimer());
 
 			var vo:ResultMediatorVO = _requests[id];
 
@@ -318,7 +424,7 @@ package com.rnlib.net
 		protected function onFault(fault:Object, name:String, id:int):void
 		{
 			_isPendingRequest = false;
-			trace("onFault id: " + id + " time: " + getTimer());
+//			trace("onFault id: " + id + " time: " + getTimer());
 
 			var vo:ResultMediatorVO = _requests[id];
 
@@ -334,6 +440,7 @@ package com.rnlib.net
 
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
 		{
+			disconnect();
 			for each (var vo:ResultMediatorVO in _requests)
 			{
 				if (callFault && vo.faultHandler)

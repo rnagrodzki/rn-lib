@@ -43,7 +43,7 @@ package com.rnlib.queue
 		{
 			for each (var item:* in rest)
 			{
-				trace("push into queue");
+//				trace("push into queue");
 				pushWithPriority(item);
 			}
 		}
