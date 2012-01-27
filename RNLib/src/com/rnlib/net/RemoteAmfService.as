@@ -6,15 +6,10 @@ package com.rnlib.net
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
 
-	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
-	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
-	import flash.events.SecurityErrorEvent;
-	import flash.net.NetConnection;
-	import flash.net.Responder;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
@@ -30,7 +25,7 @@ package com.rnlib.net
 	{
 		private var _queue:IQueue;
 
-		protected var _nc:NetConnection;
+		protected var _nc:ExtendedNetConnection;
 
 		protected var _service:String;
 
@@ -59,36 +54,22 @@ package com.rnlib.net
 		public function RemoteAmfService()
 		{
 			defaultMethods();
+
+			_nc = new ExtendedNetConnection();
+			_nc.redispatcher = this;
+			_nc.reconnectRepeatCount = 3;
+
+			addEventListener(NetStatusEvent.NET_STATUS, onStatusEvent);
 		}
 
 		//---------------------------------------------------------------
 		//              <------ NETCONNECTION ------>
 		//---------------------------------------------------------------
 
-		protected function registerNetConnection():void
-		{
-			if (!_nc)
-			{
-				_nc = new NetConnection();
-				_nc.addEventListener(NetStatusEvent.NET_STATUS, onStatusEvent, false, 0, true);
-				_nc.addEventListener(IOErrorEvent.IO_ERROR, onIOErrorEvent, false, 0, true);
-				_nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityErrorEvent, false, 0, true);
-				_nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncErrorEvent, false, 0, true);
-				_nc.connect(_endpoint);
-			}
-		}
-
 		protected function disconnect():void
 		{
-			_nc.removeEventListener(NetStatusEvent.NET_STATUS, onStatusEvent);
-			_nc.removeEventListener(IOErrorEvent.IO_ERROR, onIOErrorEvent);
-			_nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityErrorEvent);
-			_nc.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncErrorEvent);
-
 			if (_nc)
 				_nc.close();
-
-			_nc = null;
 		}
 
 		protected function onStatusEvent(e:NetStatusEvent):void
@@ -102,7 +83,6 @@ package com.rnlib.net
 				{
 					if (proceedAfterError)
 					{
-						registerNetConnection();
 						callRemoteMethod(_queue.item);
 					}
 					else
@@ -117,24 +97,6 @@ package com.rnlib.net
 			{
 				disconnect();
 			}
-		}
-
-		protected function onAsyncErrorEvent(e:AsyncErrorEvent):void
-		{
-			disconnect();
-			dispatchEvent(e);
-		}
-
-		protected function onSecurityErrorEvent(e:SecurityErrorEvent):void
-		{
-			disconnect();
-			dispatchEvent(e);
-		}
-
-		protected function onIOErrorEvent(e:IOErrorEvent):void
-		{
-			disconnect();
-			dispatchEvent(e);
 		}
 
 		//---------------------------------------------------------------
@@ -354,7 +316,8 @@ package com.rnlib.net
 
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
-			if (hasOwnProperty(name))
+			var hasProp:Boolean = hasOwnProperty(name);
+			if (hasProp && _remoteMethods[name])
 			{
 				var mvo:MethodVO = _remoteMethods[name];
 				var vo:RemoteMethodVO = new RemoteMethodVO();
@@ -362,8 +325,6 @@ package com.rnlib.net
 				vo.args = rest;
 				vo.result = mvo.result;
 				vo.fault = mvo.fault;
-
-				registerNetConnection();
 
 				switch (_concurrency)
 				{
@@ -380,6 +341,10 @@ package com.rnlib.net
 						concurrencySingle(vo);
 						break;
 				}
+			}
+			else if (hasProp)
+			{
+				return super.callProperty.apply(null, [name].concat(rest));
 			}
 			else
 			{
@@ -403,6 +368,9 @@ package com.rnlib.net
 
 		override flash_proxy function hasProperty(name:*):Boolean
 		{
+			if (_defaultMethods.lastIndexOf(name) >= 0)
+				return true;
+
 			return Boolean(_remoteMethods[name]);
 		}
 
@@ -458,7 +426,7 @@ package com.rnlib.net
 			_requests[rm.id] = rm;
 
 			var fullName:String = _service ? _service + "." + vo.name : vo.name;
-			var args:Array = [fullName, new Responder(rm.result, rm.fault)];
+			var args:Array = [fullName, rm.result, rm.fault];
 			_nc.call.apply(_nc, args.concat(vo.args));
 		}
 
