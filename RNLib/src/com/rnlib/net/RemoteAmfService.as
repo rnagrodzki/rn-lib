@@ -13,14 +13,15 @@ package com.rnlib.net
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
+	import flash.utils.getTimer;
 
 	use namespace flash_proxy;
 
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher
 	{
-		protected var _queue:IQueue;
+		private var _queue:IQueue;
 
-		protected var _nc:NetConnection = new NetConnection();
+		protected var _nc:NetConnection;
 
 		protected var _service:String;
 
@@ -30,23 +31,32 @@ package com.rnlib.net
 
 		protected var _fault:Function;
 
-		protected var _remoteMethods:Array = [];
+		protected var _remoteMethods:Dictionary = new Dictionary();
 
 		protected var _defaultMethods:Array;
 
 		protected var _dispatcher:IEventDispatcher = new EventDispatcher();
 
-		protected var _concurrency:String = RequestConcurrency.QUEUING_REQUESTS;
+		protected var _concurrency:String = RequestConcurrency.QUEUE;
 
 		protected var _isPendingRequest:Boolean = false;
 
 		protected var _requests:Dictionary = new Dictionary();
 
-		private var _reqCount:int = 10;
+		private var _reqCount:int = 0;
 
 		public function RemoteAmfService()
 		{
 			defaultMethods();
+		}
+
+		protected function registerNetConnection():void
+		{
+			if (!_nc)
+			{
+				_nc = new NetConnection();
+				_nc.connect(_endpoint);
+			}
 		}
 
 		private function defaultMethods():void
@@ -65,27 +75,52 @@ package com.rnlib.net
 
 		public function set concurrency(value:String):void
 		{
+			if (value == RequestConcurrency.QUEUE && !_queue)
+				throw new Error("Queue mode require specified queue property");
+
 			_concurrency = value;
 		}
 
-		public function addMethod(name:String):Boolean
+		public function get queue():IQueue
 		{
-			var idx:int = _remoteMethods.lastIndexOf(name);
+			return _queue;
+		}
 
-			if (idx == -1)
-				_remoteMethods.push(name);
+		public function set queue(value:IQueue):void
+		{
+			_queue = value;
+		}
 
-			return idx == -1;
+		public function addMethod(name:String, result:Function = null, fault:Function = null):Boolean
+		{
+			var vo:MethodVO = new MethodVO(name);
+			vo.result = result || _result;
+			vo.fault = fault || _fault;
+
+			if (vo.result == null || vo.fault == null)
+			{
+				throw new Error("Global handlers not set. Set first them by property result & fault!")
+			}
+
+			removeMethod(name);
+			_remoteMethods[name] = vo;
+
+			return true;
 		}
 
 		public function removeMethod(name:String):Boolean
 		{
-			var idx:int = _remoteMethods.lastIndexOf(name);
+			try
+			{
+				if (_remoteMethods[name])
+					MethodVO(_remoteMethods[name]).dispose();
+			} catch (e:Error)
+			{
+				return false;
+			}
 
-			if (idx != -1)
-				_remoteMethods.splice(idx, 1);
-
-			return idx != -1;
+			_remoteMethods[name] = null;
+			return true;
 		}
 
 		public function get service():String
@@ -146,15 +181,18 @@ package com.rnlib.net
 		{
 			if (hasOwnProperty(name))
 			{
+				var mvo:MethodVO = _remoteMethods[name];
 				var vo:RemoteMethodVO = new RemoteMethodVO();
 				vo.name = name;
 				vo.args = rest;
+				vo.result = mvo.result;
+				vo.fault = mvo.fault;
 
-				_nc.connect(_endpoint);
+				registerNetConnection();
 
 				switch (_concurrency)
 				{
-					case RequestConcurrency.QUEUING_REQUESTS:
+					case RequestConcurrency.QUEUE:
 						concurrencyQueueing(vo);
 						break;
 					case RequestConcurrency.MULTIPLE:
@@ -190,7 +228,7 @@ package com.rnlib.net
 
 		override flash_proxy function hasProperty(name:*):Boolean
 		{
-			return _remoteMethods.lastIndexOf(name) != -1;
+			return Boolean(_remoteMethods[name]);
 		}
 
 		//---------------------------------------------------------------
@@ -199,7 +237,10 @@ package com.rnlib.net
 
 		protected function concurrencyQueueing(vo:RemoteMethodVO):void
 		{
+			if (_isPendingRequest)
+				_queue.push(vo);
 
+			callRemoteMethod(vo);
 		}
 
 		protected function concurrencyLast(vo:RemoteMethodVO):void
@@ -209,30 +250,32 @@ package com.rnlib.net
 
 		protected function concurrencySingle(vo:RemoteMethodVO):void
 		{
-			/*if (_isPendingRequest)
-			{
-				_nc.close();
-			}*/
+			ignoreAllPendingRequests();
 			callRemoteMethod(vo);
 		}
 
 		protected function concurrencyMultiple(vo:RemoteMethodVO):void
 		{
-
+			callRemoteMethod(vo);
 		}
 
 		//---------------------------------------------------------------
 		//              <------ CALLING REMOTE SERVICE ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Invoke register remote method
+		 * @param vo
+		 */
 		protected function callRemoteMethod(vo:RemoteMethodVO):void
 		{
 			_isPendingRequest = true;
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.id = _reqCount++;
-			rm.faultHandler = vo.fault;
-			rm.resultHandler = vo.result;
+			rm.name = vo.name;
+			rm.resultHandler = vo.result; // force call currently specified method handler
+			rm.faultHandler = vo.fault; // force call currently specified method handler
 			rm.internalFaultHandler = onFault;
 			rm.internalResultHandler = onResult;
 
@@ -243,30 +286,62 @@ package com.rnlib.net
 			_nc.call.apply(_nc, args.concat(vo.args));
 		}
 
-		protected function onResult(result:Object, id:int):void
+		/**
+		 * Global internal result handler
+		 * @param result Response from server
+		 * @param name Name remote method
+		 * @param id Request id
+		 */
+		protected function onResult(result:Object, name:String, id:int):void
 		{
-			trace("onResult id: " + id);
+			_isPendingRequest = false;
+			trace("onResult id: " + id + " time: " + getTimer());
 
 			var vo:ResultMediatorVO = _requests[id];
-			_requests[id] = null;
 
-			if (vo.resultHandler)
+			if (vo.resultHandler != null)
 				vo.resultHandler(result);
 			else
 				this.result(result);
+
+			_requests[id] = null;
+			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0)
+				callRemoteMethod(_queue.item);
 		}
 
-		protected function onFault(fault:Object, id:int):void
+		/**
+		 * Global internal fault handler
+		 * @param fault Response from server
+		 * @param name Name remote method
+		 * @param id Request id
+		 */
+		protected function onFault(fault:Object, name:String, id:int):void
 		{
-			trace("onFault id: " + id);
+			_isPendingRequest = false;
+			trace("onFault id: " + id + " time: " + getTimer());
 
 			var vo:ResultMediatorVO = _requests[id];
-			_requests[id] = null;
 
-			if (vo.faultHandler)
-				vo.faultHandler(result);
+			if (vo.faultHandler != null)
+				vo.faultHandler(fault);
 			else
 				this.fault(fault);
+
+			_requests[id] = null;
+			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0)
+				callRemoteMethod(_queue.item);
+		}
+
+		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
+		{
+			for each (var vo:ResultMediatorVO in _requests)
+			{
+				if (callFault && vo.faultHandler)
+					vo.faultHandler("Ignore by user");
+				vo.dispose();
+				_requests[vo.id] = null;
+			}
+			_isPendingRequest = false;
 		}
 
 		//---------------------------------------------------------------
@@ -300,16 +375,37 @@ package com.rnlib.net
 	}
 }
 
+class MethodVO
+{
+	public var name:String;
+	public var result:Function;
+	public var fault:Function;
+
+	public function MethodVO(name:String = null)
+	{
+		this.name = name;
+	}
+
+	public function dispose():void
+	{
+		name = null;
+		result = null;
+		fault = null;
+	}
+}
+
 class ResultMediatorVO
 {
 	public var id:int;
+	public var name:String;
 
 	public var resultHandler:Function;
 	public var internalResultHandler:Function;
 
 	public function result(r:Object):void
 	{
-		internalResultHandler(r, id);
+		internalResultHandler(r, name, id);
+		dispose();
 	}
 
 	public var faultHandler:Function;
@@ -317,6 +413,17 @@ class ResultMediatorVO
 
 	public function fault(f:Object):void
 	{
-		internalFaultHandler(f, id);
+		internalFaultHandler(f, name, id);
+		dispose();
+	}
+
+	public function dispose():void
+	{
+		id = 0;
+		name = null;
+		internalFaultHandler = null;
+		internalResultHandler = null;
+		faultHandler = null;
+		resultHandler = null;
 	}
 }

@@ -30,6 +30,6 @@ package com.rnlib.net
 		 * All requests are added to queue and will invoke one after another
 		 * immediately after receiving response from server. This is the default.
 		 */
-		public static const QUEUING_REQUESTS = "queuingRequests";
+		public static const QUEUE : String = "queue";
 	}
 }

@@ -10,6 +10,8 @@ package com.rnlib.queue
 
 		protected var _requireSort:Boolean = false;
 
+		protected var _count:int = 0;
+
 		/**
 		 * Constructor
 		 * @param source Array witch will be added to queue
@@ -26,7 +28,11 @@ package com.rnlib.queue
 			}
 		}
 
-		public function dispose():void { _source = [];}
+		public function dispose():void
+		{
+			_source = [];
+			_count = 0;
+		}
 
 		/**
 		 * Push items into queue.
@@ -37,6 +43,7 @@ package com.rnlib.queue
 		{
 			for each (var item:* in rest)
 			{
+				trace("push into queue");
 				pushWithPriority(item);
 			}
 		}
@@ -51,16 +58,17 @@ package com.rnlib.queue
 			var vo:ItemVO = new ItemVO();
 			vo.item = item;
 			vo.priority = priority;
+			vo.count = _count++;
+			var len:uint = _source.length;
 
 			if (!_requireSort)
 			{
-				var len:uint = _source.length;
 				var sort:Boolean = len > 0;
 
 				_requireSort = (sort && _source[len - 1].priority > priority);
 			}
 
-			_source.push(item);
+			_source[len] = vo;
 		}
 
 		/**
@@ -68,11 +76,16 @@ package com.rnlib.queue
 		 */
 		public function get item():*
 		{
+			if (_source.length == 0)
+				return undefined;
+
 			// sort method is called only then when it's needed
 			if (_requireSort)
-				_source.sortOn("priority", Array.NUMERIC);
+				_source.sortOn(["priority", "count"]);
 
-			return _source.shift().item;
+			var vo:ItemVO = ItemVO(_source.shift());
+
+			return vo.item;
 		}
 
 		/**
@@ -89,4 +102,5 @@ class ItemVO
 {
 	public var item:*;
 	public var priority:int = 1;
+	public var count:int = 0;
 }
