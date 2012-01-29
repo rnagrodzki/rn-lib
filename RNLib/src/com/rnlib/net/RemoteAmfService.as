@@ -14,6 +14,9 @@ package com.rnlib.net
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
 
+	import mx.managers.CursorManager;
+	import mx.rpc.mxml.IMXMLSupport;
+
 	[Event(name="netStatus", type="flash.events.NetStatusEvent")]
 	[Event(name="ioError", type="flash.events.IOErrorEvent")]
 	[Event(name="securityError", type="flash.events.SecurityErrorEvent")]
@@ -21,7 +24,7 @@ package com.rnlib.net
 
 	use namespace flash_proxy;
 
-	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher
+	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport
 	{
 		private var _queue:IQueue;
 
@@ -49,9 +52,14 @@ package com.rnlib.net
 
 		private var _reqCount:int = 0;
 
+		/**
+		 * Determine execute all request in queue after error occure.
+		 */
 		public var proceedAfterError:Boolean = true;
 
-		public function RemoteAmfService( netConnection : ExtendedNetConnection = null )
+		protected var _showBusyCursor:Boolean = true;
+
+		public function RemoteAmfService(netConnection:ExtendedNetConnection = null)
 		{
 			defaultMethods();
 
@@ -166,6 +174,18 @@ package com.rnlib.net
 				_queue = new PriorityQueue();
 
 			_concurrency = value;
+		}
+
+		public function get showBusyCursor():Boolean
+		{
+			return _showBusyCursor;
+		}
+
+		public function set showBusyCursor(value:Boolean):void
+		{
+			if (_showBusyCursor && !value) CursorManager.removeBusyCursor();
+
+			_showBusyCursor = value;
 		}
 
 		/**
@@ -428,6 +448,8 @@ package com.rnlib.net
 			var fullName:String = _service ? _service + "." + vo.name : vo.name;
 			var args:Array = [fullName, rm.result, rm.fault];
 			_nc.call.apply(_nc, args.concat(vo.args));
+
+			if (_showBusyCursor) CursorManager.setBusyCursor();
 		}
 
 		/**
@@ -438,6 +460,8 @@ package com.rnlib.net
 		 */
 		protected function onResult(result:Object, name:String, id:int):void
 		{
+			if (_showBusyCursor) CursorManager.removeBusyCursor();
+
 			_isPendingRequest = false;
 //			trace("onResult id: " + id + " time: " + getTimer());
 
@@ -461,6 +485,8 @@ package com.rnlib.net
 		 */
 		protected function onFault(fault:Object, name:String, id:int):void
 		{
+			if (_showBusyCursor) CursorManager.removeBusyCursor();
+
 			_isPendingRequest = false;
 //			trace("onFault id: " + id + " time: " + getTimer());
 
@@ -485,6 +511,8 @@ package com.rnlib.net
 				_requests[vo.id] = null;
 			}
 			_isPendingRequest = false;
+
+			if (_showBusyCursor) CursorManager.removeBusyCursor();
 		}
 
 		//---------------------------------------------------------------

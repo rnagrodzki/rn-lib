@@ -14,6 +14,10 @@ package com.rnlib.net
 	import flash.net.Responder;
 	import flash.utils.Timer;
 
+	[Event(name="connected", type="com.rnlib.net.ExtendedNetConnectionEvent")]
+	[Event(name="disconnected", type="com.rnlib.net.ExtendedNetConnectionEvent")]
+	[Event(name="reconnect", type="com.rnlib.net.ExtendedNetConnectionEvent")]
+
 	public class ExtendedNetConnection extends EventDispatcher
 	{
 		private var _nc:NetConnection;
@@ -28,7 +32,10 @@ package com.rnlib.net
 		public var reconnectRepeatCount:uint = 1;
 
 		/**
-		 * If set class will redispatch native events of NetConnection
+		 * If set class will dispatch native events of NetConnection.
+		 * To prevent dispatching native events of NetConnection set <code>null</code>.
+		 *
+		 * @default this
 		 */
 		public var redispatcher:IEventDispatcher;
 
@@ -40,6 +47,10 @@ package com.rnlib.net
 
 		private var _timer:Timer;
 
+		/**
+		 * Constructor
+		 * @param nc Optional parameter with instance of NetConnection. If don't passed new instance will be created.
+		 */
 		public function ExtendedNetConnection(nc:NetConnection = null)
 		{
 			_nc = nc || new NetConnection();
@@ -49,6 +60,8 @@ package com.rnlib.net
 
 			_timer = new Timer(_keepAliveTime);
 			_timer.addEventListener(TimerEvent.TIMER, onTick);
+
+			redispatcher = this;
 		}
 
 		public function dispose():void
@@ -96,7 +109,13 @@ package com.rnlib.net
 		private function reconnect():void
 		{
 			if (_internalReconnectCount++ < reconnectRepeatCount)
+			{
 				connect(_uri);
+				dispatchEvent(
+						new ExtendedNetConnectionEvent(
+								ExtendedNetConnectionEvent.RECONNECT,
+								_internalReconnectCount));
+			}
 			else
 				_internalReconnectCount = 0;
 		}
@@ -107,6 +126,9 @@ package com.rnlib.net
 			if (e.info == "NetConnection.Call.BadVersion" || e.info == "NetConnection.Call.Failed")
 			{
 				_connected = false;
+				dispatchEvent(
+						new ExtendedNetConnectionEvent(
+								ExtendedNetConnectionEvent.DISCONNECTED));
 				reconnect();
 			}
 
@@ -116,6 +138,9 @@ package com.rnlib.net
 		private function onError(e:Event):void
 		{
 			_connected = false;
+			dispatchEvent(
+					new ExtendedNetConnectionEvent(
+							ExtendedNetConnectionEvent.DISCONNECTED));
 			reconnect();
 			if (redispatcher) redispatcher.dispatchEvent(e);
 		}
@@ -130,6 +155,9 @@ package com.rnlib.net
 			_nc.connect(uri);
 			_timer.start();
 			_connected = true;
+			dispatchEvent(
+					new ExtendedNetConnectionEvent(
+							ExtendedNetConnectionEvent.CONNECTED));
 		}
 
 		/**
@@ -140,6 +168,9 @@ package com.rnlib.net
 			_timer.reset();
 			_nc.close();
 			_connected = false;
+			dispatchEvent(
+					new ExtendedNetConnectionEvent(
+							ExtendedNetConnectionEvent.DISCONNECTED));
 		}
 
 		/**
