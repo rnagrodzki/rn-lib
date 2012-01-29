@@ -51,11 +51,11 @@ package com.rnlib.net
 
 		public var proceedAfterError:Boolean = true;
 
-		public function RemoteAmfService()
+		public function RemoteAmfService( netConnection : ExtendedNetConnection = null )
 		{
 			defaultMethods();
 
-			_nc = new ExtendedNetConnection();
+			_nc = netConnection || new ExtendedNetConnection();
 			_nc.redispatcher = this;
 			_nc.reconnectRepeatCount = 3;
 

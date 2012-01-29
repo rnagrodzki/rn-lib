@@ -40,15 +40,35 @@ package com.rnlib.net
 
 		private var _timer:Timer;
 
-		public function ExtendedNetConnection()
+		public function ExtendedNetConnection(nc:NetConnection = null)
 		{
-			_nc = new NetConnection();
+			_nc = nc || new NetConnection();
 			_nc.addEventListener(IOErrorEvent.IO_ERROR, onError);
 			_nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
 			_nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);
 
 			_timer = new Timer(_keepAliveTime);
 			_timer.addEventListener(TimerEvent.TIMER, onTick);
+		}
+
+		public function dispose():void
+		{
+			if (_nc)
+			{
+				_nc.removeEventListener(IOErrorEvent.IO_ERROR, onError);
+				_nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
+				_nc.removeEventListener(NetStatusEvent.NET_STATUS, onStatus);
+				_nc.close();
+				_connected = false;
+				_nc = null;
+			}
+
+			if (_timer)
+			{
+				_timer.stop();
+				_timer.removeEventListener(TimerEvent.TIMER, onTick);
+				_timer = null;
+			}
 		}
 
 		private function onTick(e:TimerEvent):void
