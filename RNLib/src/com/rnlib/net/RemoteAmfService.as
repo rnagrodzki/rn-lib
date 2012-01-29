@@ -116,7 +116,10 @@ package com.rnlib.net
 		 */
 		public function dispose():void
 		{
-			disconnect();
+			if (_nc)
+			{
+				_nc.dispose();
+			}
 
 			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
 

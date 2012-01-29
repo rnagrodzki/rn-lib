@@ -24,20 +24,9 @@ package com.rnlib.net
 
 		private var _uri:String;
 
-		/**
-		 * Determine how many times connection will auto reconnect.
-		 * For example with value 2, connection try connect two times to the server after failure.
-		 * To disable auto reconnect feature set 0.
-		 */
-		public var reconnectRepeatCount:uint = 1;
+		private var _reconnectRepeatCount:uint = 1;
 
-		/**
-		 * If set class will dispatch native events of NetConnection.
-		 * To prevent dispatching native events of NetConnection set <code>null</code>.
-		 *
-		 * @default this
-		 */
-		public var redispatcher:IEventDispatcher;
+		private var _redispatcher:IEventDispatcher;
 
 		private var _internalReconnectCount:int = 0;
 
@@ -61,7 +50,7 @@ package com.rnlib.net
 			_timer = new Timer(_keepAliveTime);
 			_timer.addEventListener(TimerEvent.TIMER, onTick);
 
-			redispatcher = this;
+			_redispatcher = this;
 		}
 
 		public function dispose():void
@@ -71,8 +60,7 @@ package com.rnlib.net
 				_nc.removeEventListener(IOErrorEvent.IO_ERROR, onError);
 				_nc.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
 				_nc.removeEventListener(NetStatusEvent.NET_STATUS, onStatus);
-				_nc.close();
-				_connected = false;
+				close();
 				_nc = null;
 			}
 
@@ -106,9 +94,40 @@ package com.rnlib.net
 			}
 		}
 
+		/**
+		 * Determine how many times connection will auto reconnect.
+		 * For example with value 2, connection try connect two times to the server after failure.
+		 * To disable auto reconnect feature set 0.
+		 */
+		public function get reconnectRepeatCount():uint
+		{
+			return _reconnectRepeatCount;
+		}
+
+		public function set reconnectRepeatCount(value:uint):void
+		{
+			_reconnectRepeatCount = value;
+		}
+
+		/**
+		 * If set class will dispatch native events of NetConnection.
+		 * To prevent dispatching native events of NetConnection set <code>null</code>.
+		 *
+		 * @default this
+		 */
+		public function get redispatcher():IEventDispatcher
+		{
+			return _redispatcher;
+		}
+
+		public function set redispatcher(value:IEventDispatcher):void
+		{
+			_redispatcher = value;
+		}
+
 		private function reconnect():void
 		{
-			if (_internalReconnectCount++ < reconnectRepeatCount)
+			if (_internalReconnectCount++ < _reconnectRepeatCount)
 			{
 				connect(_uri);
 				dispatchEvent(
@@ -132,7 +151,7 @@ package com.rnlib.net
 				reconnect();
 			}
 
-			if (redispatcher) redispatcher.dispatchEvent(e);
+			if (_redispatcher) _redispatcher.dispatchEvent(e);
 		}
 
 		private function onError(e:Event):void
@@ -142,7 +161,7 @@ package com.rnlib.net
 					new ExtendedNetConnectionEvent(
 							ExtendedNetConnectionEvent.DISCONNECTED));
 			reconnect();
-			if (redispatcher) redispatcher.dispatchEvent(e);
+			if (_redispatcher) _redispatcher.dispatchEvent(e);
 		}
 
 		/**
