@@ -3,6 +3,7 @@
  */
 package suites
 {
+	import tests.net.AMFUrlLoaderTests;
 	import tests.net.ExtendedNetConnectionTest;
 	import tests.net.RemoteAmfServiceTest;
 	import tests.queue.QueueTest;
@@ -16,5 +17,6 @@ package suites
 		public var arrayUtil : ArrayUtilTest;
 		public var extendedNetConnection:ExtendedNetConnectionTest;
 		public var remoteAmfService:RemoteAmfServiceTest;
+		public var amf:AMFUrlLoaderTests;
 	}
 }
