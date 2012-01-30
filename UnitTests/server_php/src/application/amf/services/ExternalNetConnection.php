@@ -6,12 +6,12 @@ class ExternalNetConnection
      * Simple method with returning value
      * @return string
      */
-    public function simple()
+    public function loadString()
     {
         return "Successfully connected to service";
     }
 
-    public function arrayFunction()
+    public function loadArray()
     {
         return array(
             "key1" => "val1",
@@ -19,12 +19,22 @@ class ExternalNetConnection
             1 => "value 1");
     }
 
-    public function testVO()
+    public function loadVO()
     {
         $vo = new Amf_VO_Test();
         $vo->name = "Test name";
         $vo->count = 25;
         return $vo;
+    }
+
+    public function loadAsDump($p)
+    {
+        ob_start();
+        var_dump($p);
+        $dump = ob_get_contents();
+        ob_clean();
+
+        return $dump;
     }
 
     /**

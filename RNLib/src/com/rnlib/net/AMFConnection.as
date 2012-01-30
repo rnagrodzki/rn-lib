@@ -10,6 +10,7 @@ package com.rnlib.net
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
+	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 
 	public class AMFConnection extends EventDispatcher
@@ -25,6 +26,8 @@ package com.rnlib.net
 		public function AMFConnection()
 		{
 			register();
+
+			registerClassAlias("vo.ByteArray",ByteArray);
 		}
 
 		private function register():void
@@ -72,11 +75,9 @@ package com.rnlib.net
 
 		private function onLoaded(ev:Event):void
 		{
-			trace(_loader.data);
-
-			var ba:ByteArray = _loader.data as ByteArray;
-			var response:AMFPacket = decodeResponse(ba);
-			_result(response);
+			var data:ByteArray = _loader.data as ByteArray;
+			var response:AMFPacket = decodeResponse(data);
+			_result(response.messages.shift());
 
 			dispatchEvent(ev);
 		}
@@ -120,11 +121,11 @@ package com.rnlib.net
 
 				// Read off the remaining bytes to account for the reset of
 				// the by-reference index on each header value
-				remainingBytes = new ByteArray();
-				remainingBytes.objectEncoding = bytes.objectEncoding;
-				bytes.readBytes(remainingBytes, 0, bytes.length - bytes.position);
-				bytes = remainingBytes;
-				remainingBytes = null;
+//				remainingBytes = new ByteArray();
+//				remainingBytes.objectEncoding = bytes.objectEncoding;
+//				bytes.readBytes(remainingBytes, 0, bytes.length - bytes.position);
+//				bytes = remainingBytes;
+//				remainingBytes = null;
 
 				var header:AMFHeader = new AMFHeader(headerName, mustUnderstand, headerValue);
 				response.headers.push(header);
@@ -154,11 +155,11 @@ package com.rnlib.net
 
 				// Read off the remaining bytes to account for the reset of
 				// the by-reference index on each message body
-				remainingBytes = new ByteArray();
-				remainingBytes.objectEncoding = bytes.objectEncoding;
-				bytes.readBytes(remainingBytes, 0, bytes.length - bytes.position);
-				bytes = remainingBytes;
-				remainingBytes = null;
+//				remainingBytes = new ByteArray();
+//				remainingBytes.objectEncoding = bytes.objectEncoding;
+//				bytes.readBytes(remainingBytes, 0, bytes.length - bytes.position);
+//				bytes = remainingBytes;
+//				remainingBytes = null;
 
 				var message:AMFMessage = new AMFMessage(targetURI, responseURI, messageBody);
 				response.messages.push(message);
@@ -289,6 +290,9 @@ package com.rnlib.net
 		private static const AVMPLUS_TYPE_MARKER:uint = 17;
 	}
 }
+
+import avmplus.getQualifiedClassName;
+
 //--------------------------------------------------------------------------
 //
 // Private Inner Classes
@@ -363,4 +367,13 @@ class AMFMessage
 	public var targetURI:String;
 	public var responseURI:String;
 	public var body:*;
+
+	public function toString():String
+	{
+		return getQualifiedClassName(this)
+				+ "\n"
+				+ targetURI
+				+ "\n"
+				+ body;
+	}
 }
