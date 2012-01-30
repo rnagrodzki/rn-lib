@@ -11,10 +11,10 @@ class AmfController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        $amf = new Zend_Amf_Server();
-        $amf->addDirectory(APPLICATION_PATH.'/amf/services');
+        $server = new Zend_Amf_Server();
+        $server->addDirectory(APPLICATION_PATH.'/amf/services');
 
-        echo($amf->handle());
+        echo($server->handle());
     }
 
     /**

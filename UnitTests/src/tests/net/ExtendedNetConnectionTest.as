@@ -4,17 +4,24 @@
 package tests.net
 {
 	import com.rnlib.net.ExtendedNetConnection;
+	import com.rnlib.net.ExtendedNetConnectionEvent;
 
+	import flash.events.Event;
 	import flash.net.NetConnection;
+
+	import flexunit.framework.Assert;
 
 	import mockolate.mock;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 
+	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
 
 	public class ExtendedNetConnectionTest
 	{
+		public static const GATEWAY:String = "http://unittests.rnlib/amf";
+
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
 
@@ -73,7 +80,34 @@ package tests.net
 			assertThat(nc, received().method("removeEventListener").times(3));
 			assertThat(nc, received().method("close").times(1));
 
+		}
 
+		[Test(description="Connect with server and automatic disconnect", order="4", async)]
+		public function serverConnection():void
+		{
+			var handlerConnected:Function = Async.asyncHandler(this, onConnected, 100, null, onTimeOut);
+			var handlerDisconnected:Function = Async.asyncHandler(this, onDisconnected, 200, null, onTimeOut);
+			exNC = new ExtendedNetConnection();
+			exNC.addEventListener(ExtendedNetConnectionEvent.CONNECTED, handlerConnected, false, 0, true);
+			exNC.addEventListener(ExtendedNetConnectionEvent.DISCONNECTED, handlerDisconnected, false, 0, true);
+			exNC.keepAliveTime = 50;
+			exNC.connect(GATEWAY);
+			Assert.assertTrue(exNC.connected);
+		}
+
+		private function onDisconnected(e:Event, extra:*):void
+		{
+			Assert.assertFalse(exNC.connected);
+		}
+
+		private function onTimeOut():void
+		{
+
+		}
+
+		public function onConnected(e:Event, extra:*):void
+		{
+			Assert.assertTrue(exNC.connected);
 		}
 	}
 }
