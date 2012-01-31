@@ -79,6 +79,8 @@ package com.rnlib.net.amf.connections
 
 		public function dispose():void
 		{
+			trace("dispose");
+
 			_redispatcher = null;
 			_result = null;
 			_fault = null;
@@ -209,6 +211,7 @@ package com.rnlib.net.amf.connections
 
 			var responseURI:String = getResponseURI();
 			var request:AMFPacket = new AMFPacket(_defaultObjectEncoding);
+			request.headers = amfHeaders;
 
 			var message:AMFMessage = new AMFMessage(command, responseURI, params);
 			request.messages.push(message);
@@ -234,6 +237,10 @@ package com.rnlib.net.amf.connections
 			urlRequest.data = data;
 			_loader.load(urlRequest);
 		}
+
+		//---------------------------------------------------------------
+		//              <------ URL LOADER HANDLERS ------>
+		//---------------------------------------------------------------
 
 		private function onComplete(ev:Event):void
 		{
@@ -270,16 +277,23 @@ package com.rnlib.net.amf.connections
 				var separator:int = targetURI.indexOf("/", 1);
 				var responseType:String = targetURI.substring(separator + 1);
 
-				if (responseType == "onResult")
+				if (responseType == "onResult" && _result)
 					_result(message.body);
-				else if (responseType == "onStatus")
+				else if (responseType == "onStatus" && _fault)
 					_fault(message.body);
 			}
 
+			trace("\n");
+			trace("dispatchEvent(ev);");
 			dispatchEvent(ev);
 
 			if (_redispatcher)
-			{ _redispatcher.dispatchEvent(ev);}
+			{
+				trace("_redispatcher.dispatchEvent(ev);");
+				_redispatcher.dispatchEvent(ev);
+			}
+
+			dispose();
 		}
 
 		private function onProgress(event:ProgressEvent):void
@@ -292,16 +306,22 @@ package com.rnlib.net.amf.connections
 		{
 			if (_redispatcher)
 			{ _redispatcher.dispatchEvent(event);}
+
+			dispose();
 		}
 
 		private function onIOError(event:IOErrorEvent):void
 		{
 			if (_redispatcher)
 			{ _redispatcher.dispatchEvent(event);}
+
+			dispose();
 		}
 
 		private function onHTTPStatus(event:HTTPStatusEvent):void
 		{
+			trace(event.toString());
+
 			if (_redispatcher)
 			{ _redispatcher.dispatchEvent(event);}
 		}

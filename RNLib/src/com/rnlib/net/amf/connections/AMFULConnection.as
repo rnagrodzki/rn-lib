@@ -56,13 +56,16 @@ package com.rnlib.net.amf.connections
 		{
 			var loader:AMFURLLoader = _factory.newInstance();
 			loader.id = _loadersCount++;
+			_loaders[loader.id] = loader;
+
 			loader.url = _url;
 			loader.redispatcher = _redispatcher;
 			loader.objectEncoding = objectEncoding;
 			if(_amfHeaders) loader.amfHeaders = _amfHeaders.concat();
-			_loaders[loader.id] = loader;
-			loader.call.apply(this, [command, result, fault].concat(args));
+
 			loader.addEventListener(Event.COMPLETE, onComplete);
+
+			loader.call.apply(this, [command, result, fault].concat(args));
 		}
 
 		private function onComplete(e:Event):void
@@ -70,7 +73,6 @@ package com.rnlib.net.amf.connections
 			var loader:AMFURLLoader = e.target as AMFURLLoader;
 			loader.removeEventListener(Event.COMPLETE, onComplete);
 			_loaders[loader.id] = null;
-			loader.dispose();
 			loader = null;
 		}
 

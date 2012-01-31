@@ -16,7 +16,7 @@ package tests.net
 	{
 		public static const GATEWAY:String = "http://unittests.rnlib/amf";
 
-		public static const TIMEOUT:uint = 1000;
+		public static const TIMEOUT:uint = 3000;
 
 		public var conn:AMFULConnection;
 
@@ -100,6 +100,7 @@ package tests.net
 
 		private function onComplete(ev:Event, data:* = null):void
 		{
+			trace(ev.type);
 		}
 
 		private function response(ob:Object):void
