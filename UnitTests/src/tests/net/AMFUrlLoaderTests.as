@@ -3,7 +3,7 @@
  */
 package tests.net
 {
-	import com.rnlib.net.amf.connections.AMFURLLoaderConnection;
+	import com.rnlib.net.amf.connections.AMFULConnection;
 
 	import flash.events.Event;
 	import flash.utils.ByteArray;
@@ -16,15 +16,15 @@ package tests.net
 	{
 		public static const GATEWAY:String = "http://unittests.rnlib/amf";
 
-		public static const TIMEOUT : uint = 1000;
+		public static const TIMEOUT:uint = 1000;
 
-		public var conn:AMFURLLoaderConnection;
+		public var conn:AMFULConnection;
 
 		[Before]
 		public function before():void
 		{
-			conn = new AMFURLLoaderConnection();
-			conn.url = GATEWAY;
+			conn = new AMFULConnection();
+			conn.connect(GATEWAY);
 		}
 
 		[After]
@@ -70,7 +70,7 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadAsDump", response, null, [12,45,"str"]);
+			conn.call("ExternalNetConnection.loadAsDump", response, null, [12, 45, "str"]);
 		}
 
 		[Test(description="Load TestVO", order="6", async)]
@@ -78,11 +78,11 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			
+
 			var vo:TestVO = new TestVO();
 			vo.count = 15;
 			vo.name = "Try it!";
-			vo.array = ["first","second"];
+			vo.array = ["first", "second"];
 			conn.call("ExternalNetConnection.loadAsDump", response, null, vo);
 		}
 
@@ -91,10 +91,10 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			
-			var ba : ByteArray = new ByteArray();
+
+			var ba:ByteArray = new ByteArray();
 			ba.writeObject({name:"String w byte arrrayu"});
-			
+
 			conn.call("ExternalNetConnection.loadAsDump", response, null, ba);
 		}
 

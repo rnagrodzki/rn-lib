@@ -38,7 +38,8 @@ package tests.net
 			mock(exNC).setter("reconnectRepeatCount").arg(uint);
 			mock(exNC).setter("redispatcher").arg(instanceOf(IEventDispatcher));
 
-			amf = new RemoteAmfService(exNC);
+			amf = new RemoteAmfService();
+			amf.connection = exNC;
 		}
 
 		[After]

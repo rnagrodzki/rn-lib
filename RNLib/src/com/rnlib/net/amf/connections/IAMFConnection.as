@@ -7,38 +7,66 @@ package com.rnlib.net.amf.connections
 
 	public interface IAMFConnection extends IEventDispatcher
 	{
-		function connect(uri:String):void;
+		//---------------------------------------------------------------
+		//              <------ CONNECTION ------>
+		//---------------------------------------------------------------
 
-		function call(command:String, result:String = null, fault:String = null, ...args):void;
+		function connect(uri:String):void;
 
 		function close():void;
 
+		function get connected():Boolean;
+
+		function call(command:String, result:Function = null, fault:Function = null, ...args):void;
+
 		function dispose():void;
 
-		function get objectEncoding():uint;
+		//---------------------------------------------------------------
+		//              <------ RECONNECT REPEAT COUNT ------>
+		//---------------------------------------------------------------
 
-		function set objectEncoding(value:uint):void;
+		function get reconnectRepeatCount():uint;
+
+		function set reconnectRepeatCount(value:uint):void;
+
+		//---------------------------------------------------------------
+		//              <------ CLIENT ------>
+		//---------------------------------------------------------------
 
 		function get client():Object;
 
 		function set client(value:Object):void;
 
-		function get connected():Boolean;
+		//---------------------------------------------------------------
+		//              <------ HEADERS ------>
+		//---------------------------------------------------------------
 
 		function addHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined):void;
 
 		function removeHeader(name:String):Boolean;
 
+		//---------------------------------------------------------------
+		//              <------ OBJECT ENCODING ------>
+		//---------------------------------------------------------------
+
+		function get objectEncoding():uint;
+
+		function set objectEncoding(value:uint):void;
+
+		//---------------------------------------------------------------
+		//              <------ REDISPATCHER ------>
+		//---------------------------------------------------------------
+
 		function get redispatcher():IEventDispatcher;
 
 		function set redispatcher(value:IEventDispatcher):void;
 
+		//---------------------------------------------------------------
+		//              <------ KEEP ALIVE ------>
+		//---------------------------------------------------------------
+
 		function get keepAliveTime():int;
 
 		function set keepAliveTime(value:int):void;
-
-		function get reconnectRepeatCount():uint;
-
-		function set reconnectRepeatCount(value:uint):void;
 	}
 }

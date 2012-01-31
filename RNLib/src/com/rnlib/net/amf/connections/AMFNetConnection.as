@@ -3,8 +3,8 @@
  */
 package com.rnlib.net.amf.connections
 {
-	import com.rnlib.net.*;
 	import com.rnlib.net.amf.AMFEvent;
+	import com.rnlib.net.amf.ReflexiveClient;
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -27,12 +27,6 @@ package com.rnlib.net.amf.connections
 
 		private var _uri:String;
 
-		private var _reconnectRepeatCount:uint = 1;
-
-		private var _redispatcher:IEventDispatcher;
-
-		private var _internalReconnectCount:int = 0;
-
 		private var _connected:Boolean = false;
 
 		private var _keepAliveTime:int = 10000;
@@ -46,6 +40,9 @@ package com.rnlib.net.amf.connections
 		public function AMFNetConnection(nc:NetConnection = null)
 		{
 			_nc = nc || new NetConnection();
+			var client:ReflexiveClient = new ReflexiveClient();
+			client.callback = onHeaderCalled;
+			_nc.client = client;
 			_nc.addEventListener(IOErrorEvent.IO_ERROR, onError);
 			_nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
 			_nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);
@@ -97,6 +94,12 @@ package com.rnlib.net.amf.connections
 			}
 		}
 
+		//---------------------------------------------------------------
+		//              <------ RECONNECT REPEAT COUNT ------>
+		//---------------------------------------------------------------
+
+		private var _reconnectRepeatCount:uint = 1;
+
 		/**
 		 * Determine how many times connection will auto reconnect.
 		 * For example with value 2, connection try connect two times to the server after failure.
@@ -111,6 +114,12 @@ package com.rnlib.net.amf.connections
 		{
 			_reconnectRepeatCount = value;
 		}
+
+		//---------------------------------------------------------------
+		//              <------ REDISPATCHER ------>
+		//---------------------------------------------------------------
+
+		private var _redispatcher:IEventDispatcher;
 
 		/**
 		 * If set class will dispatch native events of NetConnection.
@@ -127,6 +136,8 @@ package com.rnlib.net.amf.connections
 		{
 			_redispatcher = value;
 		}
+
+		private var _internalReconnectCount:int = 0;
 
 		private function reconnect():void
 		{
@@ -225,10 +236,8 @@ package com.rnlib.net.amf.connections
 		 * @param rest Optional arguments that can be of any ActionScript type, including a reference
 		 * to another ActionScript object. These arguments are passed to the method specified
 		 * in the command parameter when the method is executed on the remote application server.
-		 *
-		 * @return <code>true</code> if method call without any exceptions.
 		 */
-		public function call(command:String, result:Function = null, fault:Function = null, ...rest):Boolean
+		public function call(command:String, result:Function = null, fault:Function = null, ...rest):void
 		{
 			var params:Array = [command, new Responder(result, fault)];
 			try
@@ -245,10 +254,51 @@ package com.rnlib.net.amf.connections
 				} catch (e:Error)
 				{
 					_connected = false;
-					return false;
 				}
 			}
-			return true;
+		}
+
+		public function get objectEncoding():uint
+		{
+			return 0;
+		}
+
+		public function set objectEncoding(value:uint):void
+		{
+		}
+
+		protected var _client:Object;
+
+		public function get client():Object
+		{
+			return _client;
+		}
+
+		public function set client(value:Object):void
+		{
+			if (_client != value)
+			{
+				_client = value;
+			}
+		}
+
+		protected function onHeaderCalled(name:String, ...args):void
+		{
+			try
+			{
+				if (_client && _client.hasOwnProperty(name))
+					_client[name].apply(null, args);
+			} catch (e:Error)
+			{ }
+		}
+
+		public function addHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined):void
+		{
+		}
+
+		public function removeHeader(name:String):Boolean
+		{
+			return false;
 		}
 	}
 }

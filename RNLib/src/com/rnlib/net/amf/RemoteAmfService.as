@@ -4,7 +4,7 @@
 package com.rnlib.net.amf
 {
 	import com.rnlib.net.*;
-	import com.rnlib.net.amf.connections.AMFNetConnection;
+	import com.rnlib.net.amf.connections.IAMFConnection;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
 
@@ -30,7 +30,7 @@ package com.rnlib.net.amf
 	{
 		private var _queue:IQueue;
 
-		protected var _nc:AMFNetConnection;
+		protected var _nc:IAMFConnection;
 
 		protected var _service:String;
 
@@ -61,20 +61,31 @@ package com.rnlib.net.amf
 
 		protected var _showBusyCursor:Boolean = true;
 
-		public function RemoteAmfService(netConnection:AMFNetConnection = null)
+		public function RemoteAmfService()
 		{
 			defaultMethods();
-
-			_nc = netConnection || new AMFNetConnection();
-			_nc.redispatcher = this;
-			_nc.reconnectRepeatCount = 3;
-
-			addEventListener(NetStatusEvent.NET_STATUS, onStatusEvent);
 		}
 
 		//---------------------------------------------------------------
-		//              <------ NETCONNECTION ------>
+		//              <------ CONNECTION ------>
 		//---------------------------------------------------------------
+
+		public function get connection():IAMFConnection
+		{
+			return _nc;
+		}
+
+		public function set connection(value:IAMFConnection):void
+		{
+			if (value != _nc)
+			{
+				_nc = value;
+				_nc.redispatcher = this;
+				_nc.reconnectRepeatCount = 3;
+
+				_nc = value;
+			}
+		}
 
 		protected function disconnect():void
 		{
@@ -125,7 +136,7 @@ package com.rnlib.net.amf
 
 			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
 
-			for each (var vo:MethodVO in _remoteMethods)
+			for each (var vo:MethodHelperVO in _remoteMethods)
 			{
 				_remoteMethods[vo.name] = null;
 				vo.dispose();
@@ -228,7 +239,7 @@ package com.rnlib.net.amf
 		 */
 		public function addMethod(name:String, result:Function = null, fault:Function = null):void
 		{
-			var vo:MethodVO = new MethodVO(name);
+			var vo:MethodHelperVO = new MethodHelperVO(name);
 			vo.result = result || _result;
 			vo.fault = fault || _fault;
 
@@ -264,7 +275,7 @@ package com.rnlib.net.amf
 			try
 			{
 				if (_remoteMethods[name])
-					MethodVO(_remoteMethods[name]).dispose();
+					MethodHelperVO(_remoteMethods[name]).dispose();
 			} catch (e:Error)
 			{
 			}
@@ -344,7 +355,7 @@ package com.rnlib.net.amf
 			var hasProp:Boolean = hasOwnProperty(name);
 			if (hasProp && _remoteMethods[name])
 			{
-				var mvo:MethodVO = _remoteMethods[name];
+				var mvo:MethodHelperVO = _remoteMethods[name];
 				var vo:MethodVO = new MethodVO();
 				vo.name = name;
 				vo.args = rest;
@@ -551,13 +562,13 @@ package com.rnlib.net.amf
 	}
 }
 
-class MethodVO
+class MethodHelperVO
 {
 	public var name:String;
 	public var result:Function;
 	public var fault:Function;
 
-	public function MethodVO(name:String = null)
+	public function MethodHelperVO(name:String = null)
 	{
 		this.name = name;
 	}
