@@ -286,13 +286,10 @@ package com.rnlib.net.amf.connections
 					_fault(message.body);
 			}
 
-			trace("\n");
-			trace("dispatchEvent(ev);");
 			dispatchEvent(ev);
 
 			if (_redispatcher)
 			{
-				trace("_redispatcher.dispatchEvent(ev);");
 				_redispatcher.dispatchEvent(ev);
 			}
 
