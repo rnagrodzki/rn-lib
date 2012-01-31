@@ -3,9 +3,17 @@
  */
 package tests.net
 {
+	import com.rnlib.net.amf.connections.AMFNetConnection;
 	import com.rnlib.net.amf.connections.AMFULConnection;
+	import com.rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.events.Event;
+
+	import mx.rpc.IResponder;
+
+	import mx.rpc.Responder;
+
+	import mx.rpc.Responder;
 
 	import org.flexunit.Assert;
 	import org.flexunit.async.Async;
@@ -17,7 +25,7 @@ package tests.net
 
 		public static const TIMEOUT:uint = 1000;
 
-		public var conn:AMFULConnection;
+		public var conn:IAMFConnection;
 
 		protected var session:String;
 
@@ -37,25 +45,22 @@ package tests.net
 		[Test(description="Start session", order="1", async)]
 		public function startSession():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("SessionTestService.startSession", responseSession, null);
+			var responder : IResponder = Async.asyncResponder(this,new Responder(responseSession,responseSession),TIMEOUT);
+			conn.call("SessionTestService.startSession", responder.result, responder.fault);
 		}
 
 		[Test(description="Get session", order="2", async)]
 		public function getSession():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("SessionTestService.getSessionId", responseSession, null);
+			var responder : IResponder = Async.asyncResponder(this,new Responder(responseSession,responseSession),TIMEOUT);
+			conn.call("SessionTestService.getSessionId", responder.result, responder.fault);
 		}
 
 		[Test(description="Get session", order="3", async)]
 		public function getSession2():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("SessionTestService.getSessionId", responseSession, null);
+			var responder : IResponder = Async.asyncResponder(this,new Responder(responseSession,responseSession),TIMEOUT);
+			conn.call("SessionTestService.getSessionId", responder.result, responder.fault);
 		}
 
 		protected var _values:Array = [];
@@ -63,25 +68,19 @@ package tests.net
 		[Test(description="Set session values", order="4", async)]
 		public function setSessionValues():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
+			var responder : IResponder = Async.asyncResponder(this,new Responder(responseSetValues,responseSetValues),TIMEOUT);
 
 			_values["name"] = "My Name";
 			_values["age"] = 33;
 
-			conn.call("SessionTestService.setSessionValues", responseSetValues, null, _values);
+			conn.call("SessionTestService.setSessionValues", responder.result, responder.fault, _values);
 		}
 
 		[Test(description="Get session values", order="5", async)]
 		public function getSessionValues():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("SessionTestService.getSessionValues", responseSessionValues, null);
-		}
-
-		private function onComplete(ev:Event, data:* = null):void
-		{
+			var responder : IResponder = Async.asyncResponder(this,new Responder(responseSessionValues,responseSessionValues),TIMEOUT);
+			conn.call("SessionTestService.getSessionValues", responder.result, responder.fault);
 		}
 
 		private function responseSession(ob:Object):void

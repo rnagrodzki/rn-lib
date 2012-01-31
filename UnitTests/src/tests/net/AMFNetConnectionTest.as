@@ -3,6 +3,7 @@
  */
 package tests.net
 {
+	import com.rnlib.net.amf.ReflexiveClient;
 	import com.rnlib.net.amf.connections.AMFNetConnection;
 	import com.rnlib.net.amf.AMFEvent;
 
@@ -14,11 +15,13 @@ package tests.net
 	import mockolate.mock;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
+	import mockolate.stub;
 
 	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.object.instanceOf;
 
-	public class ExtendedNetConnectionTest
+	public class AMFNetConnectionTest
 	{
 		public static const GATEWAY:String = "http://unittests.rnlib/amf";
 
@@ -43,6 +46,7 @@ package tests.net
 			mock(nc).method("close").noArgs();
 			mock(nc).method("addEventListener").anyArgs();
 			mock(nc).method("removeEventListener").anyArgs();
+			mock(nc).setter("client").arg(instanceOf(ReflexiveClient));
 		}
 
 		[After]

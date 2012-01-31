@@ -20,16 +20,13 @@ package com.rnlib.net.amf.connections
 	[Event(name="connected", type="com.rnlib.net.amf.AMFEvent")]
 	[Event(name="disconnected", type="com.rnlib.net.amf.AMFEvent")]
 	[Event(name="reconnect", type="com.rnlib.net.amf.AMFEvent")]
+	[Event(name="header", type="com.rnlib.net.amf.AMFEvent")]
 
 	public class AMFNetConnection extends EventDispatcher implements IAMFConnection
 	{
 		private var _nc:NetConnection;
 
 		private var _uri:String;
-
-		private var _connected:Boolean = false;
-
-		private var _keepAliveTime:int = 10000;
 
 		private var _timer:Timer;
 
@@ -38,6 +35,11 @@ package com.rnlib.net.amf.connections
 		 * @param nc Optional parameter with instance of NetConnection. If don't passed new instance will be created.
 		 */
 		public function AMFNetConnection(nc:NetConnection = null)
+		{
+			init(nc);
+		}
+
+		private function init(nc:NetConnection = null):void
 		{
 			_nc = nc || new NetConnection();
 			var client:ReflexiveClient = new ReflexiveClient();
@@ -51,7 +53,7 @@ package com.rnlib.net.amf.connections
 			_timer.addEventListener(TimerEvent.TIMER, onTick);
 
 			_redispatcher = this;
-		}
+	}
 
 		public function dispose():void
 		{
@@ -76,6 +78,12 @@ package com.rnlib.net.amf.connections
 		{
 			close();
 		}
+
+		//---------------------------------------------------------------
+		//              <------ KEEP ALIVE ------>
+		//---------------------------------------------------------------
+
+		private var _keepAliveTime:int = 10000;
 
 		/**
 		 * Time in milliseconds to keep alive connection
@@ -206,6 +214,8 @@ package com.rnlib.net.amf.connections
 							AMFEvent.DISCONNECTED));
 		}
 
+		private var _connected:Boolean = false;
+
 		/**
 		 * Is connected to server
 		 */
@@ -303,11 +313,13 @@ package com.rnlib.net.amf.connections
 					_client[name].apply(null, args);
 			} catch (e:Error)
 			{ }
+
+			if (_redispatcher)_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.HEADER));
 		}
 
 		public function addHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined):void
 		{
-			_nc.addHeader(name,mustUnderstand,data);
+			_nc.addHeader(name, mustUnderstand, data);
 		}
 
 		public function removeHeader(name:String):Boolean

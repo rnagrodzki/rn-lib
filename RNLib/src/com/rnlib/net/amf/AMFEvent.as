@@ -10,6 +10,8 @@ package com.rnlib.net.amf
 		public static const RECONNECT:String = "reconnect";
 		public static const CONNECTED:String = "connected";
 		public static const DISCONNECTED:String = "disconnected";
+		public static const PARSE_ERROR:String = "parseError";
+
 		public static const HEADER:String = "header";
 
 		public var data:Object;

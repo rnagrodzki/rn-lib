@@ -10,6 +10,9 @@ package tests.net
 
 	import flexunit.framework.Assert;
 
+	import mx.rpc.IResponder;
+	import mx.rpc.Responder;
+
 	import org.flexunit.async.Async;
 
 	import tests.net.vo.TestVO;
@@ -38,71 +41,66 @@ package tests.net
 		[Test(description="Load string", order="1", async)]
 		public function loadString():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadString", responseNotNull, null);
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+			conn.call("ExternalNetConnection.loadString", responder.result,responder.fault);
 		}
 
 		[Test(description="Load array", order="2", async)]
 		public function loadArray():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadArray", responseNotNull, null);
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+			conn.call("ExternalNetConnection.loadArray", responder.result,responder.fault);
 		}
 
 		[Test(description="Load TestVO", order="3", async)]
 		public function loadVO():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadVO", responseVO, null);
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseVO, responseVO), TIMEOUT);
+			conn.call("ExternalNetConnection.loadVO", responder.result,responder.fault);
 		}
 
 		[Test(description="Load string", order="4", async)]
 		public function sendString():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, "wysłany string");
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+			conn.call("ExternalNetConnection.loadAsDump", responder.result,responder.fault, "wysłany string");
 		}
 
 		[Test(description="Load array", order="5", async)]
 		public function sendArray():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, [12, 45, "str"]);
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+			conn.call("ExternalNetConnection.loadAsDump", responder.result,responder.fault, [12, 45, "str"]);
 		}
 
 		[Test(description="Load TestVO", order="6", async)]
 		public function sendVO():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
 
 			var vo:TestVO = new TestVO();
 			vo.count = 15;
 			vo.name = "Try it!";
 			vo.array = ["first", "second"];
-			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, vo);
+			conn.call("ExternalNetConnection.loadAsDump", responder.result,responder.fault, vo);
 		}
 
 		[Test(description="Send ByteArray", order="7", async)]
 		public function sendBA():void
 		{
-			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
-			conn.addEventListener(Event.COMPLETE, handler);
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
 
 			var ba:ByteArray = new ByteArray();
 			ba.writeObject({name:"String w byte arrrayu"});
 
-			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, ba);
-		}
-
-		private function onComplete(ev:Event, data:* = null):void
-		{
-			trace(ev.type);
+			conn.call("ExternalNetConnection.loadAsDump", responder.result,responder.fault, ba);
 		}
 
 		private function responseNull(ob:Object=null):void
@@ -112,7 +110,7 @@ package tests.net
 
 		private function responseNotNull(ob:Object=null):void
 		{
-			trace(ob);
+//			trace(ob);
 
 			Assert.assertNotNull(ob);
 		}

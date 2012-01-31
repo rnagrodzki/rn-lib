@@ -80,8 +80,6 @@ package com.rnlib.net.amf.connections
 
 		public function dispose():void
 		{
-			trace("dispose");
-
 			_redispatcher = null;
 			_result = null;
 			_fault = null;

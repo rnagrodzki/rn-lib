@@ -15,6 +15,7 @@ class AmfController extends Zend_Controller_Action
         $server->addDirectory(APPLICATION_PATH.'/amf/services');
 
         self::registerVO($server,"vo.Test","Amf_VO_Test");
+        self::registerVO($server,"vo.ByteArray","Amf_VO_ByteArray");
 
         echo($server->handle());
     }
