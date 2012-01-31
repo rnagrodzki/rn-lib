@@ -8,6 +8,8 @@ package tests.net
 	import flash.events.Event;
 	import flash.utils.ByteArray;
 
+	import flexunit.framework.Assert;
+
 	import org.flexunit.async.Async;
 
 	import tests.net.vo.TestVO;
@@ -16,7 +18,7 @@ package tests.net
 	{
 		public static const GATEWAY:String = "http://unittests.rnlib/amf";
 
-		public static const TIMEOUT:uint = 3000;
+		public static const TIMEOUT:uint = 1000;
 
 		public var conn:AMFULConnection;
 
@@ -38,7 +40,7 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadString", response, null);
+			conn.call("ExternalNetConnection.loadString", responseNotNull, null);
 		}
 
 		[Test(description="Load array", order="2", async)]
@@ -46,7 +48,7 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadArray", response, null);
+			conn.call("ExternalNetConnection.loadArray", responseNotNull, null);
 		}
 
 		[Test(description="Load TestVO", order="3", async)]
@@ -54,7 +56,7 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadVO", response, null);
+			conn.call("ExternalNetConnection.loadVO", responseVO, null);
 		}
 
 		[Test(description="Load string", order="4", async)]
@@ -62,7 +64,7 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadAsDump", response, null, "wysłany string");
+			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, "wysłany string");
 		}
 
 		[Test(description="Load array", order="5", async)]
@@ -70,7 +72,7 @@ package tests.net
 		{
 			var handler:Function = Async.asyncHandler(this, onComplete, TIMEOUT);
 			conn.addEventListener(Event.COMPLETE, handler);
-			conn.call("ExternalNetConnection.loadAsDump", response, null, [12, 45, "str"]);
+			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, [12, 45, "str"]);
 		}
 
 		[Test(description="Load TestVO", order="6", async)]
@@ -83,7 +85,7 @@ package tests.net
 			vo.count = 15;
 			vo.name = "Try it!";
 			vo.array = ["first", "second"];
-			conn.call("ExternalNetConnection.loadAsDump", response, null, vo);
+			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, vo);
 		}
 
 		[Test(description="Send ByteArray", order="7", async)]
@@ -95,7 +97,7 @@ package tests.net
 			var ba:ByteArray = new ByteArray();
 			ba.writeObject({name:"String w byte arrrayu"});
 
-			conn.call("ExternalNetConnection.loadAsDump", response, null, ba);
+			conn.call("ExternalNetConnection.loadAsDump", responseNotNull, null, ba);
 		}
 
 		private function onComplete(ev:Event, data:* = null):void
@@ -103,14 +105,21 @@ package tests.net
 			trace(ev.type);
 		}
 
-		private function response(ob:Object):void
+		private function responseNull(ob:Object=null):void
+		{
+			Assert.assertNull(ob);
+		}
+
+		private function responseNotNull(ob:Object=null):void
 		{
 			trace(ob);
+
+			Assert.assertNotNull(ob);
 		}
 
 		private function responseVO(ob:Object):void
 		{
-			TestVO(ob);
+			Assert.assertNotNull(ob as TestVO);
 		}
 	}
 }
