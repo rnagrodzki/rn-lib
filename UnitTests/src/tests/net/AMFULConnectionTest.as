@@ -14,7 +14,7 @@ package tests.net
 
 	import tests.net.vo.TestVO;
 
-	public class AMFUrlLoaderTests
+	public class AMFULConnectionTest
 	{
 		public static const GATEWAY:String = "http://unittests.rnlib/amf";
 

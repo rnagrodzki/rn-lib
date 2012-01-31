@@ -3,8 +3,9 @@
  */
 package suites
 {
-	import tests.net.AMFUrlLoaderTests;
+	import tests.net.AMFULConnectionTest;
 	import tests.net.ExtendedNetConnectionTest;
+	import tests.net.PHPServerFeatures;
 	import tests.net.RemoteAmfServiceTest;
 	import tests.queue.QueueTest;
 	import tests.utils.ArrayUtilTest;
@@ -17,6 +18,7 @@ package suites
 		public var arrayUtil : ArrayUtilTest;
 		public var extendedNetConnection:ExtendedNetConnectionTest;
 		public var remoteAmfService:RemoteAmfServiceTest;
-		public var amf:AMFUrlLoaderTests;
+		public var amfULConection:AMFULConnectionTest;
+		public var phpServerFeatures:PHPServerFeatures;
 	}
 }
