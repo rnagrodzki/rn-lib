@@ -23,6 +23,7 @@ package com.rnlib.net.amf
 	[Event(name="ioError", type="flash.events.IOErrorEvent")]
 	[Event(name="securityError", type="flash.events.SecurityErrorEvent")]
 	[Event(name="asyncError", type="flash.events.AsyncErrorEvent")]
+	[Event(name="progress", type="flash.events.ProgressEvent")]
 
 	use namespace flash_proxy;
 

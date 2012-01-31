@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.amf.connections
 {
+	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.processor.AMFHeader;
 
 	import flash.events.Event;
@@ -45,6 +46,9 @@ package com.rnlib.net.amf.connections
 		{
 			_url=uri;
 			_connected = true;
+
+			if(_redispatcher)
+			_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.CONNECTED));
 		}
 
 		public function get connected():Boolean
@@ -123,6 +127,9 @@ package com.rnlib.net.amf.connections
 				amfl.close();
 				//todo: notify by fault close connection
 			}
+
+			if(_redispatcher)
+				_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.DISCONNECTED));
 		}
 
 		public function dispose():void

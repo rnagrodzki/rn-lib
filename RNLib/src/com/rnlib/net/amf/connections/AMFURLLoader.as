@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.amf.connections
 {
+	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.net.amf.processor.AMFMessage;
 	import com.rnlib.net.amf.processor.AMFPacket;
@@ -269,6 +270,8 @@ package com.rnlib.net.amf.connections
 				catch (e:Error)
 				{
 				}
+
+				dispatchEvent(new AMFEvent(AMFEvent.HEADER, header));
 			}
 
 			for each (var message:AMFMessage in response.messages)
