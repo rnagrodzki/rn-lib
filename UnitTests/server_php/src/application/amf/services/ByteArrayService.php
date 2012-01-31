@@ -2,7 +2,7 @@
 
 class ByteArrayService
 {
-    public function loadBitmapArray()
+    public function loadByteArray()
     {
         $source = "Example txt";
         $vo = new Zend_Amf_Value_ByteArray($source);
@@ -12,16 +12,25 @@ class ByteArrayService
 
     public function sendAndLoadByteArray($ba)
     {
-        return $ba;
+        return new Zend_Amf_Value_ByteArray( $ba );
     }
 
     public function loadAsDump($p)
     {
-        ob_start();
-        var_dump($p);
-        $dump = ob_get_contents();
-        ob_clean();
+        try {
+            ob_start();
+            var_dump($p);
+            $dump = ob_get_contents();
+            ob_clean();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
 
         return $dump;
+    }
+
+    public function byteArrayFromVO(Amf_VO_ByteArray $vo)
+    {
+        return new Zend_Amf_Value_ByteArray( $vo->bytes );
     }
 }
