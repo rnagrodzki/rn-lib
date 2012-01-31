@@ -3,8 +3,12 @@
  */
 package tests.net
 {
-	import com.rnlib.net.amf.connections.AMFNetConnection;
+	import avmplus.getQualifiedClassName;
+
+	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+
+	import flash.net.getClassByAlias;
 
 	import flash.utils.ByteArray;
 
@@ -30,8 +34,7 @@ package tests.net
 		[Before]
 		public function before():void
 		{
-//			conn = new AMFULConnection();
-			conn = new AMFNetConnection();
+			conn = new AMFULConnection();
 			conn.connect(GATEWAY);
 		}
 
@@ -60,18 +63,18 @@ package tests.net
 			Assert.assertTrue(result is ByteArray);
 			var ba:ByteArray = result as ByteArray;
 			Assert.assertEquals(ba.length, sendBA.length);
-			
-			if(ba.length == sendBA.length)
+
+			if (ba.length == sendBA.length)
 			{
 				ba.position = 0;
 				sendBA.position = 0;
-				
-				while(ba.bytesAvailable > 0)
+
+				while (ba.bytesAvailable > 0)
 				{
-					Assert.assertEquals(ba.readByte(),sendBA.readByte());
+					Assert.assertEquals(ba.readByte(), sendBA.readByte());
 				}
 			}
-			
+
 			sendBA = null;
 		}
 
@@ -103,6 +106,8 @@ package tests.net
 
 		protected function varDumpResponse(result:Object):void
 		{
+			trace( getQualifiedClassName(this)+"::varDumpResponse");
+			trace( "conn -> "+getQualifiedClassName(conn));
 			trace(result);
 		}
 

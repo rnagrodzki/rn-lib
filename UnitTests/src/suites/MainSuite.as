@@ -3,9 +3,9 @@
  */
 package suites
 {
-	import tests.net.AMFULConnectionTest;
-	import tests.net.ByteArrayPlayground;
+	import tests.net.AMFBaseServerNCTest;
 	import tests.net.AMFNetConnectionTest;
+	import tests.net.AMFBaseServerTest;
 	import tests.net.PHPServerFeatures;
 	import tests.net.PHPServerFeatures2;
 	import tests.net.RemoteAmfServiceTest;
@@ -20,9 +20,10 @@ package suites
 		public var arrayUtil:ArrayUtilTest;
 		public var extendedNetConnection:AMFNetConnectionTest;
 		public var remoteAmfService:RemoteAmfServiceTest;
-		public var amfULConection:AMFULConnectionTest;
+		public var amfServer:AMFBaseServerTest;
+		public var amfServer2:AMFBaseServerNCTest;
 		public var phpServerFeatures:PHPServerFeatures;
 		public var phpServerFeatures2:PHPServerFeatures2;
-		public var baPlayground:ByteArrayPlayground;
+		public var baSuite:ByteArraySuite;
 	}
 }
