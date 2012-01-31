@@ -320,8 +320,6 @@ package com.rnlib.net.amf.connections
 
 		private function onHTTPStatus(event:HTTPStatusEvent):void
 		{
-			trace(event.toString());
-
 			if (_redispatcher)
 			{ _redispatcher.dispatchEvent(event);}
 		}

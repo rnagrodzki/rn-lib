@@ -258,14 +258,23 @@ package com.rnlib.net.amf.connections
 			}
 		}
 
+		//---------------------------------------------------------------
+		//              <------ OBJECT ENCODING ------>
+		//---------------------------------------------------------------
+
 		public function get objectEncoding():uint
 		{
-			return 0;
+			return _nc.objectEncoding;
 		}
 
 		public function set objectEncoding(value:uint):void
 		{
+			_nc.objectEncoding = value;
 		}
+
+		//---------------------------------------------------------------
+		//              <------ CLIENT ------>
+		//---------------------------------------------------------------
 
 		protected var _client:Object;
 
@@ -282,6 +291,10 @@ package com.rnlib.net.amf.connections
 			}
 		}
 
+		//---------------------------------------------------------------
+		//              <------ HEADERS ------>
+		//---------------------------------------------------------------
+
 		protected function onHeaderCalled(name:String, ...args):void
 		{
 			try
@@ -294,11 +307,13 @@ package com.rnlib.net.amf.connections
 
 		public function addHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined):void
 		{
+			_nc.addHeader(name,mustUnderstand,data);
 		}
 
 		public function removeHeader(name:String):Boolean
 		{
-			return false;
+			_nc.addHeader(name);
+			return true;
 		}
 	}
 }
