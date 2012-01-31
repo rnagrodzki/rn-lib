@@ -1,9 +1,9 @@
 /**
  * Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com)
  */
-package com.rnlib.net
+package com.rnlib.net.amf
 {
-	public class RemoteMethodVO
+	public class MethodVO
 	{
 		public var name:String;
 		public var result:Function;

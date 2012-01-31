@@ -3,8 +3,8 @@
  */
 package tests.net
 {
-	import com.rnlib.net.ExtendedNetConnection;
-	import com.rnlib.net.RemoteAmfService;
+	import com.rnlib.net.amf.connections.AMFNetConnection;
+	import com.rnlib.net.amf.RemoteAmfService;
 
 	import flash.events.IEventDispatcher;
 
@@ -24,7 +24,7 @@ package tests.net
 		public var mocks:MockolateRule = new MockolateRule();
 
 		[Mock(type="strict")]
-		public var exNC:ExtendedNetConnection;
+		public var exNC:AMFNetConnection;
 
 		public var amf:RemoteAmfService;
 

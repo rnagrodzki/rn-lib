@@ -1,11 +1,11 @@
 /**
  * Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com)
  */
-package com.rnlib.net
+package com.rnlib.net.amf
 {
 	import flash.events.Event;
 
-	public class ExtendedNetConnectionEvent extends Event
+	public class AMFEvent extends Event
 	{
 		public static const RECONNECT : String = "reconnect";
 		public static const CONNECTED : String = "connected";
@@ -13,7 +13,7 @@ package com.rnlib.net
 
 		public var data:Object;
 
-		public function ExtendedNetConnectionEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function AMFEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
 			this.data = data;
@@ -21,7 +21,7 @@ package com.rnlib.net
 
 		override public function clone():Event
 		{
-			return new ExtendedNetConnectionEvent(type, data, bubbles, cancelable);
+			return new AMFEvent(type, data, bubbles, cancelable);
 		}
 	}
 }

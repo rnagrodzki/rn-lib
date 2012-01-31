@@ -1,8 +1,11 @@
 /**
  * Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com)
  */
-package com.rnlib.net
+package com.rnlib.net.amf.connections
 {
+	import com.rnlib.net.*;
+	import com.rnlib.net.amf.AMFEvent;
+
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
@@ -14,11 +17,11 @@ package com.rnlib.net
 	import flash.net.Responder;
 	import flash.utils.Timer;
 
-	[Event(name="connected", type="com.rnlib.net.ExtendedNetConnectionEvent")]
-	[Event(name="disconnected", type="com.rnlib.net.ExtendedNetConnectionEvent")]
-	[Event(name="reconnect", type="com.rnlib.net.ExtendedNetConnectionEvent")]
+	[Event(name="connected", type="com.rnlib.net.amf.AMFEvent")]
+	[Event(name="disconnected", type="com.rnlib.net.amf.AMFEvent")]
+	[Event(name="reconnect", type="com.rnlib.net.amf.AMFEvent")]
 
-	public class ExtendedNetConnection extends EventDispatcher
+	public class AMFNetConnection extends EventDispatcher implements IAMFConnection
 	{
 		private var _nc:NetConnection;
 
@@ -40,7 +43,7 @@ package com.rnlib.net
 		 * Constructor
 		 * @param nc Optional parameter with instance of NetConnection. If don't passed new instance will be created.
 		 */
-		public function ExtendedNetConnection(nc:NetConnection = null)
+		public function AMFNetConnection(nc:NetConnection = null)
 		{
 			_nc = nc || new NetConnection();
 			_nc.addEventListener(IOErrorEvent.IO_ERROR, onError);
@@ -131,8 +134,8 @@ package com.rnlib.net
 			{
 				connect(_uri);
 				dispatchEvent(
-						new ExtendedNetConnectionEvent(
-								ExtendedNetConnectionEvent.RECONNECT,
+						new AMFEvent(
+								AMFEvent.RECONNECT,
 								_internalReconnectCount));
 			}
 			else
@@ -146,8 +149,8 @@ package com.rnlib.net
 			{
 				_connected = false;
 				dispatchEvent(
-						new ExtendedNetConnectionEvent(
-								ExtendedNetConnectionEvent.DISCONNECTED));
+						new AMFEvent(
+								AMFEvent.DISCONNECTED));
 				reconnect();
 			}
 
@@ -158,8 +161,8 @@ package com.rnlib.net
 		{
 			_connected = false;
 			dispatchEvent(
-					new ExtendedNetConnectionEvent(
-							ExtendedNetConnectionEvent.DISCONNECTED));
+					new AMFEvent(
+							AMFEvent.DISCONNECTED));
 			reconnect();
 			if (_redispatcher) _redispatcher.dispatchEvent(e);
 		}
@@ -175,8 +178,8 @@ package com.rnlib.net
 			_timer.start();
 			_connected = true;
 			dispatchEvent(
-					new ExtendedNetConnectionEvent(
-							ExtendedNetConnectionEvent.CONNECTED));
+					new AMFEvent(
+							AMFEvent.CONNECTED));
 		}
 
 		/**
@@ -188,8 +191,8 @@ package com.rnlib.net
 			_nc.close();
 			_connected = false;
 			dispatchEvent(
-					new ExtendedNetConnectionEvent(
-							ExtendedNetConnectionEvent.DISCONNECTED));
+					new AMFEvent(
+							AMFEvent.DISCONNECTED));
 		}
 
 		/**

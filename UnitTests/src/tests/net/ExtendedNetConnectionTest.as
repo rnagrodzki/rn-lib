@@ -3,8 +3,8 @@
  */
 package tests.net
 {
-	import com.rnlib.net.ExtendedNetConnection;
-	import com.rnlib.net.ExtendedNetConnectionEvent;
+	import com.rnlib.net.amf.connections.AMFNetConnection;
+	import com.rnlib.net.amf.AMFEvent;
 
 	import flash.events.Event;
 	import flash.net.NetConnection;
@@ -28,14 +28,14 @@ package tests.net
 		[Mock(type="strict")]
 		public var nc:NetConnection;
 
-		public var exNC:ExtendedNetConnection;
+		public var exNC:AMFNetConnection;
 
 		[Before]
 		public function before():void
 		{
 			prepareBasicMethods();
 
-			exNC = new ExtendedNetConnection(nc);
+			exNC = new AMFNetConnection(nc);
 		}
 
 		private function prepareBasicMethods():void
@@ -87,9 +87,9 @@ package tests.net
 		{
 			var handlerConnected:Function = Async.asyncHandler(this, onConnected, 100, null, onTimeOut);
 			var handlerDisconnected:Function = Async.asyncHandler(this, onDisconnected, 200, null, onTimeOut);
-			exNC = new ExtendedNetConnection();
-			exNC.addEventListener(ExtendedNetConnectionEvent.CONNECTED, handlerConnected, false, 0, true);
-			exNC.addEventListener(ExtendedNetConnectionEvent.DISCONNECTED, handlerDisconnected, false, 0, true);
+			exNC = new AMFNetConnection();
+			exNC.addEventListener(AMFEvent.CONNECTED, handlerConnected, false, 0, true);
+			exNC.addEventListener(AMFEvent.DISCONNECTED, handlerDisconnected, false, 0, true);
 			exNC.keepAliveTime = 50;
 			exNC.connect(GATEWAY);
 			Assert.assertTrue(exNC.connected);

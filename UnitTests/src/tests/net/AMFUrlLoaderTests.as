@@ -3,7 +3,7 @@
  */
 package tests.net
 {
-	import com.rnlib.net.AMFConnection;
+	import com.rnlib.net.amf.connections.AMFURLLoaderConnection;
 
 	import flash.events.Event;
 	import flash.utils.ByteArray;
@@ -18,12 +18,12 @@ package tests.net
 
 		public static const TIMEOUT : uint = 1000;
 
-		public var conn:AMFConnection;
+		public var conn:AMFURLLoaderConnection;
 
 		[Before]
 		public function before():void
 		{
-			conn = new AMFConnection();
+			conn = new AMFURLLoaderConnection();
 			conn.url = GATEWAY;
 		}
 

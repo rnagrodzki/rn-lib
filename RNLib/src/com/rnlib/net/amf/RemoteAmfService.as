@@ -1,8 +1,10 @@
 /**
  * Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com)
  */
-package com.rnlib.net
+package com.rnlib.net.amf
 {
+	import com.rnlib.net.*;
+	import com.rnlib.net.amf.connections.AMFNetConnection;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
 
@@ -28,7 +30,7 @@ package com.rnlib.net
 	{
 		private var _queue:IQueue;
 
-		protected var _nc:ExtendedNetConnection;
+		protected var _nc:AMFNetConnection;
 
 		protected var _service:String;
 
@@ -59,11 +61,11 @@ package com.rnlib.net
 
 		protected var _showBusyCursor:Boolean = true;
 
-		public function RemoteAmfService(netConnection:ExtendedNetConnection = null)
+		public function RemoteAmfService(netConnection:AMFNetConnection = null)
 		{
 			defaultMethods();
 
-			_nc = netConnection || new ExtendedNetConnection();
+			_nc = netConnection || new AMFNetConnection();
 			_nc.redispatcher = this;
 			_nc.reconnectRepeatCount = 3;
 
@@ -343,7 +345,7 @@ package com.rnlib.net
 			if (hasProp && _remoteMethods[name])
 			{
 				var mvo:MethodVO = _remoteMethods[name];
-				var vo:RemoteMethodVO = new RemoteMethodVO();
+				var vo:MethodVO = new MethodVO();
 				vo.name = name;
 				vo.args = rest;
 				vo.result = mvo.result;
@@ -401,7 +403,7 @@ package com.rnlib.net
 		//              <------ CONCURRENCY METHODS ------>
 		//---------------------------------------------------------------
 
-		protected function concurrencyQueue(vo:RemoteMethodVO):void
+		protected function concurrencyQueue(vo:MethodVO):void
 		{
 			if (_isPendingRequest)
 				_queue.push(vo);
@@ -409,19 +411,19 @@ package com.rnlib.net
 			callRemoteMethod(vo);
 		}
 
-		protected function concurrencyLast(vo:RemoteMethodVO):void
+		protected function concurrencyLast(vo:MethodVO):void
 		{
 			ignoreAllPendingRequests(false);
 			callRemoteMethod(vo);
 		}
 
-		protected function concurrencySingle(vo:RemoteMethodVO):void
+		protected function concurrencySingle(vo:MethodVO):void
 		{
 			ignoreAllPendingRequests(true);
 			callRemoteMethod(vo);
 		}
 
-		protected function concurrencyMultiple(vo:RemoteMethodVO):void
+		protected function concurrencyMultiple(vo:MethodVO):void
 		{
 			callRemoteMethod(vo);
 		}
@@ -434,7 +436,7 @@ package com.rnlib.net
 		 * Invoke register remote method
 		 * @param vo
 		 */
-		protected function callRemoteMethod(vo:RemoteMethodVO):void
+		protected function callRemoteMethod(vo:MethodVO):void
 		{
 			_isPendingRequest = true;
 
