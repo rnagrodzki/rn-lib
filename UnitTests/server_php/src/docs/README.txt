@@ -14,7 +14,7 @@ Setting Up Your VHOST
 The following is a sample VHOST you might want to consider for your project.
 
 <VirtualHost *:80>
-   DocumentRoot "C:/Flex/IdeaProjects/AllLibs/MLib/Test/phpserver/public"
+   DocumentRoot "C:/your_dir"
    ServerName .local
 
    # This should be omitted in the production environment
