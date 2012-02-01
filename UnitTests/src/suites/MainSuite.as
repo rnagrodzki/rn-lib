@@ -7,7 +7,7 @@ package suites
 	import tests.net.AMFNetConnectionTest;
 	import tests.net.AMFBaseServerTest;
 	import tests.net.PHPServerFeatures;
-	import tests.net.PHPServerFeatures2;
+	import tests.net.PHPServerFeaturesNC;
 	import tests.net.RemoteAmfServiceTest;
 	import tests.queue.QueueTest;
 	import tests.utils.ArrayUtilTest;
@@ -23,7 +23,7 @@ package suites
 		public var amfServer:AMFBaseServerTest;
 		public var amfServer2:AMFBaseServerNCTest;
 		public var phpServerFeatures:PHPServerFeatures;
-		public var phpServerFeatures2:PHPServerFeatures2;
+		public var phpServerFeatures2:PHPServerFeaturesNC;
 		public var baSuite:ByteArraySuite;
 	}
 }

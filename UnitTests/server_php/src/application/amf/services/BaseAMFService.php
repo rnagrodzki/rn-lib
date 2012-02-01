@@ -1,6 +1,6 @@
 <?php
 
-class ExternalNetConnection
+class BaseAMFService
 {
     /**
      * Simple method with returning value
@@ -35,6 +35,13 @@ class ExternalNetConnection
         ob_clean();
 
         return $dump;
+    }
+
+    public function loadCurrentDate()
+    {
+//        return date('Y-m-d H:i:s',time());
+//        return time();
+        return new DateTime();
     }
 
     /**

@@ -5,7 +5,7 @@ package tests.net
 {
 	import com.rnlib.net.amf.connections.AMFNetConnection;
 
-	public class PHPServerFeatures2 extends PHPServerFeatures
+	public class PHPServerFeaturesNC extends PHPServerFeatures
 	{
 		[Before]
 		override public function before():void

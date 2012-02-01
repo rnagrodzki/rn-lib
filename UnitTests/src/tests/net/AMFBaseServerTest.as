@@ -41,43 +41,47 @@ package tests.net
 			conn = null;
 		}
 
+		protected function faultRespons(fault:Object):void{
+
+		}
+
 		[Test(description="Load string", order="1", async)]
 		public function loadString():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
-			conn.call("ExternalNetConnection.loadString", responder.result, responder.fault);
+					this, new Responder(responseNotNull, faultRespons), TIMEOUT);
+			conn.call("BaseAMFService.loadString", responder.result, responder.fault);
 		}
 
 		[Test(description="Load array", order="2", async)]
 		public function loadArray():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
-			conn.call("ExternalNetConnection.loadArray", responder.result, responder.fault);
+					this, new Responder(responseNotNull, faultRespons), TIMEOUT);
+			conn.call("BaseAMFService.loadArray", responder.result, responder.fault);
 		}
 
 		[Test(description="Load TestVO", order="3", async)]
 		public function loadVO():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseVO, responseVO), TIMEOUT);
-			conn.call("ExternalNetConnection.loadVO", responder.result, responder.fault);
+					this, new Responder(responseVO, faultRespons), TIMEOUT);
+			conn.call("BaseAMFService.loadVO", responder.result, responder.fault);
 		}
 
 		[Test(description="Load string", order="4", async)]
 		public function sendString():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
-			conn.call("ExternalNetConnection.loadAsDump", responder.result, responder.fault, "wysłany string");
+					this, new Responder(responseNotNull, faultRespons), TIMEOUT);
+			conn.call("BaseAMFService.loadAsDump", responder.result, responder.fault, "wysłany string");
 		}
 
 		[Test(description="Load array", order="5", async)]
 		public function sendArray():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+					this, new Responder(responseNotNull, faultRespons), TIMEOUT);
 
 			dumpToCompare = "array(3) {\n" +
 					"  [0]=>\n" +
@@ -88,37 +92,32 @@ package tests.net
 					'  string(3) "str"\n' +
 					"}";
 
-			conn.call("ExternalNetConnection.loadAsDump", responder.result, responder.fault, [12, 45, "str"]);
+			conn.call("BaseAMFService.loadAsDump", responder.result, responder.fault, [12, 45, "str"]);
 		}
 
-		[Test(description="Load TestVO", order="6", async)]
+		[Test(description="Send TestVO and load txt dump", order="6", async)]
 		public function sendVO():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+					this, new Responder(responseNotNull, faultRespons), TIMEOUT);
 
 			var vo:TestVO = new TestVO();
 			vo.count = 15;
 			vo.name = "Try it!";
 			vo.array = ["first", "second"];
-			conn.call("ExternalNetConnection.loadAsDump", responder.result, responder.fault, vo);
+			conn.call("BaseAMFService.loadAsDump", responder.result, responder.fault, vo);
 		}
 
 		[Test(description="Send ByteArray", order="7", async)]
 		public function sendBA():void
 		{
 			var responder:IResponder = Async.asyncResponder(
-					this, new Responder(responseNotNull, responseNotNull), TIMEOUT);
+					this, new Responder(responseNotNull, faultRespons), TIMEOUT);
 
 			var ba:ByteArray = new ByteArray();
-			ba.writeObject({name:"String w byte arrrayu"});
+			ba.writeObject({name:"String w ByteArray"});
 
-			conn.call("ExternalNetConnection.loadAsDump", responder.result, responder.fault, ba);
-		}
-
-		protected function responseNull(ob:Object = null):void
-		{
-			Assert.assertNull(ob);
+			conn.call("BaseAMFService.loadAsDump", responder.result, responder.fault, ba);
 		}
 
 		protected function responseNotNull(ob:Object = null):void
@@ -137,6 +136,35 @@ package tests.net
 		protected function responseVO(ob:Object):void
 		{
 			Assert.assertNotNull(ob as TestVO);
+		}
+
+		[Test(description="Load date from serwer", order="8", async)]
+		public function loadCurrentDate():void
+		{
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseDate, faultRespons), TIMEOUT);
+
+			var ba:ByteArray = new ByteArray();
+			ba.writeObject({name:"String w ByteArray"});
+
+			conn.call("BaseAMFService.loadCurrentDate", responder.result, responder.fault, ba);
+		}
+
+		protected function responseDate(response:Object):void
+		{
+			trace(response);
+			var date:Date = new Date();
+			var now:Date = new Date();
+			date.time = Number(response);
+			Assert.assertNotNull(date);
+			Assert.assertTrue(date.time > 0);
+			Assert.assertEquals(now.fullYear,date.fullYear);
+			Assert.assertEquals(now.month,date.month);
+			Assert.assertEquals(now.day,date.day);
+			Assert.assertEquals(now.hours,date.hours);
+			
+			date = null;
+			now = null;
 		}
 	}
 }
