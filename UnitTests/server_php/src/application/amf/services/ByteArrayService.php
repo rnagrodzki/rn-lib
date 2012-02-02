@@ -79,6 +79,6 @@ class ByteArrayService
 
     public function alternativeLoadFile()
     {
-        return file_get_contents($this->getFullFileName());
+        return urlencode( file_get_contents($this->getFullFileName()) );
     }
 }

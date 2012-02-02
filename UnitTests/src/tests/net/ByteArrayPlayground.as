@@ -241,9 +241,11 @@ package tests.net
 //			source = source.replace(/\\u00[0-9a-f][0-9a-f]/gi,fix);
 //			file.writeUTFBytes(source);
 
+			source = unescape(source);
+
 			var bytesBuffer : ByteArray = new ByteArray();
 			bytesBuffer.objectEncoding = ObjectEncoding.AMF3;
-			bytesBuffer.writeObject(source);
+			bytesBuffer.writeUTF(source);
 			bytesBuffer.position = 0;
 			file.writeBytes(bytesBuffer, 0, bytesBuffer.length);
 			bytesBuffer = null;
