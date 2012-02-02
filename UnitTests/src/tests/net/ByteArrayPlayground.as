@@ -8,7 +8,12 @@ package tests.net
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 
+	import flash.net.ObjectEncoding;
+
+	import flash.system.System;
+
 	import flash.utils.ByteArray;
+	import flash.utils.unescapeMultiByte;
 
 	import flexunit.framework.Assert;
 
@@ -126,6 +131,7 @@ package tests.net
 			conn.call("ByteArrayService.byteArrayFromVO", responder.result, responder.fault, vo);
 		}
 
+		[Ignore]
 		[Test(description="Loading dump ByteArray from VO", order="5", async)]
 		public function loadVOVarDump():void
 		{
@@ -187,13 +193,9 @@ package tests.net
 		[Test(description="Loading complete file received by merging sended parts of file", order="8", async)]
 		public function loadCompleteFile():void
 		{
-			var baa:ByteArrayAsset = new ImageFile();
-			var baToSend:ByteArray = new ByteArray();
-			baToSend.writeBytes(baa, FILE_SEPARATOR, baa.length - FILE_SEPARATOR);
-
 			var responder:IResponder = Async.asyncResponder(
 					this, new Responder(compareMergedFile, errorFile), TIMEOUT);
-			conn.call("ByteArrayService.loadFile", responder.result, responder.fault, baToSend);
+			conn.call("ByteArrayService.loadFile", responder.result, responder.fault);
 		}
 
 		protected function compareMergedFile(source:Object):void
@@ -216,6 +218,48 @@ package tests.net
 					Assert.assertEquals(baa.readByte(), file.readByte());
 				}
 			}
+		}
+
+		[Ignore]
+		[Test(description="Loading complete file received by merging sended parts of file", order="9", async)]
+		public function alternativeLoadFile():void
+		{
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(responseRawFile, errorFile), TIMEOUT);
+			conn.call("ByteArrayService.alternativeLoadFile", responder.result, responder.fault);
+		}
+
+		protected function fix():String {
+
+			return String.fromCharCode( Number(String(arguments[0]).substr(1,4)) );
+		}
+
+		protected function responseRawFile(source:String):void
+		{
+			var file:ByteArray = new ByteArray();
+			file.objectEncoding=ObjectEncoding.AMF3;
+//			source = source.replace(/\\u00[0-9a-f][0-9a-f]/gi,fix);
+//			file.writeUTFBytes(source);
+
+			var bytesBuffer : ByteArray = new ByteArray();
+			bytesBuffer.objectEncoding = ObjectEncoding.AMF3;
+			bytesBuffer.writeObject(source);
+			bytesBuffer.position = 0;
+			file.writeBytes(bytesBuffer, 0, bytesBuffer.length);
+			bytesBuffer = null;
+
+			var baa:ByteArrayAsset = new ImageFile();
+			Assert.assertEquals(baa.length, file.length);
+		}
+
+		[Ignore]
+		[Test(description="Test read and write object", order="10")]
+		/**
+		 * http://www.flexdeveloper.eu/forums/actionscript-3-0/compress-and-uncompress-strings-using-bytearray
+		 */
+		public function readWriteObject():void
+		{
+
 		}
 	}
 }

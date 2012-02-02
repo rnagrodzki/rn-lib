@@ -75,6 +75,10 @@ class ByteArrayService
     public function loadFile()
     {
         return new Zend_Amf_Value_ByteArray(file_get_contents($this->getFullFileName()));
-//        return file_get_contents($this->getFullFileName());
+    }
+
+    public function alternativeLoadFile()
+    {
+        return file_get_contents($this->getFullFileName());
     }
 }
