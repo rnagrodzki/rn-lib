@@ -12,7 +12,7 @@ class ByteArrayService
 
     public function sendAndLoadByteArray($ba)
     {
-        return new Zend_Amf_Value_ByteArray( $ba );
+        return new Zend_Amf_Value_ByteArray($ba);
     }
 
     public function loadAsDump($p)
@@ -31,6 +31,50 @@ class ByteArrayService
 
     public function byteArrayFromVO(Amf_VO_ByteArray $vo)
     {
-        return new Zend_Amf_Value_ByteArray( $vo->bytes );
+        return new Zend_Amf_Value_ByteArray($vo->bytes);
+    }
+
+
+    // -------------- SAVING AND LOADING FILE ------------------
+
+
+    protected $fileName = "testPartFile.png";
+
+    protected function getDir()
+    {
+        $dir = realpath(dirname(__FILE__) . '/../../../');
+        $dir .= '/uploads';
+
+        if (!is_dir($dir))
+            mkdir($dir);
+
+        return $dir;
+    }
+
+    protected function getFullFileName()
+    {
+        return $this->getDir() . '/' . $this->fileName;
+    }
+
+    public function startSavingFile($content)
+    {
+        if (file_exists($this->getFullFileName()))
+            unlink($this->getFullFileName());
+
+        $result = file_put_contents($this->getFullFileName(), $content);
+
+        return array(__FILE__, $this->getDir(), $this->getFullFileName(),$result);
+    }
+
+    public function continueSavingFile($content)
+    {
+        file_put_contents($this->getFullFileName(), $content, FILE_APPEND);
+        return filesize($this->getFullFileName());
+    }
+
+    public function loadFile()
+    {
+        return new Zend_Amf_Value_ByteArray(file_get_contents($this->getFullFileName()));
+//        return file_get_contents($this->getFullFileName());
     }
 }

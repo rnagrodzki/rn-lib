@@ -8,12 +8,11 @@ package tests.net
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 
-	import flash.net.getClassByAlias;
-
 	import flash.utils.ByteArray;
 
 	import flexunit.framework.Assert;
 
+	import mx.core.ByteArrayAsset;
 	import mx.rpc.IResponder;
 	import mx.rpc.Responder;
 
@@ -106,8 +105,8 @@ package tests.net
 
 		protected function varDumpResponse(result:Object):void
 		{
-			trace( getQualifiedClassName(this)+"::varDumpResponse");
-			trace( "conn -> "+getQualifiedClassName(conn));
+			trace(getQualifiedClassName(this) + "::varDumpResponse");
+			trace("conn -> " + getQualifiedClassName(conn));
 			trace(result);
 		}
 
@@ -140,6 +139,83 @@ package tests.net
 			vo.bytes = ba;
 
 			conn.call("ByteArrayService.loadAsDumpVO", responder.result, responder.fault, vo);
+		}
+
+		//---------------------------------------------------------------
+		//              <------ SENDING BINARY FILE ------>
+		//---------------------------------------------------------------
+
+		[Embed(source="/assets/abstract_image.png", mimeType="application/octet-stream")]
+		public static const ImageFile:Class;
+
+		public static const FILE_SEPARATOR:uint = 100;
+
+		[Test(description="Send first part of file", order="6", async)]
+		public function sendFirstPartFile():void
+		{
+			var baa:ByteArrayAsset = new ImageFile();
+			var baToSend:ByteArray = new ByteArray();
+			baToSend.writeBytes(baa, 0, FILE_SEPARATOR);
+
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(respondToSaveFile, errorFile), TIMEOUT);
+			conn.call("ByteArrayService.startSavingFile", responder.result, responder.fault, baToSend);
+		}
+
+		protected function errorFile(fault:Object):void
+		{
+			trace(fault);
+		}
+
+		protected function respondToSaveFile(result:Object):void
+		{
+			trace(result);
+		}
+
+		[Test(description="Send part of file", order="7", async)]
+		public function sendPartFile():void
+		{
+			var baa:ByteArrayAsset = new ImageFile();
+			var baToSend:ByteArray = new ByteArray();
+			baToSend.writeBytes(baa, FILE_SEPARATOR, baa.length - FILE_SEPARATOR);
+
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(respondToSaveFile, errorFile), TIMEOUT);
+			conn.call("ByteArrayService.continueSavingFile", responder.result, responder.fault, baToSend);
+		}
+
+		[Test(description="Loading complete file received by merging sended parts of file", order="8", async)]
+		public function loadCompleteFile():void
+		{
+			var baa:ByteArrayAsset = new ImageFile();
+			var baToSend:ByteArray = new ByteArray();
+			baToSend.writeBytes(baa, FILE_SEPARATOR, baa.length - FILE_SEPARATOR);
+
+			var responder:IResponder = Async.asyncResponder(
+					this, new Responder(compareMergedFile, errorFile), TIMEOUT);
+			conn.call("ByteArrayService.loadFile", responder.result, responder.fault, baToSend);
+		}
+
+		protected function compareMergedFile(source:Object):void
+		{
+			var file:ByteArray = source as ByteArray;
+			Assert.assertNotNull(file);
+
+			if (!file) return;
+
+			var baa:ByteArrayAsset = new ImageFile();
+			Assert.assertEquals(baa.length, file.length);
+
+			if (baa.length == file.length)
+			{
+				baa.position = 0;
+				file.position = 0;
+
+				while (baa.bytesAvailable > 0)
+				{
+					Assert.assertEquals(baa.readByte(), file.readByte());
+				}
+			}
 		}
 	}
 }
