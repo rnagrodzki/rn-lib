@@ -63,7 +63,7 @@ class ByteArrayService
 
         $result = file_put_contents($this->getFullFileName(), $content);
 
-        return array(__FILE__, $this->getDir(), $this->getFullFileName(),$result);
+        return array(__FILE__, $this->getDir(), $this->getFullFileName(), $result);
     }
 
     public function continueSavingFile($content)
@@ -79,6 +79,10 @@ class ByteArrayService
 
     public function alternativeLoadFile()
     {
-        return urlencode( file_get_contents($this->getFullFileName()) );
+        $response = Zend_Controller_Front::getInstance()->getResponse();
+        $response->setHeader('content-type', 'application/octet-stream');
+//        $response->setHeader('content-length', filesize($this->getFullFileName()));
+
+        return file_get_contents($this->getFullFileName());
     }
 }

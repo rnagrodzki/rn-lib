@@ -220,7 +220,6 @@ package tests.net
 			}
 		}
 
-		[Ignore]
 		[Test(description="Loading complete file received by merging sended parts of file", order="9", async)]
 		public function alternativeLoadFile():void
 		{
@@ -238,18 +237,8 @@ package tests.net
 		{
 			var file:ByteArray = new ByteArray();
 			file.objectEncoding=ObjectEncoding.AMF3;
-//			source = source.replace(/\\u00[0-9a-f][0-9a-f]/gi,fix);
-//			file.writeUTFBytes(source);
-
-			source = unescape(source);
-
-			var bytesBuffer : ByteArray = new ByteArray();
-			bytesBuffer.objectEncoding = ObjectEncoding.AMF3;
-			bytesBuffer.writeUTF(source);
-			bytesBuffer.position = 0;
-			file.writeBytes(bytesBuffer, 0, bytesBuffer.length);
-			bytesBuffer = null;
-
+			file.writeUTFBytes(source);
+			
 			var baa:ByteArrayAsset = new ImageFile();
 			Assert.assertEquals(baa.length, file.length);
 		}
