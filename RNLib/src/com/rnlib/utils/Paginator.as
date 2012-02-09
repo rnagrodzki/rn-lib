@@ -20,6 +20,10 @@ package com.rnlib.utils
 
 		protected var _itemsPerPage:int = 10;
 
+		/**
+		 * Items given by page. Correct range is from 1 to 0xFFFFFF.
+		 * @default 10
+		 */
 		public function get itemsPerPage():int
 		{
 			return _itemsPerPage;
@@ -27,10 +31,14 @@ package com.rnlib.utils
 
 		public function set itemsPerPage(value:int):void
 		{
+			value = value < 1 ? 1 : value;
 			_itemsPerPage = value;
 			compute();
 		}
 
+		/**
+		 * Dispose all resources
+		 */
 		public function dispose():void
 		{
 			dataProvider = null;
@@ -41,21 +49,33 @@ package com.rnlib.utils
 		//              <------ NAVIGATION ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Get next set of data
+		 */
 		public function next():void
 		{
-			currentIndex+=1;
+			currentIndex += 1;
 		}
 
+		/**
+		 * Get last set of data
+		 */
 		public function prev():void
 		{
-			currentIndex-=1;
+			currentIndex -= 1;
 		}
 
+		/**
+		 * Get first set of data
+		 */
 		public function first():void
 		{
 			currentIndex = 0;
 		}
 
+		/**
+		 * Get last set of data
+		 */
 		public function last():void
 		{
 			currentIndex = _length - 1;
@@ -63,6 +83,9 @@ package com.rnlib.utils
 
 		protected var _currentIndex:int;
 
+		/**
+		 * Current index set of data
+		 */
 		public function get currentIndex():int
 		{
 			return _currentIndex;
@@ -77,7 +100,7 @@ package com.rnlib.utils
 			}
 
 			value = value < 0 ? 0 : value;
-			value = value > _dataProvider.length ? _dataProvider.length : value;
+			value = value >= _length ? _length - 1 : value;
 
 			if (value == _currentIndex) return;
 			_currentIndex = value;
@@ -86,6 +109,9 @@ package com.rnlib.utils
 
 		private var _length:int;
 
+		/**
+		 * Get available length of pages
+		 */
 		public function get length():int
 		{
 			return _length;
@@ -94,15 +120,21 @@ package com.rnlib.utils
 		private var _dirtyCollection:Boolean = false;
 		private var _collection:Array;
 
+		/**
+		 * Get collection of items per page
+		 */
 		public function get collection():Array
 		{
 			if (_dirtyCollection)
 			{
 				_dirtyCollection = false;
-				var end:int = (_currentIndex + 1) * _itemsPerPage;
-				end = end > _dataProvider.length ? _dataProvider.length : end;
-				_collection = _dataProvider.toArray().slice(_currentIndex * _itemsPerPage, end);
-
+				if (_dataProvider)
+				{
+					var end:int = (_currentIndex + 1) * _itemsPerPage;
+					end = end > _dataProvider.length ? _dataProvider.length : end;
+					_collection = _dataProvider.toArray().slice(_currentIndex * _itemsPerPage, end);
+				}
+				else _collection = null;
 			}
 
 			return _collection;
@@ -121,17 +153,15 @@ package com.rnlib.utils
 
 		public function set dataProvider(value:IList):void
 		{
-			if (_dataProvider)
+			if (value != dataProvider)
 			{
-				_dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onExternalChange);
-			}
-
-			_dataProvider = value;
-
-			if (_dataProvider)
-			{
-				_dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onExternalChange);
+				if (_dataProvider)
+					_dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onExternalChange);
+				if (value)
+					value.addEventListener(CollectionEvent.COLLECTION_CHANGE, onExternalChange);
+				_dataProvider = value;
 				compute();
+
 				_dirtyCollection = true;
 			}
 		}
@@ -141,6 +171,9 @@ package com.rnlib.utils
 			compute();
 		}
 
+		/**
+		 * Compute base properties
+		 */
 		protected function compute():void
 		{
 			if (!_dataProvider)

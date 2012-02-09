@@ -43,5 +43,46 @@ package com.rnlib.utils
 
 			return -1;
 		}
+
+		/**
+		 * Sort elements and remove duplicates without modifying original array
+		 * @param source	Array to sort and remove duplicates
+		 * @param fields	sort on specified fields
+		 * @return	Copy of original sorted array without duplicates
+		 */
+		public static function sortAndRemoveDuplicates(source:Array, fields:Array = null):Array
+		{
+			source = source.concat();
+			if (fields)
+				source.sortOn(fields);
+			else
+				source.sort();
+
+			for (var i:int = 0, j:int = 1; j < source.length;)
+			{
+				if (compareFields(source[i], source[j], fields))
+				{
+					source.splice(j, 1);
+				}
+				else
+				{
+					i++;
+					j++;
+				}
+			}
+
+			return source;
+		}
+
+		private static function compareFields(obj1:Object, obj2:Object, fields:Array):Boolean
+		{
+			if (!fields) return obj1 == obj2;
+
+			for each (var prop:String in fields)
+			{
+				if (obj1[prop] != obj2[prop]) return false;
+			}
+			return true;
+		}
 	}
 }
