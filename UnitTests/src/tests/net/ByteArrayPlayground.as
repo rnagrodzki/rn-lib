@@ -220,6 +220,7 @@ package tests.net
 			}
 		}
 
+		[Ignore]
 		[Test(description="Loading complete file received by merging sended parts of file", order="9", async)]
 		public function alternativeLoadFile():void
 		{
