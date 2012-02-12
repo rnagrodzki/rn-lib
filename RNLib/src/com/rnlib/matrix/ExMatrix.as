@@ -14,6 +14,11 @@ package com.rnlib.matrix
 		{
 		}
 
+		public function isEqual(m:ExMatrix):Boolean
+		{
+			return false;
+		}
+
 		public function sum(m:ExMatrix):ExMatrix
 		{
 			var nm:ExMatrix=new ExMatrix();
