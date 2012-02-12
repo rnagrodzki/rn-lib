@@ -32,7 +32,7 @@ package com.rnlib.utils
 		 *  @param source The Array to search for the item.
 		 *  @return The index of the item, and -1 if the item is not in the list.
 		 */
-		public static function getItemPropertieIndex(property:String, value:String, source:Array):int
+		public static function getItemPropertyIndex(property:String, value:String, source:Array):int
 		{
 			var n:int = source.length;
 			for (var i:int = 0; i < n; i++)
