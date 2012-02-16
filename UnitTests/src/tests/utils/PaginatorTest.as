@@ -6,8 +6,6 @@ package tests.utils
 	import com.rnlib.utils.Paginator;
 
 	import flash.events.Event;
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
 
 	import flexunit.framework.Assert;
 
@@ -15,7 +13,6 @@ package tests.utils
 	import mx.binding.utils.ChangeWatcher;
 	import mx.collections.ArrayCollection;
 
-	import org.flexunit.asserts.fail;
 	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
 
@@ -26,27 +23,20 @@ package tests.utils
 		[Before]
 		public function before():void
 		{
-			_bindingTimer = new Timer(200, 1);
-			_bindingTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onBindingTimeout);
+			_bindingValue = -1;
 
 			_p = new Paginator();
 			_p.itemsPerPage = ITEMS;
 			_p.dataProvider = new ArrayCollection(_c);
 		}
 
-		private function onBindingTimeout(e:TimerEvent):void
-		{
-			fail("Binding doesn't work");
-		}
-
 		[After]
 		public function dispose():void
 		{
-			if (_bindingTimer) _bindingTimer.stop();
-			_bindingTimer = null;
-
 			_p.dispose();
 			_p = null;
+
+			_bindingValue = -1;
 		}
 
 		private var _p:Paginator;
@@ -239,33 +229,31 @@ package tests.utils
 		}
 
 		private var _watcher:ChangeWatcher;
-		private var _bindingTimer:Timer;
+		private var _bindingValue:int = -1;
 
-		[Test(description="Binding test", order="13", async)]
+		[Test(description="Binding test", order="13")]
 		public function bindingTestIndexChanged():void
 		{
-			_bindingTimer.start();
-
 			_watcher = BindingUtils.bindSetter(passBindingTest, _p, "currentIndex");
 			Assert.assertNotNull(_watcher);
 			_watcher.useWeakReference = true;
 
-			Async.handleEvent(this, _p, Paginator.INDEX_CHANGED, passTest);
-
 			_p.currentIndex = 3;
-			Assert.assertEquals(_p.currentIndex, 3);
+			Assert.assertEquals(3,_p.currentIndex);
 			assertThat(_p.collection, [7, 8]);
+
+			Assert.assertEquals(3,_bindingValue);
+			Assert.assertNull(_watcher);
 		}
 
-		protected function passBindingTest(extra:*):void
+		protected function passBindingTest(extra:int):void
 		{
 			if (!extra) return; // test bindings is really hard because setter is invoke directly during preparing watcher with current property value
 
+			_bindingValue = extra;
+			
 			if (_watcher) _watcher.unwatch();
 			_watcher = null;
-
-			_bindingTimer.reset();
-			_bindingTimer = null;
 		}
 	}
 }
