@@ -269,7 +269,7 @@ package com.rnlib.net.amf.connections
 				{
 				}
 
-				dispatchEvent(new AMFEvent(AMFEvent.HEADER, header));
+				dispatchEvent(new AMFEvent(AMFEvent.HEADER, -1, header));
 			}
 
 			for each (var message:AMFMessage in response.messages)
