@@ -68,7 +68,7 @@ package com.rnlib.net.amf
 		private static var _CALL_UID:int = 0;
 
 		/**
-		 * Determine execute all request in queue after error occure.
+		 * Determine execute all request in queue after error occurs.
 		 */
 		public var proceedAfterError:Boolean = true;
 
