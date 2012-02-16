@@ -11,7 +11,6 @@ package com.rnlib.net.amf
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
-	import flash.events.NetStatusEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
@@ -24,6 +23,14 @@ package com.rnlib.net.amf
 	[Event(name="securityError", type="flash.events.SecurityErrorEvent")]
 	[Event(name="asyncError", type="flash.events.AsyncErrorEvent")]
 	[Event(name="progress", type="flash.events.ProgressEvent")]
+	/**
+	 * Event dispatched after receive result status from server
+	 */
+	[Event(name="result", type="com.rnlib.net.amf.AMFEvent")]
+	/**
+	 * Event dispatched after receive fault status from server
+	 */
+	[Event(name="fault", type="com.rnlib.net.amf.AMFEvent")]
 
 	use namespace flash_proxy;
 
@@ -92,33 +99,6 @@ package com.rnlib.net.amf
 		{
 			if (_nc)
 				_nc.close();
-		}
-
-		protected function onStatusEvent(e:NetStatusEvent):void
-		{
-			if (e.info == "NetConnection.Call.BadVersion" || e.info == "NetConnection.Call.Failed")
-			{
-				disconnect();
-				ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
-
-				if (_queue && _queue.length > 0)
-				{
-					if (proceedAfterError)
-					{
-						callRemoteMethod(_queue.item);
-					}
-					else
-					{
-						_queue.dispose();
-					}
-				}
-
-				dispatchEvent(e);
-			}
-			else if (e.info == "NetConnection.Connect.Closed")
-			{
-				disconnect();
-			}
 		}
 
 		//---------------------------------------------------------------
@@ -243,11 +223,6 @@ package com.rnlib.net.amf
 			var vo:MethodHelperVO = new MethodHelperVO(name);
 			vo.result = result || _result;
 			vo.fault = fault || _fault;
-
-			if (vo.result == null || vo.fault == null)
-			{
-				throw new Error("Global handlers not set. Set first them by property result & fault!")
-			}
 
 			removeMethod(name);
 			_remoteMethods[name] = vo
@@ -486,8 +461,10 @@ package com.rnlib.net.amf
 
 			if (vo.resultHandler != null)
 				vo.resultHandler(result);
-			else
+			else if (this.result != null)
 				this.result(result);
+
+			dispatchEvent(new AMFEvent(AMFEvent.RESULT, result));
 
 			_requests[id] = null;
 			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0)
@@ -511,8 +488,10 @@ package com.rnlib.net.amf
 
 			if (vo.faultHandler != null)
 				vo.faultHandler(fault);
-			else
+			else if (this.fault != null)
 				this.fault(fault);
+
+			dispatchEvent(new AMFEvent(AMFEvent.FAULT, fault));
 
 			_requests[id] = null;
 		}

@@ -14,6 +14,9 @@ package com.rnlib.net.amf
 
 		public static const HEADER:String = "header";
 
+		public static const RESULT:String = "result";
+		public static const FAULT:String = "fault";
+
 		public var data:Object;
 
 		public function AMFEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
