@@ -496,6 +496,7 @@ package com.rnlib.net.amf
 			var vo:MethodVO = _files[fr];
 			_files[fr] = null;
 			delete _files[fr];
+			fr.removeEventListener(Event.COMPLETE, onCompleteLoadFileContent, false);
 			callRemoteMethod(vo);
 		}
 
