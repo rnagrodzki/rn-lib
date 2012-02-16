@@ -3,6 +3,7 @@
  */
 package com.rnlib.utils
 {
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 
 	import mx.collections.IList;
@@ -10,6 +11,8 @@ package com.rnlib.utils
 
 	public class Paginator extends EventDispatcher
 	{
+		public static const INDEX_CHANGED:String = "indexChanged";
+
 		public function Paginator()
 		{
 		}
@@ -83,6 +86,7 @@ package com.rnlib.utils
 
 		protected var _currentIndex:int;
 
+		[Bindable("indexChanged")]
 		/**
 		 * Current index set of data
 		 */
@@ -105,6 +109,8 @@ package com.rnlib.utils
 			if (value == _currentIndex) return;
 			_currentIndex = value;
 			_dirtyCollection = true;
+
+			dispatchEvent(new Event(INDEX_CHANGED));
 		}
 
 		private var _length:int;
@@ -120,6 +126,7 @@ package com.rnlib.utils
 		private var _dirtyCollection:Boolean = false;
 		private var _collection:Array;
 
+		[Bindable("indexChanged")]
 		/**
 		 * Get collection of items per page
 		 */

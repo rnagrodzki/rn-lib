@@ -5,9 +5,13 @@ package tests.utils
 {
 	import com.rnlib.utils.Paginator;
 
+	import flash.events.Event;
+
 	import flexunit.framework.Assert;
 
 	import mx.collections.ArrayCollection;
+
+	import org.flexunit.async.Async;
 
 	import org.hamcrest.assertThat;
 
@@ -156,6 +160,65 @@ package tests.utils
 			_p.dispose();
 			Assert.assertNull(_p.dataProvider);
 			Assert.assertNull(_p.collection);
+		}
+
+		[Test(description="Test fire event on last()", order="8", async)]
+		public function eventTestLast():void
+		{
+			Async.handleEvent(this,_p,Paginator.INDEX_CHANGED,passTest);
+			_p.last();
+			Assert.assertEquals(_p.currentIndex,4);
+			assertThat(_p.collection,[9,10]);
+		}
+		
+		protected function passTest(ev:Event,extra:*):void {
+		    Assert.assertEquals(Paginator.INDEX_CHANGED,ev.type);
+		}
+
+		[Test(description="Test fire event on first()", order="9", async)]
+		public function eventTestFirst():void
+		{
+			_p.currentIndex = 3;
+			Assert.assertEquals(_p.currentIndex,3);
+			assertThat(_p.collection,[7,8]);
+
+			Async.handleEvent(this,_p,Paginator.INDEX_CHANGED,passTest);
+
+			_p.first();
+			Assert.assertEquals(_p.currentIndex,0);
+			assertThat(_p.collection,[1,2]);
+		}
+
+		[Test(description="Test fire event on set currentIndex()", order="10", async)]
+		public function eventTestCurrentIndex():void
+		{
+			Async.handleEvent(this,_p,Paginator.INDEX_CHANGED,passTest);
+			_p.currentIndex = 3;
+			Assert.assertEquals(_p.currentIndex,3);
+			assertThat(_p.collection,[7,8]);
+		}
+
+		[Test(description="Test fire event on next()", order="11", async)]
+		public function eventTestNext():void
+		{
+			Async.handleEvent(this,_p,Paginator.INDEX_CHANGED,passTest);
+			_p.next();
+			Assert.assertEquals(_p.currentIndex,1);
+			assertThat(_p.collection,[3,4]);
+		}
+
+		[Test(description="Test fire event on prev()", order="12", async)]
+		public function eventTestPrev():void
+		{
+			_p.currentIndex = 3;
+			Assert.assertEquals(_p.currentIndex,3);
+			assertThat(_p.collection,[7,8]);
+
+			Async.handleEvent(this,_p,Paginator.INDEX_CHANGED,passTest);
+
+			_p.prev();
+			Assert.assertEquals(_p.currentIndex,2);
+			assertThat(_p.collection,[5,6]);
 		}
 	}
 }
