@@ -229,6 +229,10 @@ package com.rnlib.net.amf
 			_queue = value;
 		}
 
+		//---------------------------------------------------------------
+		//              <------ MANAGE REMOTE METHODS ------>
+		//---------------------------------------------------------------
+
 		/**
 		 * Add remote method to dynamic invoke at runtime
 		 * @param name Name of remote method to invoke
@@ -288,6 +292,45 @@ package com.rnlib.net.amf
 			_remoteMethods[name] = null;
 			delete _remoteMethods[name];
 		}
+
+		//---------------------------------------------------------------
+		//              <------ PAUSE AND RESUME ------>
+		//---------------------------------------------------------------
+
+		protected var _isPaused:Boolean = false;
+
+		/**
+		 * Pause execute requests in queue. Please notice that method take effect
+		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>
+		 *
+		 * @see #concurrency
+		 * @see com.rnlib.net.RequestConcurrency#QUEUE
+		 */
+		public function pause():void
+		{
+			_isPaused = true;
+		}
+
+		/**
+		 * Resume execute requests in queue. Please notice that method take effect
+		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>.
+		 * If in queue are any requests after call this method they will be execute.
+		 *
+		 * @see #concurrency
+		 * @see #queue
+		 * @see com.rnlib.net.RequestConcurrency#QUEUE
+		 */
+		public function resume():void
+		{
+			_isPaused = false;
+
+			if (!_isPendingRequest && queue && queue.length > 0)
+				callRemoteMethod(_queue.item);
+		}
+
+		//---------------------------------------------------------------
+		//          <------ MANAGE SERVICE AND ENDPOINT ------>
+		//---------------------------------------------------------------
 
 		/**
 		 * Declare service for remote calls
@@ -477,7 +520,7 @@ package com.rnlib.net.amf
 
 		protected function concurrencyQueue(vo:MethodVO):void
 		{
-			if (_isPendingRequest)
+			if (_isPendingRequest || _isPaused)
 				_queue.push(vo);
 			else
 				callRemoteMethod(vo);
@@ -598,9 +641,15 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
-			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0)
+			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused && continueAfterFault)
 				callRemoteMethod(_queue.item);
 		}
+
+		/**
+		 * Determine if requests in queue should execute
+		 * after received fault from pending request
+		 */
+		public var continueAfterFault:Boolean = false;
 
 		/**
 		 * Global internal fault handler
