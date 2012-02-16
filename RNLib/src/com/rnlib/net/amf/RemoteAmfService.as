@@ -481,6 +481,10 @@ package com.rnlib.net.amf
 			if (_showBusyCursor) CursorManager.setBusyCursor();
 		}
 
+		//---------------------------------------------------------------
+		//              <------ LOAD FILES JUST IN TIME ------>
+		//---------------------------------------------------------------
+
 		protected var _files:Dictionary = new Dictionary();
 
 		protected function waitForFileContent(fr:FileReference, vo:MethodVO):void
@@ -500,6 +504,10 @@ package com.rnlib.net.amf
 			callRemoteMethod(vo);
 		}
 
+		//---------------------------------------------------------------
+		//              <------ GLOBAL RESPONSE HANDLERS ------>
+		//---------------------------------------------------------------
+
 		/**
 		 * Global internal result handler
 		 * @param result Response from server
@@ -511,7 +519,6 @@ package com.rnlib.net.amf
 			if (_showBusyCursor) CursorManager.removeBusyCursor();
 
 			_isPendingRequest = false;
-//			trace("onResult id: " + id + " time: " + getTimer());
 
 			var vo:ResultMediatorVO = _requests[id];
 
@@ -539,7 +546,6 @@ package com.rnlib.net.amf
 			if (_showBusyCursor) CursorManager.removeBusyCursor();
 
 			_isPendingRequest = false;
-//			trace("onFault id: " + id + " time: " + getTimer());
 
 			var vo:ResultMediatorVO = _requests[id];
 
@@ -553,6 +559,10 @@ package com.rnlib.net.amf
 			_requests[id] = null;
 			delete _requests[id];
 		}
+
+		//---------------------------------------------------------------
+		//              <------ IGNORE PENDING REQUESTS ------>
+		//---------------------------------------------------------------
 
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
 		{
