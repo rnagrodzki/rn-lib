@@ -140,6 +140,7 @@ package com.rnlib.net.amf
 			_isPendingRequest = false;
 			_remoteMethods = new Dictionary();
 			_requests = new Dictionary();
+			_files = new Dictionary();
 		}
 
 		private function defaultMethods():void
