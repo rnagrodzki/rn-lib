@@ -29,7 +29,7 @@ package com.rnlib.net.amf
 
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport
 	{
-		private var _queue:IQueue;
+		private var _queue:IQueue = new PriorityQueue();
 
 		protected var _nc:IAMFConnection;
 
@@ -166,10 +166,10 @@ package com.rnlib.net.amf
 		 * Value that indicates how to handle multiple calls to the same service. The default
 		 * value is queue. The following values are permitted:
 		 * <ul>
-		 * <li>queue - All requests are queued and called sequentially one after the other.</li>
+		 * <li>queue - All requests are queued and called sequentially one after the other. This is the default.</li>
 		 * <li>multiple - Existing requests are not cancelled, and the developer is
 		 * responsible for ensuring the consistency of returned data by carefully
-		 * managing the event stream. This is the default.</li>
+		 * managing the event stream.</li>
 		 * <li>single - Making only one request at a time is allowed on the method; additional requests made
 		 * while a request is outstanding are immediately faulted on the client and are not sent to the server.</li>
 		 * <li>last - Making a request causes the client to ignore a result or fault for any current outstanding request.
