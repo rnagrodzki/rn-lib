@@ -99,12 +99,14 @@ package com.rnlib.net.amf
 		{
 			if (value != _nc)
 			{
-				if (!value)
+				if (_nc)
 				{
 					_nc.dispose();
-					_nc = value;
-					return;
 				}
+
+				_nc = value;
+
+				if (!value) return;
 
 				if (_amfHeaders && _amfHeaders.length)
 				{
