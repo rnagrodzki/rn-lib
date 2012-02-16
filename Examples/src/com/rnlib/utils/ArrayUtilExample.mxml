@@ -1,8 +1,36 @@
 <?xml version="1.0"?>
 <!-- Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com) -->
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
-    xmlns:mx="library://ns.adobe.com/flex/mx">
+<local:ExampleBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:local="*"
+                   title="ArrayUtil Example"
+                   description="Example shows selected features ArrayUtil">
 
-    <s:Label text="ArrayUtil Example" />
+    <fx:Script><![CDATA[
+        protected function duplicates_clickHandler(e:MouseEvent):void
+        {
+            var arr:Array = inp1.text.split(",");
+            out.text = ArrayUtil.sortAndRemoveDuplicates(arr).join(",");
+        }
 
-</s:Group>
+        protected function find_clickHandler(e:MouseEvent):void
+        {
+            var arr:Array = inp1.text.split(",");
+            out.text = "Item index is " + ArrayUtil.getItemIndex(findItem.text, arr);
+        }
+        ]]></fx:Script>
+
+    <s:TextInput id="inp1" text="9,2,3,3,4,4,8,4,5,6,8,1,0" width="100%"/>
+    <s:HGroup>
+        <s:Button id="duplicates"
+                  label="Sort and remove duplicates"
+                  click="duplicates_clickHandler(event)"/>
+        <s:Button id="find"
+                  label="Find index of"
+                  click="find_clickHandler(event)"/>
+        <s:TextInput id="findItem" text="3"/>
+    </s:HGroup>
+    <s:Label id="out" width="100%"/>
+
+</local:ExampleBase>

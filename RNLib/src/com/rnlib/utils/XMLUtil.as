@@ -17,15 +17,12 @@ package com.rnlib.utils
 			for each (var cl:Class in classes)
 			{
 				var qClass:String = getQualifiedClassName(cl);
-				trace(qClass);
 				var parts:Array = qClass.split(".");
 				if (parts.length > 1)
 				{
 					var last:String = parts.pop();
 					parts = parts.concat(last.split("::"));
 				}
-
-				trace(parts);
 
 				var xmlnode:Object = xml;
 				for each (var part:String in parts)
@@ -47,7 +44,6 @@ package com.rnlib.utils
 				xmlnode.@descriptor = qClass;
 			}
 
-			trace(xml);
 			return xml;
 		}
 	}

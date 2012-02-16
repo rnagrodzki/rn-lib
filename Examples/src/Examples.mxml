@@ -20,7 +20,7 @@
         {
             var descriptor:String = mainMenu.selectedItem.@descriptor;
 
-            if(!descriptor) return;
+            if (!descriptor) return;
 
             var c:Class = getDefinitionByName(descriptor) as Class;
             examplesContent.removeAllElements();

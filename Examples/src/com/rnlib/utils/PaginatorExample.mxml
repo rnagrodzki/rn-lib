@@ -1,5 +1,50 @@
 <?xml version="1.0"?>
 <!-- Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com) -->
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
-    xmlns:mx="library://ns.adobe.com/flex/mx">
-</s:Group>
+<local:ExampleBase
+        xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        xmlns:local="*" xmlns:utils="com.rnlib.utils.*"
+        title="Paginator"
+        description="Example shows how use paginator in real application"
+        creationComplete="creationCompleteHandler(event)">
+
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+
+        [Bindable]
+        public var elements:ArrayCollection;
+
+        protected function creationCompleteHandler(e:FlexEvent):void
+        {
+            var collection:ArrayCollection = new ArrayCollection();
+
+            for (var i:int = 0; i < 100; i++)
+            {
+                collection.addItem("Item" + i);
+            }
+
+            elements = collection;
+        }
+        ]]></fx:Script>
+
+    <fx:Declarations>
+        <utils:Paginator
+                id="pagin"
+                itemsPerPage="7"
+                dataProvider="{elements}"/>
+    </fx:Declarations>
+
+    <s:List id="myList" dataProvider="{new ArrayCollection(pagin.collection)}"/>
+
+    <s:HGroup>
+        <s:Button id="first" label="first" click="{pagin.first()}"/>
+        <s:Button id="prev" label="prev" click="{pagin.prev()}"/>
+        <s:Label text="Current index:"/>
+        <s:NumericStepper minimum="0" maximum="100" stepSize="1" value="@{pagin.currentIndex}"/>
+        <s:Button id="next" label="next" click="{pagin.next()}"/>
+        <s:Button id="last" label="last" click="{pagin.last()}"/>
+    </s:HGroup>
+
+</local:ExampleBase>

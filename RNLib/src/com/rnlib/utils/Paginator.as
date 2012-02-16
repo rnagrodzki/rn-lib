@@ -170,6 +170,7 @@ package com.rnlib.utils
 				compute();
 
 				_dirtyCollection = true;
+				dispatchEvent(new Event(INDEX_CHANGED));
 			}
 		}
 
