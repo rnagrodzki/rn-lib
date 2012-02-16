@@ -5,5 +5,29 @@
                    xmlns:mx="library://ns.adobe.com/flex/mx"
                    xmlns:local="*"
                    title="RemoteAmfService"
-                   description="Example of powerful util to manage amf communication">
+                   description="Example of powerful util to manage amf communication"
+                   creationComplete="creationCompleteHandler(event)">
+    <fx:Script><![CDATA[
+        import mx.events.FlexEvent;
+
+        protected var _ras:RemoteAmfService;
+
+        protected function creationCompleteHandler(e:FlexEvent):void
+        {
+            _ras = new RemoteAmfService();
+            _ras.addEventListener(AMFEvent.RESULT, onEventResult);
+            _ras.addEventListener(AMFEvent.FAULT, onEventFault);
+        }
+
+        private function onEventResult(e:AMFEvent):void
+        {
+
+        }
+
+        private function onEventFault(e:AMFEvent):void
+        {
+
+        }
+        ]]></fx:Script>
+
 </local:ExampleBase>
