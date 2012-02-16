@@ -77,8 +77,8 @@ package com.rnlib.net.amf.connections
 			var loader:AMFURLLoader = e.target as AMFURLLoader;
 			loader.removeEventListener(Event.COMPLETE, onComplete);
 			_loaders[loader.id] = null;
-			loader = null;
 			delete _loaders[loader.id];
+			loader = null;
 		}
 
 		/**

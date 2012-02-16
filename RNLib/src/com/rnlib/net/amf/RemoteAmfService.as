@@ -405,8 +405,8 @@ package com.rnlib.net.amf
 		{
 			if (_isPendingRequest)
 				_queue.push(vo);
-
-			callRemoteMethod(vo);
+			else
+				callRemoteMethod(vo);
 		}
 
 		protected function concurrencyLast(vo:MethodVO):void
