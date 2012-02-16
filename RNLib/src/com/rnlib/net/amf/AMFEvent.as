@@ -17,17 +17,19 @@ package com.rnlib.net.amf
 		public static const RESULT:String = "result";
 		public static const FAULT:String = "fault";
 
+		public var uid:int = -1;
 		public var data:Object;
 
-		public function AMFEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function AMFEvent(type:String, uid:int = -1, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
+			this.uid = uid;
 			this.data = data;
 		}
 
 		override public function clone():Event
 		{
-			return new AMFEvent(type, data, bubbles, cancelable);
+			return new AMFEvent(type, uid, data, bubbles, cancelable);
 		}
 	}
 }

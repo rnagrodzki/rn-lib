@@ -64,6 +64,8 @@ package com.rnlib.net.amf
 
 		private var _reqCount:int = 0;
 
+		private static var _CALL_UID:int = 0;
+
 		/**
 		 * Determine execute all request in queue after error occure.
 		 */
@@ -347,6 +349,7 @@ package com.rnlib.net.amf
 			{
 				var mvo:MethodHelperVO = _remoteMethods[name];
 				var vo:MethodVO = new MethodVO();
+				vo.uid = _CALL_UID++;
 				vo.name = name;
 				vo.args = rest;
 				vo.result = mvo.result;
@@ -367,6 +370,7 @@ package com.rnlib.net.amf
 						concurrencySingle(vo);
 						break;
 				}
+				return vo.uid;
 			}
 			else if (hasProp)
 			{
@@ -459,6 +463,7 @@ package com.rnlib.net.amf
 			}
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
+			rm.uid = vo.uid;
 			rm.id = _reqCount++;
 			rm.name = vo.name;
 			rm.resultHandler = vo.result; // force call currently specified method handler
@@ -500,7 +505,7 @@ package com.rnlib.net.amf
 		 * @param name Name remote method
 		 * @param id Request id
 		 */
-		protected function onResult(result:Object, name:String, id:int):void
+		protected function onResult(result:Object, name:String, id:int, uid:int):void
 		{
 			if (_showBusyCursor) CursorManager.removeBusyCursor();
 
@@ -514,7 +519,7 @@ package com.rnlib.net.amf
 			else if (this.result != null)
 				this.result(result);
 
-			dispatchEvent(new AMFEvent(AMFEvent.RESULT, result));
+			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, result));
 
 			_requests[id] = null;
 			delete _requests[id];
@@ -528,7 +533,7 @@ package com.rnlib.net.amf
 		 * @param name Name remote method
 		 * @param id Request id
 		 */
-		protected function onFault(fault:Object, name:String, id:int):void
+		protected function onFault(fault:Object, name:String, id:int, uid:int):void
 		{
 			if (_showBusyCursor) CursorManager.removeBusyCursor();
 
@@ -542,7 +547,7 @@ package com.rnlib.net.amf
 			else if (this.fault != null)
 				this.fault(fault);
 
-			dispatchEvent(new AMFEvent(AMFEvent.FAULT, fault));
+			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, fault));
 
 			_requests[id] = null;
 			delete _requests[id];
@@ -615,6 +620,7 @@ class MethodHelperVO
 
 class ResultMediatorVO
 {
+	public var uid:int;
 	public var id:int;
 	public var name:String;
 
@@ -623,7 +629,7 @@ class ResultMediatorVO
 
 	public function result(r:Object):void
 	{
-		internalResultHandler(r, name, id);
+		internalResultHandler(r, name, id, uid);
 		dispose();
 	}
 
@@ -632,7 +638,7 @@ class ResultMediatorVO
 
 	public function fault(f:Object):void
 	{
-		internalFaultHandler(f, name, id);
+		internalFaultHandler(f, name, id, uid);
 		dispose();
 	}
 
