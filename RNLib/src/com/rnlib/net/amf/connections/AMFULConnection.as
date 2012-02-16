@@ -20,8 +20,6 @@ package com.rnlib.net.amf.connections
 
 		protected var _headers:Array;
 
-		private var _amfHeaders:Array; // Array of AMFHeader
-
 		private var _loaders:Dictionary;
 
 		private var _loadersCount:uint = 0;
@@ -80,6 +78,12 @@ package com.rnlib.net.amf.connections
 			delete _loaders[loader.id];
 			loader = null;
 		}
+
+		//---------------------------------------------------------------
+		//              <------ AMF HEADERS ------>
+		//---------------------------------------------------------------
+
+		private var _amfHeaders:Array; // Array of AMFHeader
 
 		/**
 		 * Adds an AMF packet-level header which is sent with every request for

@@ -6,6 +6,7 @@ package com.rnlib.net.amf
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
 
@@ -336,6 +337,56 @@ package com.rnlib.net.amf
 		public function set fault(value:Function):void
 		{
 			_fault = value;
+		}
+
+		//---------------------------------------------------------------
+		//              <------ AMF HEADERS ------>
+		//---------------------------------------------------------------
+
+		private var _amfHeaders:Array; // Array of AMFHeader
+
+		/**
+		 * Adds an AMF packet-level header which is sent with every request for
+		 * the life of this AMFConnection.
+		 */
+		public function addHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined):void
+		{
+			if (!_amfHeaders)
+				_amfHeaders = [];
+
+			var header:AMFHeader = new AMFHeader(name, mustUnderstand, data);
+			_amfHeaders.push(header);
+
+			if (connection) connection.addHeader(name, mustUnderstand, data);
+		}
+
+		/**
+		 * Removes any AMF headers found with the name given.
+		 *
+		 * @param name The name of the header(s) to remove.
+		 *
+		 * @return true if a header existed with the given name.
+		 */
+		public function removeHeader(name:String):Boolean
+		{
+			var exists:Boolean = false;
+
+			if (_amfHeaders)
+			{
+				for (var i:uint = 0; i < _amfHeaders.length; i++)
+				{
+					var header:AMFHeader = _amfHeaders[i] as AMFHeader;
+					if (header.name == name)
+					{
+						_amfHeaders.splice(i, 1);
+						exists = true;
+					}
+				}
+			}
+
+			if (connection) connection.removeHeader(name);
+
+			return exists;
 		}
 
 		//---------------------------------------------------------------
