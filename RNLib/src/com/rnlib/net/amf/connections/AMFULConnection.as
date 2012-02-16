@@ -25,7 +25,7 @@ package com.rnlib.net.amf.connections
 		private var _loaders:Dictionary;
 
 		private var _loadersCount:uint = 0;
-		
+
 		private var _url:String;
 
 		public function AMFULConnection()
@@ -48,7 +48,7 @@ package com.rnlib.net.amf.connections
 			_connected = true;
 
 			if(_redispatcher)
-			_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.CONNECTED));
+				_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.CONNECTED));
 		}
 
 		public function get connected():Boolean
@@ -78,6 +78,7 @@ package com.rnlib.net.amf.connections
 			loader.removeEventListener(Event.COMPLETE, onComplete);
 			_loaders[loader.id] = null;
 			loader = null;
+			delete _loaders[loader.id];
 		}
 
 		/**

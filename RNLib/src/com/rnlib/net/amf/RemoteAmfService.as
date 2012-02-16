@@ -4,6 +4,7 @@
 package com.rnlib.net.amf
 {
 	import com.rnlib.net.*;
+	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
@@ -72,6 +73,12 @@ package com.rnlib.net.amf
 		public function RemoteAmfService()
 		{
 			defaultMethods();
+			init();
+		}
+
+		protected function init():void
+		{
+			connection = new AMFULConnection();
 		}
 
 		//---------------------------------------------------------------
@@ -91,7 +98,7 @@ package com.rnlib.net.amf
 				_nc.redispatcher = this;
 				_nc.reconnectRepeatCount = 3;
 
-				_nc = value;
+				if (_endpoint) _nc.connect(_endpoint);
 			}
 		}
 
@@ -257,6 +264,7 @@ package com.rnlib.net.amf
 			}
 
 			_remoteMethods[name] = null;
+			delete _remoteMethods[name];
 		}
 
 		/**
@@ -290,6 +298,9 @@ package com.rnlib.net.amf
 				return;
 
 			_endpoint = value;
+
+			if (connection && !connection.connected)
+				connection.connect(_endpoint);
 		}
 
 		//---------------------------------------------------------------
@@ -467,6 +478,7 @@ package com.rnlib.net.amf
 			dispatchEvent(new AMFEvent(AMFEvent.RESULT, result));
 
 			_requests[id] = null;
+			delete _requests[id];
 			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0)
 				callRemoteMethod(_queue.item);
 		}
@@ -494,6 +506,7 @@ package com.rnlib.net.amf
 			dispatchEvent(new AMFEvent(AMFEvent.FAULT, fault));
 
 			_requests[id] = null;
+			delete _requests[id];
 		}
 
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
