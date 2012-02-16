@@ -5,6 +5,7 @@
         xmlns:mx="library://ns.adobe.com/flex/mx">
 
     <fx:Script><![CDATA[
+        import com.rnlib.net.amf.RemoteAmfServiceExample;
         import com.rnlib.utils.ArrayUtilExample;
         import com.rnlib.utils.PaginatorExample;
         import com.rnlib.utils.XMLUtil;
@@ -12,6 +13,7 @@
         import mx.events.ListEvent;
 
         public var examples:Array = [
+            RemoteAmfServiceExample,
             ArrayUtilExample,
             PaginatorExample
         ];
