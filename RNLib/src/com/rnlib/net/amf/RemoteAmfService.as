@@ -12,6 +12,7 @@ package com.rnlib.net.amf
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import flash.net.FileReference;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
@@ -53,7 +54,7 @@ package com.rnlib.net.amf
 
 		protected var _defaultMethods:Array;
 
-		protected var _dispatcher:IEventDispatcher = new EventDispatcher();
+		protected var _dispatcher:IEventDispatcher;
 
 		protected var _concurrency:String = RequestConcurrency.QUEUE;
 
@@ -78,6 +79,7 @@ package com.rnlib.net.amf
 
 		protected function init():void
 		{
+			_dispatcher = new EventDispatcher(this);
 			connection = new AMFULConnection();
 		}
 
@@ -438,6 +440,23 @@ package com.rnlib.net.amf
 		{
 			_isPendingRequest = true;
 
+			if (vo.args)
+			{
+				for (var i:int = 0; i < vo.args.length; i++)
+				{
+					var object:Object = vo.args[i];
+					if (object is FileReference && object.data)
+					{
+						vo.args[i] = object.data;
+					}
+					else if (object is FileReference && !object.data)
+					{
+						waitForFileContent(object as FileReference, vo);
+						return;
+					}
+				}
+			}
+
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.id = _reqCount++;
 			rm.name = vo.name;
@@ -450,9 +469,28 @@ package com.rnlib.net.amf
 
 			var fullName:String = _service ? _service + "." + vo.name : vo.name;
 			var args:Array = [fullName, rm.result, rm.fault];
+
 			_nc.call.apply(_nc, args.concat(vo.args));
 
 			if (_showBusyCursor) CursorManager.setBusyCursor();
+		}
+
+		protected var _files:Dictionary = new Dictionary();
+
+		protected function waitForFileContent(fr:FileReference, vo:MethodVO):void
+		{
+			fr.addEventListener(Event.COMPLETE, onCompleteLoadFileContent, false, 0, true);
+			_files[fr] = vo;
+			fr.load();
+		}
+
+		private function onCompleteLoadFileContent(e:Event):void
+		{
+			var fr:FileReference = e.target as FileReference;
+			var vo:MethodVO = _files[fr];
+			_files[fr] = null;
+			delete _files[fr];
+			callRemoteMethod(vo);
 		}
 
 		/**
