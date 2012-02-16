@@ -324,7 +324,7 @@ package com.rnlib.net.amf
 		{
 			_isPaused = false;
 
-			if (!_isPendingRequest && queue && queue.length > 0)
+			if (concurrency == RequestConcurrency.QUEUE && !_isPendingRequest && queue && queue.length > 0)
 				callRemoteMethod(_queue.item);
 		}
 
@@ -628,8 +628,6 @@ package com.rnlib.net.amf
 		{
 			if (_showBusyCursor) CursorManager.removeBusyCursor();
 
-			_isPendingRequest = false;
-
 			var vo:ResultMediatorVO = _requests[id];
 
 			if (vo.resultHandler != null)
@@ -638,6 +636,8 @@ package com.rnlib.net.amf
 				this.result(result);
 
 			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, result));
+
+			_isPendingRequest = false;
 
 			_requests[id] = null;
 			delete _requests[id];
@@ -661,8 +661,6 @@ package com.rnlib.net.amf
 		{
 			if (_showBusyCursor) CursorManager.removeBusyCursor();
 
-			_isPendingRequest = false;
-
 			var vo:ResultMediatorVO = _requests[id];
 
 			if (vo.faultHandler != null)
@@ -671,6 +669,8 @@ package com.rnlib.net.amf
 				this.fault(fault);
 
 			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, fault));
+
+			_isPendingRequest = false;
 
 			_requests[id] = null;
 			delete _requests[id];
