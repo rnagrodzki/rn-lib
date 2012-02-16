@@ -99,7 +99,21 @@ package com.rnlib.net.amf
 		{
 			if (value != _nc)
 			{
-				_nc = value;
+				if (!value)
+				{
+					_nc.dispose();
+					_nc = value;
+					return;
+				}
+
+				if (_amfHeaders && _amfHeaders.length)
+				{
+					for each (var header:AMFHeader in _amfHeaders)
+					{
+						_nc.addHeader(header.name, header.mustUnderstand, header.data);
+					}
+				}
+
 				_nc.redispatcher = this;
 				_nc.reconnectRepeatCount = 3;
 
