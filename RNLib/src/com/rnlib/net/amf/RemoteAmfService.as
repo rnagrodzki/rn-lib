@@ -6,6 +6,8 @@ package com.rnlib.net.amf
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+	import com.rnlib.net.amf.plugins.IAMFPlugin;
+	import com.rnlib.net.amf.plugins.IAMFPluginVO;
 	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
@@ -18,6 +20,7 @@ package com.rnlib.net.amf
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
 
+	import mx.core.ClassFactory;
 	import mx.managers.CursorManager;
 	import mx.rpc.mxml.IMXMLSupport;
 
@@ -452,11 +455,31 @@ package com.rnlib.net.amf
 		//          <------ PART OF PROXY BEHAVIOR ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Method which check if is registered Plugin for given PluginVO
+		 * @param rest
+		 * @return <code>true</code> if not found PluginVO or founded PluginVO
+		 * have registered Plugin, otherwise return <code>false</code>
+		 */
+		protected function testParamsRemoteMethod(...rest):Boolean
+		{
+			for each (var param:* in rest)
+			{
+				if (param is IAMFPluginVO)
+					return matchPlugin(param) is IAMFPlugin;
+			}
+
+			return true;
+		}
+
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
 			var hasProp:Boolean = hasOwnProperty(name);
 			if (hasProp && _remoteMethods[name])
 			{
+				if (!testParamsRemoteMethod.apply(this, rest))
+					throw ArgumentError("No matched Plugins to given PluginVO");
+
 				var mvo:MethodHelperVO = _remoteMethods[name];
 				var vo:MethodVO = new MethodVO();
 				vo.uid = _CALL_UID++;
@@ -725,6 +748,57 @@ package com.rnlib.net.amf
 		public function willTrigger(type:String):Boolean
 		{
 			return _dispatcher.willTrigger(type);
+		}
+
+		//---------------------------------------------------------------
+		//              <------ PLUGINS ------>
+		//---------------------------------------------------------------
+
+		[ArrayElementType("com.rnlib.net.amf.plugins.IAMFPlugin")]
+		protected var _plugins:Array;
+
+		/**
+		 * Collection of plugins associated with this object
+		 */
+		public function get plugins():Array
+		{
+			return _plugins;
+		}
+
+		public function set plugins(value:Array):void
+		{
+			var plug:Array = [];
+
+			for each (var data:* in value)
+			{
+				if (data is Class)
+				{
+					var factory:ClassFactory = new ClassFactory(data);
+					plug[plug.length] = factory.newInstance();
+				}
+				else
+					plug[plug.length] = data;
+			}
+
+			value = null;
+
+			_plugins = plug.filter(filterPlugins);
+			plug = null;
+		}
+
+		private static function filterPlugins(item:*, index:int, array:Array):Boolean
+		{
+			return item is IAMFPlugin;
+		}
+
+		protected function matchPlugin(vo:IAMFPluginVO):IAMFPlugin
+		{
+			for each (var plugin:IAMFPlugin in _plugins)
+			{
+				if (plugin.acceptable(vo)) return plugin;
+			}
+
+			return null;
 		}
 	}
 }
