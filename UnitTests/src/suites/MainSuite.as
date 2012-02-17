@@ -17,9 +17,9 @@ package suites
 //		public var queue:QueueTest;
 //		public var arrayUtil:ArrayUtilTest;
 //		public var paginator:PaginatorTest;
-		public var xmlUtil:XMLUtilTest;
+//		public var xmlUtil:XMLUtilTest;
 //		public var extendedNetConnection:AMFNetConnectionTest;
-//		public var remoteAmfService:RemoteAmfServiceTest;
+		public var remoteAmfService:RemoteAmfServiceTest;
 //		public var amfServer:AmfServerSuite;
 	}
 }

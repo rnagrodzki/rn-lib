@@ -3,43 +3,52 @@
  */
 package tests.net
 {
-	import com.rnlib.net.amf.connections.AMFNetConnection;
 	import com.rnlib.net.amf.RemoteAmfService;
+	import com.rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.events.IEventDispatcher;
 
 	import mockolate.mock;
-
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	import mockolate.stub;
 
+	import org.flexunit.rules.IMethodRule;
+
 	import org.hamcrest.assertThat;
-	import org.hamcrest.core.anything;
 	import org.hamcrest.object.instanceOf;
+	import org.morefluent.integrations.flexunit4.MorefluentRule;
 
 	public class RemoteAmfServiceTest
 	{
+
+		[Rule]
+		// make sure you have MorefluentRule defined in your test
+		// https://bitbucket.org/loomis/morefluent/overview
+		// https://bitbucket.org/loomis/morefluent/wiki/Home
+		public var morefluentRule:IMethodRule = new MorefluentRule();
+
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
 
 		[Mock(type="strict")]
-		public var exNC:AMFNetConnection;
+		public var exConn:IAMFConnection;
 
 		public var amf:RemoteAmfService;
 
 		[Before]
 		public function before():void
 		{
-			mock(exNC).method("close");
-			mock(exNC).method("dispose");
-			stub(exNC).method("addEventListener").anyArgs();
-			stub(exNC).method("removeEventListener").anyArgs();
-			mock(exNC).setter("reconnectRepeatCount").arg(uint);
-			mock(exNC).setter("redispatcher").arg(instanceOf(IEventDispatcher));
+			mock(exConn).method("close");
+			mock(exConn).method("dispose");
+			mock(exConn).method("connect");
+			stub(exConn).method("addEventListener").anyArgs();
+			stub(exConn).method("removeEventListener").anyArgs();
+			mock(exConn).setter("reconnectRepeatCount").arg(uint);
+			mock(exConn).setter("redispatcher").arg(instanceOf(IEventDispatcher));
 
 			amf = new RemoteAmfService();
-			amf.connection = exNC;
+			amf.connection = exConn;
 		}
 
 		[After]
@@ -49,11 +58,11 @@ package tests.net
 			amf = null;
 		}
 
-		[Test(description="Test initialize component configuration", order="1")]
+		[Test(description="Test initialize component without configuration", order="1")]
 		public function configuration():void
 		{
-			assertThat(exNC, received().setter("reconnectRepeatCount").once());
-			assertThat(exNC, received().setter("redispatcher").once());
+			assertThat(exConn, received().setter("reconnectRepeatCount").once());
+			assertThat(exConn, received().setter("redispatcher").once());
 		}
 
 		[Test(description="Test disposing component", order="2")]
@@ -61,11 +70,11 @@ package tests.net
 		{
 			amf.dispose();
 
-			assertThat(exNC, received().setter("reconnectRepeatCount").once());
-			assertThat(exNC, received().setter("redispatcher").once());
+			assertThat(exConn, received().setter("reconnectRepeatCount").once());
+			assertThat(exConn, received().setter("redispatcher").once());
 
-			assertThat(exNC,received().method("close").once());
-			assertThat(exNC,received().method("dispose").once());
+			assertThat(exConn, received().method("close").once());
+			assertThat(exConn, received().method("dispose").once());
 		}
 	}
 }

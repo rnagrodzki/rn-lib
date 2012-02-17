@@ -11,7 +11,6 @@ package com.rnlib.net.amf.connections
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.events.HTTPStatusEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
@@ -45,12 +44,16 @@ package com.rnlib.net.amf.connections
 		private function register():void
 		{
 			_redispatcher = this;
+
 			_loader.dataFormat = URLLoaderDataFormat.BINARY;
 			_loader.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
+//			_loader.addEventListener("complete", onComplete, false, 0, true);
 			_loader.addEventListener(ProgressEvent.PROGRESS, onProgress, false, 0, true);
-			_loader.addEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, onHTTPStatus, false, 0, true);
+//			_loader.addEventListener("progress", onProgress, false, 0, true);
 			_loader.addEventListener(IOErrorEvent.IO_ERROR, onIOError, false, 0, true);
+//			_loader.addEventListener("ioError", onIOError, false, 0, true);
 			_loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity, false, 0, true);
+//			_loader.addEventListener("securityError", onSecurity, false, 0, true);
 		}
 
 		//---------------------------------------------------------------
@@ -85,7 +88,6 @@ package com.rnlib.net.amf.connections
 			_fault = null;
 			_loader.removeEventListener(Event.COMPLETE, onComplete);
 			_loader.removeEventListener(ProgressEvent.PROGRESS, onProgress);
-			_loader.removeEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, onHTTPStatus);
 			_loader.removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			_loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);
 			_loader = null;
@@ -314,12 +316,6 @@ package com.rnlib.net.amf.connections
 			{ _redispatcher.dispatchEvent(event);}
 
 			dispose();
-		}
-
-		private function onHTTPStatus(event:HTTPStatusEvent):void
-		{
-			if (_redispatcher)
-			{ _redispatcher.dispatchEvent(event);}
 		}
 	}
 }
