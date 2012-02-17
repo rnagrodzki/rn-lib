@@ -5,11 +5,26 @@ package com.rnlib.net.amf.plugins
 {
 	import flash.events.Event;
 
+	/**
+	 * Life of plugin inside amf service can be control
+	 * only by dispatching events.
+	 */
 	public class PluginEvent extends Event
 	{
+		/**
+		 * Plugin is ready to return arguments for remote method
+		 */
 		public static const READY:String = "pluginReady";
 
+		/**
+		 * Plugin cancel operation. Fault handler will be execute.
+		 */
 		public static const CANCEL:String = "pluginCancel";
+
+		/**
+		 *
+		 */
+		public static const COMPLETE:String = "pluginComplete";
 
 		public var data:Object;
 

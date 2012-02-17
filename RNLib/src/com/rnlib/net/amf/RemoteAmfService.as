@@ -6,6 +6,7 @@ package com.rnlib.net.amf
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+	import com.rnlib.net.amf.plugins.IMultipartPlugin;
 	import com.rnlib.net.amf.plugins.IPlugin;
 	import com.rnlib.net.amf.plugins.IPluginFactory;
 	import com.rnlib.net.amf.plugins.IPluginVO;
@@ -615,8 +616,17 @@ package com.rnlib.net.amf
 			rm.name = vo.name;
 			rm.resultHandler = vo.result; // force call currently specified method handler
 			rm.faultHandler = vo.fault; // force call currently specified method handler
-			rm.internalFaultHandler = onFault;
-			rm.internalResultHandler = onResult;
+
+			if (vo.args is IMultipartPlugin)
+			{
+				rm.internalFaultHandler = IMultipartPlugin(vo.args).onFault;
+				rm.internalResultHandler = IMultipartPlugin(vo.args).onResult;
+			}
+			else
+			{
+				rm.internalFaultHandler = onFault;
+				rm.internalResultHandler = onResult;
+			}
 
 			_requests[rm.id] = rm;
 
@@ -646,10 +656,43 @@ package com.rnlib.net.amf
 		 */
 		protected function waitForPlugin(plugin:IPlugin, pluginVO:IPluginVO, vo:MethodVO):void
 		{
-			plugin.addEventListener(PluginEvent.READY, onPluginReady, false, 0, true);
-			plugin.addEventListener(PluginEvent.CANCEL, onPluginCancel, false, 0, true);
+			registerPluginHandlers(plugin);
 			_plugins[plugin] = vo;
 			plugin.init(pluginVO);
+		}
+
+		/**
+		 * Encapsulate register plugin handlers
+		 * @param plugin
+		 */
+		protected function registerPluginHandlers(plugin:IPlugin):void
+		{
+			plugin.addEventListener(PluginEvent.CANCEL, onPluginCancel, false, 0, true);
+
+			if (plugin is IMultipartPlugin)
+			{
+				plugin.addEventListener(PluginEvent.READY, onMultipartPluginReady, false, 0, true);
+				plugin.addEventListener(PluginEvent.COMPLETE, onMultipartPluginComplete, false, 0, true);
+			}
+			else
+				plugin.addEventListener(PluginEvent.COMPLETE, onPluginComplete, false, 0, true);
+		}
+
+		/**
+		 * Encapsulate remove plugin handlers
+		 * @param plugin
+		 */
+		protected function removePluginHandlers(plugin:IPlugin):void
+		{
+			plugin.removeEventListener(PluginEvent.CANCEL, onPluginCancel, false);
+
+			if (plugin is IMultipartPlugin)
+			{
+				plugin.removeEventListener(PluginEvent.READY, onMultipartPluginReady, false);
+				plugin.removeEventListener(PluginEvent.COMPLETE, onMultipartPluginComplete, false);
+			}
+			else
+				plugin.removeEventListener(PluginEvent.COMPLETE, onPluginComplete, false);
 		}
 
 		/**
@@ -662,8 +705,7 @@ package com.rnlib.net.amf
 			var vo:MethodVO = _plugins[plugin];
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
-			plugin.removeEventListener(Event.COMPLETE, onPluginReady, false);
-			plugin.removeEventListener(Event.CANCEL, onPluginCancel, false);
+			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
@@ -682,17 +724,45 @@ package com.rnlib.net.amf
 		 * We will proceed only on ready event
 		 * @param e
 		 */
-		private function onPluginReady(e:PluginEvent):void
+		private function onPluginComplete(e:PluginEvent):void
 		{
 			var plugin:IPlugin = e.target as IPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
-			plugin.removeEventListener(Event.COMPLETE, onPluginReady, false);
-			plugin.removeEventListener(Event.CANCEL, onPluginCancel, false);
+			removePluginHandlers(plugin);
 			vo.args = plugin.args;
 			plugin.dispose(); // here is plugin life end
 			callRemoteMethod(vo);
+		}
+
+		protected function onMultipartPluginReady(e:PluginEvent):void
+		{
+			var plugin:IMultipartPlugin = e.target as IMultipartPlugin;
+			var vo:MethodVO = _plugins[plugin];
+			vo.args = plugin.args;
+			callRemoteMethod(vo);
+		}
+
+		protected function onMultipartPluginComplete(e:PluginEvent):void
+		{
+			var plugin:IMultipartPlugin = e.target as IMultipartPlugin;
+			var vo:MethodVO = _plugins[plugin];
+			_plugins[plugin] = null;
+			delete _plugins[plugin];
+			removePluginHandlers(plugin);
+			plugin.dispose(); // here is plugin life end
+
+			var rm:ResultMediatorVO = new ResultMediatorVO();
+			rm.uid = vo.uid;
+			rm.id = _reqCount++;
+			rm.name = vo.name;
+			rm.resultHandler = vo.result; // force call currently specified method handler
+			rm.faultHandler = vo.fault; // force call currently specified method handler
+
+			_requests[rm.id] = rm;
+
+			onResult(e.data, rm.name, rm.id, rm.uid);
 		}
 
 		//---------------------------------------------------------------
