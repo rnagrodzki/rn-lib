@@ -42,6 +42,7 @@ package tests.net
 			mock(exConn).method("close");
 			mock(exConn).method("dispose");
 			mock(exConn).method("connect");
+			mock(exConn).getter("connected");
 			stub(exConn).method("addEventListener").anyArgs();
 			stub(exConn).method("removeEventListener").anyArgs();
 			mock(exConn).setter("reconnectRepeatCount").arg(uint);
@@ -63,6 +64,12 @@ package tests.net
 		{
 			assertThat(exConn, received().setter("reconnectRepeatCount").once());
 			assertThat(exConn, received().setter("redispatcher").once());
+			assertThat(exConn, received().method("connect").never());
+			
+			amf.endpoint = "http://rnlib.rafal-nagrodzki.com/amf";
+
+			assertThat(exConn, received().getter("connected").once());
+			assertThat(exConn, received().method("connect").once());
 		}
 
 		[Test(description="Test disposing component", order="2")]
