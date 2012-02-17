@@ -5,18 +5,18 @@ package com.rnlib.net.amf.plugins
 {
 	import flash.events.EventDispatcher;
 
-	public class AMFPluginBase extends EventDispatcher implements IAMFPlugin
+	public class AMFPluginBase extends EventDispatcher implements IPlugin
 	{
 		public function AMFPluginBase()
 		{
 		}
 
-		public function acceptable(vo:IAMFPluginVO):Boolean
+		public function acceptable(vo:IPluginVO):Boolean
 		{
 			return false;
 		}
 
-		public function init(vo:IAMFPluginVO):void
+		public function init(vo:IPluginVO):void
 		{
 		}
 	}

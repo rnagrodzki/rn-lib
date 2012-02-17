@@ -6,8 +6,9 @@ package com.rnlib.net.amf
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
-	import com.rnlib.net.amf.plugins.IAMFPlugin;
-	import com.rnlib.net.amf.plugins.IAMFPluginVO;
+	import com.rnlib.net.amf.plugins.IPlugin;
+	import com.rnlib.net.amf.plugins.IPluginFactory;
+	import com.rnlib.net.amf.plugins.IPluginVO;
 	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
@@ -20,7 +21,6 @@ package com.rnlib.net.amf
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
 
-	import mx.core.ClassFactory;
 	import mx.managers.CursorManager;
 	import mx.rpc.mxml.IMXMLSupport;
 
@@ -458,18 +458,33 @@ package com.rnlib.net.amf
 		/**
 		 * Method which check if is registered Plugin for given PluginVO
 		 * @param rest
-		 * @return <code>true</code> if not found PluginVO or founded PluginVO
-		 * have registered Plugin, otherwise return <code>false</code>
+		 * @return <code>-1</code> if not found PluginVO, <code>1</code> if founded PluginVO
+		 * have registered Plugin or <code>0</code> if PluginVO is not acceptable by any
+		 * registered Plugin
 		 */
-		protected function testParamsRemoteMethod(...rest):Boolean
+		protected function testParamsRemoteMethod(...rest):IPluginVO
 		{
-			for each (var param:* in rest)
+			if (!rest) return null;
+
+			for (var i:int = 0; i < rest.length; i++)
 			{
-				if (param is IAMFPluginVO)
-					return matchPlugin(param) is IAMFPlugin;
+				var param:Object = rest[i];
+
+				if (param is IPluginVO)
+				{
+					var vo:IPluginVO = param as IPluginVO;
+
+					if (!pluginVOisSupported(vo))
+						throw new ArgumentError("Not found associated IPlugin with given IPluginVO");
+
+					rest.splice(i, 1);
+					vo.args = vo.args ? vo.args.concat(rest) : rest;
+
+					return vo;
+				}
 			}
 
-			return true;
+			return null;
 		}
 
 		override flash_proxy function callProperty(name:*, ...rest):*
@@ -477,14 +492,13 @@ package com.rnlib.net.amf
 			var hasProp:Boolean = hasOwnProperty(name);
 			if (hasProp && _remoteMethods[name])
 			{
-				if (!testParamsRemoteMethod.apply(this, rest))
-					throw ArgumentError("No matched Plugins to given PluginVO");
+				var pluginVO:IPluginVO = testParamsRemoteMethod.apply(this, rest);
 
 				var mvo:MethodHelperVO = _remoteMethods[name];
 				var vo:MethodVO = new MethodVO();
 				vo.uid = _CALL_UID++;
 				vo.name = name;
-				vo.args = rest;
+				vo.args = pluginVO ? pluginVO : rest;
 				vo.result = mvo.result;
 				vo.fault = mvo.fault;
 
@@ -622,18 +636,18 @@ package com.rnlib.net.amf
 
 		protected function waitForFileContent(fr:FileReference, vo:MethodVO):void
 		{
-			fr.addEventListener(Event.COMPLETE, onCompleteLoadFileContent, false, 0, true);
+			fr.addEventListener(Event.COMPLETE, onPluginComplete, false, 0, true);
 			_files[fr] = vo;
 			fr.load();
 		}
 
-		private function onCompleteLoadFileContent(e:Event):void
+		private function onPluginComplete(e:Event):void
 		{
 			var fr:FileReference = e.target as FileReference;
 			var vo:MethodVO = _files[fr];
 			_files[fr] = null;
 			delete _files[fr];
-			fr.removeEventListener(Event.COMPLETE, onCompleteLoadFileContent, false);
+			fr.removeEventListener(Event.COMPLETE, onPluginComplete, false);
 			callRemoteMethod(vo);
 		}
 
@@ -754,48 +768,45 @@ package com.rnlib.net.amf
 		//              <------ PLUGINS ------>
 		//---------------------------------------------------------------
 
-		[ArrayElementType("com.rnlib.net.amf.plugins.IAMFPlugin")]
-		protected var _plugins:Array;
+		[ArrayElementType("com.rnlib.net.amf.plugins.IPluginFactory")]
+		protected var _pluginFactory:Array;
 
 		/**
 		 * Collection of plugins associated with this object
 		 */
-		public function get plugins():Array
+		public function get pluginFactory():Array
 		{
-			return _plugins;
+			return _pluginFactory.concat(null);
 		}
 
-		public function set plugins(value:Array):void
+		public function set pluginFactory(value:Array):void
 		{
-			var plug:Array = [];
-
-			for each (var data:* in value)
-			{
-				if (data is Class)
-				{
-					var factory:ClassFactory = new ClassFactory(data);
-					plug[plug.length] = factory.newInstance();
-				}
-				else
-					plug[plug.length] = data;
-			}
-
-			value = null;
-
-			_plugins = plug.filter(filterPlugins);
-			plug = null;
+			if (value)
+				_pluginFactory = value.filter(filterPlugins);
+			else
+				_pluginFactory = null;
 		}
 
 		private static function filterPlugins(item:*, index:int, array:Array):Boolean
 		{
-			return item is IAMFPlugin;
+			return item is IPluginFactory;
 		}
 
-		protected function matchPlugin(vo:IAMFPluginVO):IAMFPlugin
+		protected function pluginVOisSupported(vo:IPluginVO):Boolean
 		{
-			for each (var plugin:IAMFPlugin in _plugins)
+			for each (var factory:IPluginFactory in _pluginFactory)
 			{
-				if (plugin.acceptable(vo)) return plugin;
+				if (factory.isSupportVO(vo)) return true;
+			}
+
+			return false;
+		}
+
+		protected function matchPlugin(vo:IPluginVO):IPlugin
+		{
+			for each (var factory:IPluginFactory in _pluginFactory)
+			{
+				if (factory.isSupportVO(vo)) return factory.newInstance();
 			}
 
 			return null;

@@ -9,6 +9,6 @@ package com.rnlib.net.amf
 		public var name:String;
 		public var result:Function;
 		public var fault:Function;
-		public var args:Array;
+		public var args:Object;
 	}
 }
