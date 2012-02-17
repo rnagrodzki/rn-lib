@@ -17,27 +17,32 @@ package com.rnlib.net.amf.plugins
 		public function init(vo:IPluginVO):void
 		{
 			_vo = vo as FileReferencePluginVO;
-			
-			if(!_vo.fr.data)
+
+			if (!_vo.fr.data)
 			{
-				_vo.fr.addEventListener(Event.COMPLETE, onComplete,false,0,true);
+				_vo.fr.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
 				_vo.fr.load();
 			}
 			else
 			{
-				dispatchEvent(new Event(Event.COMPLETE));
+				dispatchEvent(new PluginEvent(PluginEvent.READY));
 			}
 		}
 
 		private function onComplete(e:Event):void
 		{
 			_vo.args.unshift(_vo.fr.data);
-			dispatchEvent(new Event(Event.COMPLETE));
+			dispatchEvent(new PluginEvent(PluginEvent.READY));
 		}
 
 		public function get args():Array
 		{
 			return _vo.args;
+		}
+
+		public function dispose():void
+		{
+			_vo = null;
 		}
 	}
 }

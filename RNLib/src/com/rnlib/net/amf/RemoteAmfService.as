@@ -9,6 +9,7 @@ package com.rnlib.net.amf
 	import com.rnlib.net.amf.plugins.IPlugin;
 	import com.rnlib.net.amf.plugins.IPluginFactory;
 	import com.rnlib.net.amf.plugins.IPluginVO;
+	import com.rnlib.net.amf.plugins.PluginEvent;
 	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
@@ -245,13 +246,13 @@ package com.rnlib.net.amf
 		 * @param fault Fault handler
 		 *
 		 * @example <code>
-		 *	 var ras : RemoteAmfService = new RemoteAmfService();
-		 *	 ras.endpoint = "http://example.com/gateway";
-		 *	 ras.service = "MyExampleService";
-		 *	 ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
-		 *	 ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"
-		 *	 // or you can also send parameters to remote method as shown below
-		 *	 ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures
+		 *     var ras : RemoteAmfService = new RemoteAmfService();
+		 *     ras.endpoint = "http://example.com/gateway";
+		 *     ras.service = "MyExampleService";
+		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
+		 *     ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"
+		 *     // or you can also send parameters to remote method as shown below
+		 *     ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures
 		 * </code>
 		 *
 		 * @see #removeMethod()
@@ -271,15 +272,15 @@ package com.rnlib.net.amf
 		 * @param name
 		 *
 		 * @example <code>
-		 *	 var ras : RemoteAmfService = new RemoteAmfService();
-		 *	 ras.endpoint = "http://example.com/gateway";
-		 *	 ras.service = "MyExampleService";
-		 *	 ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
-		 *	 ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);
-		 *	 ras.myRemoteFunction(); // ok
-		 *	 ras.mySecondRemoteFunction(); // ok
-		 *	 ras.removeMethod("mySecondRemoteFunction");
-		 *	 ras.mySecondRemoteFunction(); // throw Error
+		 *     var ras : RemoteAmfService = new RemoteAmfService();
+		 *     ras.endpoint = "http://example.com/gateway";
+		 *     ras.service = "MyExampleService";
+		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
+		 *     ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);
+		 *     ras.myRemoteFunction(); // ok
+		 *     ras.mySecondRemoteFunction(); // ok
+		 *     ras.removeMethod("mySecondRemoteFunction");
+		 *     ras.mySecondRemoteFunction(); // throw Error
 		 * </code>
 		 *
 		 * @see #addMethod()
@@ -636,21 +637,61 @@ package com.rnlib.net.amf
 		 */
 		protected var _plugins:Dictionary = new Dictionary();
 
+		/**
+		 * Plugin can execute asynchronously methods so we wait until dispatch event
+		 * that is ready to go
+		 * @param plugin
+		 * @param pluginVO
+		 * @param vo
+		 */
 		protected function waitForPlugin(plugin:IPlugin, pluginVO:IPluginVO, vo:MethodVO):void
 		{
-			plugin.addEventListener(Event.COMPLETE, onPluginComplete, false, 0, true);
+			plugin.addEventListener(PluginEvent.READY, onPluginReady, false, 0, true);
+			plugin.addEventListener(PluginEvent.CANCEL, onPluginCancel, false, 0, true);
 			_plugins[plugin] = vo;
 			plugin.init(pluginVO);
 		}
 
-		private function onPluginComplete(e:Event):void
+		/**
+		 * If plugin cancel operation is forced call fault handler
+		 * @param e
+		 */
+		private function onPluginCancel(e:PluginEvent):void
 		{
 			var plugin:IPlugin = e.target as IPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
-			plugin.removeEventListener(Event.COMPLETE, onPluginComplete, false);
+			plugin.removeEventListener(Event.COMPLETE, onPluginReady, false);
+			plugin.removeEventListener(Event.CANCEL, onPluginCancel, false);
+			plugin.dispose(); // here is plugin life end
+
+			var rm:ResultMediatorVO = new ResultMediatorVO();
+			rm.uid = vo.uid;
+			rm.id = _reqCount++;
+			rm.name = vo.name;
+			rm.resultHandler = vo.result; // force call currently specified method handler
+			rm.faultHandler = vo.fault; // force call currently specified method handler
+
+			_requests[rm.id] = rm;
+
+			onFault(e.data, rm.name, rm.id, rm.uid);
+		}
+
+		/**
+		 * We will proceed only on ready event
+		 * @param e
+		 */
+		private function onPluginReady(e:PluginEvent):void
+		{
+			var plugin:IPlugin = e.target as IPlugin;
+			var vo:MethodVO = _plugins[plugin];
+			_plugins[plugin] = null;
+			delete _plugins[plugin];
+			plugin.removeEventListener(Event.COMPLETE, onPluginReady, false);
+			plugin.removeEventListener(Event.CANCEL, onPluginCancel, false);
 			vo.args = plugin.args;
+			plugin.dispose(); // here is plugin life end
 			callRemoteMethod(vo);
 		}
 
