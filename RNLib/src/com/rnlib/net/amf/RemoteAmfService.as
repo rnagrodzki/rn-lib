@@ -16,7 +16,6 @@ package com.rnlib.net.amf
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
-	import flash.net.FileReference;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
@@ -42,25 +41,14 @@ package com.rnlib.net.amf
 
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport
 	{
-		private var _queue:IQueue = new PriorityQueue();
 
 		protected var _nc:IAMFConnection;
 
 		protected var _service:String;
 
-		protected var _endpoint:String;
-
-		protected var _result:Function;
-
-		protected var _fault:Function;
-
 		protected var _remoteMethods:Dictionary = new Dictionary();
 
 		protected var _defaultMethods:Array;
-
-		protected var _dispatcher:IEventDispatcher;
-
-		protected var _concurrency:String = RequestConcurrency.QUEUE;
 
 		protected var _isPendingRequest:Boolean = false;
 
@@ -82,6 +70,8 @@ package com.rnlib.net.amf
 			defaultMethods();
 			init();
 		}
+
+		protected var _dispatcher:IEventDispatcher;
 
 		protected function init():void
 		{
@@ -174,6 +164,12 @@ package com.rnlib.net.amf
 			];
 		}
 
+		//---------------------------------------------------------------
+		//              <------ CONCURRENCY ------>
+		//---------------------------------------------------------------
+
+		protected var _concurrency:String = RequestConcurrency.QUEUE;
+
 		/**
 		 * Value that indicates how to handle multiple calls to the same service. The default
 		 * value is queue. The following values are permitted:
@@ -216,6 +212,12 @@ package com.rnlib.net.amf
 
 			_showBusyCursor = value;
 		}
+
+		//---------------------------------------------------------------
+		//              		<------ QUEUE ------>
+		//---------------------------------------------------------------
+
+		private var _queue:IQueue = new PriorityQueue();
 
 		/**
 		 * Property to change default queue class
@@ -351,6 +353,8 @@ package com.rnlib.net.amf
 			_service = value;
 		}
 
+		protected var _endpoint:String;
+
 		/**
 		 * AMF endpoint.
 		 * @exampleText endpoint = "http://myhost.com/amf"
@@ -375,6 +379,8 @@ package com.rnlib.net.amf
 		//              <------ GLOBAL RESULT HANDLERS ------>
 		//---------------------------------------------------------------
 
+		protected var _result:Function;
+
 		/**
 		 * Global result handler for all invoke remote methods
 		 */
@@ -387,6 +393,8 @@ package com.rnlib.net.amf
 		{
 			_result = value;
 		}
+
+		protected var _fault:Function;
 
 		/**
 		 * Global fault handler for all invoke remote methods
@@ -620,9 +628,12 @@ package com.rnlib.net.amf
 		}
 
 		//---------------------------------------------------------------
-		//              <------ LOAD FILES JUST IN TIME ------>
+		//			<------ EXECUTE PLUGINS JUST IN TIME ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Dictionary of IPlugins
+		 */
 		protected var _plugins:Dictionary = new Dictionary();
 
 		protected function waitForPlugin(plugin:IPlugin, pluginVO:IPluginVO, vo:MethodVO):void
