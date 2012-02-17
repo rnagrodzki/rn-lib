@@ -11,6 +11,7 @@ package com.rnlib.net.amf.plugins
 		public function PluginFactory(generator:Class,voGenerator:Class)
 		{
 			_generator = generator;
+			_generatorVO = voGenerator;
 		}
 
 		public function newInstance():IPlugin
