@@ -25,7 +25,7 @@ package com.rnlib.net.amf.plugins
 		 * @return If return <code>false</code> loop of requests
 		 * on server is break down.
 		 */
-		function next():Boolean;
+		function next():void;
 
 		/**
 		 * Callback to pass result from server

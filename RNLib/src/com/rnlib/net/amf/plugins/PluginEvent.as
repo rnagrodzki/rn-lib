@@ -22,9 +22,25 @@ package com.rnlib.net.amf.plugins
 		public static const CANCEL:String = "pluginCancel";
 
 		/**
-		 *
+		 * MultipartPlugin complete all tasks
 		 */
 		public static const COMPLETE:String = "pluginComplete";
+
+		/**
+		 * Plugin was bring to life.
+		 * Data property of event contains instance of new plugin.
+		 *
+		 * @see #data
+		 */
+		public static const PLUGIN_CREATED:String = "pluginCreated";
+
+		/**
+		 * Plugin was destroyed
+		 * Data property of event contains instance of new plugin.
+		 *
+		 * @see #data
+		 */
+		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
 
 		public var data:Object;
 

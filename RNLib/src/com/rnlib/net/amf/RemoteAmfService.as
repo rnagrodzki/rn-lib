@@ -39,6 +39,16 @@ package com.rnlib.net.amf
 	 */
 	[Event(name="fault", type="com.rnlib.net.amf.AMFEvent")]
 
+	/**
+	 * Dispatch then new plugin is created
+	 */
+	[Event(name="pluginCreated", type="com.rnlib.net.amf.plugins.PluginEvent")]
+
+	/**
+	 * Dispatch then plugin is disposed
+	 */
+	[Event(name="pluginDisposed", type="com.rnlib.net.amf.plugins.PluginEvent")]
+
 	use namespace flash_proxy;
 
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport
@@ -604,9 +614,7 @@ package com.rnlib.net.amf
 
 			if (vo.args is IPluginVO)
 			{
-				var pco:IPluginVO = vo.args as IPluginVO;
-				waitForPlugin(matchPlugin(pco), pco, vo);
-				pco = null;
+				waitForPlugin(vo);
 				return;
 			}
 
@@ -650,15 +658,21 @@ package com.rnlib.net.amf
 		/**
 		 * Plugin can execute asynchronously methods so we wait until dispatch event
 		 * that is ready to go
-		 * @param plugin
-		 * @param pluginVO
 		 * @param vo
 		 */
-		protected function waitForPlugin(plugin:IPlugin, pluginVO:IPluginVO, vo:MethodVO):void
+		protected function waitForPlugin(vo:MethodVO):void
 		{
+			var pluginVO:IPluginVO = vo.args as IPluginVO;
+			var plugin:IPlugin = matchPlugin(pluginVO);
+
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_CREATED,plugin));
+
 			registerPluginHandlers(plugin);
 			_plugins[plugin] = vo;
 			plugin.init(pluginVO);
+
+			pluginVO = null;
+			plugin = null;
 		}
 
 		/**
@@ -675,7 +689,10 @@ package com.rnlib.net.amf
 				plugin.addEventListener(PluginEvent.COMPLETE, onMultipartPluginComplete, false, 0, true);
 			}
 			else
+			{
+				plugin.addEventListener(PluginEvent.READY, onPluginComplete, false, 0, true);
 				plugin.addEventListener(PluginEvent.COMPLETE, onPluginComplete, false, 0, true);
+			}
 		}
 
 		/**
@@ -692,7 +709,10 @@ package com.rnlib.net.amf
 				plugin.removeEventListener(PluginEvent.COMPLETE, onMultipartPluginComplete, false);
 			}
 			else
+			{
+				plugin.removeEventListener(PluginEvent.READY, onPluginComplete, false);
 				plugin.removeEventListener(PluginEvent.COMPLETE, onPluginComplete, false);
+			}
 		}
 
 		/**
@@ -707,6 +727,7 @@ package com.rnlib.net.amf
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED,plugin));
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.uid = vo.uid;
@@ -721,7 +742,7 @@ package com.rnlib.net.amf
 		}
 
 		/**
-		 * We will proceed only on ready event
+		 * We will proceed only on ready/complete event
 		 * @param e
 		 */
 		private function onPluginComplete(e:PluginEvent):void
@@ -733,6 +754,7 @@ package com.rnlib.net.amf
 			removePluginHandlers(plugin);
 			vo.args = plugin.args;
 			plugin.dispose(); // here is plugin life end
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED,plugin));
 			callRemoteMethod(vo);
 		}
 
@@ -752,6 +774,7 @@ package com.rnlib.net.amf
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED,plugin));
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.uid = vo.uid;

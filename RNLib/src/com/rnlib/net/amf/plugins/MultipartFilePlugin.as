@@ -6,11 +6,23 @@ package com.rnlib.net.amf.plugins
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 
-	public class FileReferencePlugin extends EventDispatcher implements IPlugin
+	public class MultipartFilePlugin extends EventDispatcher implements IMultipartPlugin
 	{
 		protected var _vo:FileReferencePluginVO;
 
-		public function FileReferencePlugin()
+		public function MultipartFilePlugin()
+		{
+		}
+
+		public function next():void
+		{
+		}
+
+		public function onResult(result:Object):void
+		{
+		}
+
+		public function onFault(fault:Object):void
 		{
 		}
 
@@ -25,24 +37,23 @@ package com.rnlib.net.amf.plugins
 			}
 			else
 			{
-				dispatchEvent(new PluginEvent(PluginEvent.COMPLETE));
+				dispatchEvent(new PluginEvent(PluginEvent.READY));
 			}
 		}
 
 		private function onComplete(e:Event):void
 		{
 			_vo.args.unshift(_vo.fr.data);
-			dispatchEvent(new PluginEvent(PluginEvent.COMPLETE));
-		}
-
-		public function get args():Array
-		{
-			return _vo.args;
+			dispatchEvent(new PluginEvent(PluginEvent.READY));
 		}
 
 		public function dispose():void
 		{
-			_vo = null;
+		}
+
+		public function get args():Array
+		{
+			return null;
 		}
 	}
 }
