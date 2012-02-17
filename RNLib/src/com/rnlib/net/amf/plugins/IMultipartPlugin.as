@@ -5,25 +5,23 @@ package com.rnlib.net.amf.plugins
 {
 	/**
 	 * Developer of MultipartPlugin is responsible to dispatch event
-	 * <code>Event.COMPLETE</code> always after execute by RemoteAmfService
+	 * <code>Event.READY</code> always after execute by RemoteAmfService
 	 * init() or next() method. Please notice that init() method is calling
 	 * only once at start "lifecycle" of plugin. Method next() is calling
-	 * as many times as still return <code>true</code>.
+	 * as many times as needed to complete work by plugin. After that
+	 * plugin dispatch event <code>PluginEvent.COMPLETE</code>
 	 *
-	 * Full lifecycle of MultipartPlugin can be as follow:
-	 * constructor() -> init() -> dispatch complete event
-	 * -> onResult()/onFault()
-	 * -------- this part can be repeatable many times -----------
-	 * -> next() return true -> dispatch complete event
-	 * -> onResult()/onFault()
+	 * @see com.rnlib.net.amf.plugins.PluginEvent
 	 */
 	public interface IMultipartPlugin extends IPlugin
 	{
 		/**
 		 * Method calling sequential in loop of requests on server after
-		 * first init call until is returning <code>true</code>.
-		 * @return If return <code>false</code> loop of requests
-		 * on server is break down.
+		 * first init call until plugin finish his work and inform
+		 * about it dispatched <code>PluginEvent.COMPLETE</code>
+		 * or error occur and plugin dispatch <code>PluginEvent.CANCEL</code>.
+		 *
+		 * @see com.rnlib.net.amf.plugins.PluginEvent
 		 */
 		function next():void;
 

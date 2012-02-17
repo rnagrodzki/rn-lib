@@ -14,6 +14,11 @@ package com.rnlib.net.amf.plugins
 		{
 		}
 
+		/**
+		 * Method called by amf service before send request to server
+		 * @param vo ValueObject passed by amf service witch is associated
+		 * with current request
+		 */
 		public function init(vo:IPluginVO):void
 		{
 			_vo = vo as FileReferencePluginVO;
@@ -35,11 +40,17 @@ package com.rnlib.net.amf.plugins
 			dispatchEvent(new PluginEvent(PluginEvent.COMPLETE));
 		}
 
+		/**
+		 * Method returns argument passed to remote method
+		 */
 		public function get args():Array
 		{
 			return _vo.args;
 		}
 
+		/**
+		 * Disposing plugin
+		 */
 		public function dispose():void
 		{
 			_vo = null;

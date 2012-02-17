@@ -7,10 +7,13 @@ package com.rnlib.net.amf.plugins
 
 	/**
 	 * Developer of Plugin is responsible for dispatch
-	 * <code>Event.COMPLETE</code> after executed by
-	 * RemoteAmfService method init() then plugin is
-	 * ready for return args pass to request on server
-	 * by args getter.
+	 * <code>PluginEvent.READY</code> after executed by
+	 * RemoteAmfService method init(). The event inform
+	 * amf service that plugin is ready for return args
+	 * which will pass to request on server by args getter.
+	 *
+	 *
+	 * @see com.rnlib.net.amf.plugins.PluginEvent
 	 */
 	public interface IPlugin extends IEventDispatcher
 	{
@@ -18,6 +21,8 @@ package com.rnlib.net.amf.plugins
 		 * Method called by RemoteAmfService o start
 		 * plugin lifecycle.
 		 * @param vo Param transfer from args remote method.
+		 *
+		 * @see com.rnlib.net.amf.plugins.PluginEvent
 		 */
 		function init(vo:IPluginVO):void;
 
