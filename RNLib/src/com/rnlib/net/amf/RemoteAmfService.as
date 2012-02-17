@@ -641,7 +641,7 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
-			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused && continueAfterFault)
+			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused)
 				callRemoteMethod(_queue.item);
 		}
 
@@ -674,6 +674,9 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
+
+			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused && continueAfterFault)
+				callRemoteMethod(_queue.item);
 		}
 
 		//---------------------------------------------------------------
