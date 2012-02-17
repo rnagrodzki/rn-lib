@@ -7,14 +7,8 @@ package com.rnlib.net.amf.plugins
 
 	public interface IPlugin extends IEventDispatcher
 	{
-		/**
-		 * Test if Value Object is acceptable by plugin to future process.
-		 * @param vo Value Object to test.
-		 * @return <code>true</code> if plugin accept Value Object, <code>false</code> otherwise.
-		 */
-		function acceptable(vo:IPluginVO):Boolean;
-
-
 		function init(vo:IPluginVO):void;
+
+		function get args():Array;
 	}
 }

@@ -162,7 +162,7 @@ package com.rnlib.net.amf
 			_isPendingRequest = false;
 			_remoteMethods = new Dictionary();
 			_requests = new Dictionary();
-			_files = new Dictionary();
+			_plugins = new Dictionary();
 		}
 
 		private function defaultMethods():void
@@ -592,21 +592,12 @@ package com.rnlib.net.amf
 		{
 			_isPendingRequest = true;
 
-			if (vo.args)
+			if (vo.args is IPluginVO)
 			{
-				for (var i:int = 0; i < vo.args.length; i++)
-				{
-					var object:Object = vo.args[i];
-					if (object is FileReference && object.data)
-					{
-						vo.args[i] = object.data;
-					}
-					else if (object is FileReference && !object.data)
-					{
-						waitForFileContent(object as FileReference, vo);
-						return;
-					}
-				}
+				var pco:IPluginVO = vo.args as IPluginVO;
+				waitForPlugin(matchPlugin(pco), pco, vo);
+				pco = null;
+				return;
 			}
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
@@ -632,22 +623,23 @@ package com.rnlib.net.amf
 		//              <------ LOAD FILES JUST IN TIME ------>
 		//---------------------------------------------------------------
 
-		protected var _files:Dictionary = new Dictionary();
+		protected var _plugins:Dictionary = new Dictionary();
 
-		protected function waitForFileContent(fr:FileReference, vo:MethodVO):void
+		protected function waitForPlugin(plugin:IPlugin, pluginVO:IPluginVO, vo:MethodVO):void
 		{
-			fr.addEventListener(Event.COMPLETE, onPluginComplete, false, 0, true);
-			_files[fr] = vo;
-			fr.load();
+			plugin.addEventListener(Event.COMPLETE, onPluginComplete, false, 0, true);
+			_plugins[plugin] = vo;
+			plugin.init(pluginVO);
 		}
 
 		private function onPluginComplete(e:Event):void
 		{
-			var fr:FileReference = e.target as FileReference;
-			var vo:MethodVO = _files[fr];
-			_files[fr] = null;
-			delete _files[fr];
-			fr.removeEventListener(Event.COMPLETE, onPluginComplete, false);
+			var plugin:IPlugin = e.target as IPlugin;
+			var vo:MethodVO = _plugins[plugin];
+			_plugins[plugin] = null;
+			delete _plugins[plugin];
+			plugin.removeEventListener(Event.COMPLETE, onPluginComplete, false);
+			vo.args = plugin.args;
 			callRemoteMethod(vo);
 		}
 
@@ -769,22 +761,22 @@ package com.rnlib.net.amf
 		//---------------------------------------------------------------
 
 		[ArrayElementType("com.rnlib.net.amf.plugins.IPluginFactory")]
-		protected var _pluginFactory:Array;
+		protected var _pluginsFactories:Array;
 
 		/**
 		 * Collection of plugins associated with this object
 		 */
-		public function get pluginFactory():Array
+		public function get pluginsFactories():Array
 		{
-			return _pluginFactory.concat(null);
+			return _pluginsFactories.concat(null);
 		}
 
-		public function set pluginFactory(value:Array):void
+		public function set pluginsFactories(value:Array):void
 		{
 			if (value)
-				_pluginFactory = value.filter(filterPlugins);
+				_pluginsFactories = value.filter(filterPlugins);
 			else
-				_pluginFactory = null;
+				_pluginsFactories = null;
 		}
 
 		private static function filterPlugins(item:*, index:int, array:Array):Boolean
@@ -794,7 +786,7 @@ package com.rnlib.net.amf
 
 		protected function pluginVOisSupported(vo:IPluginVO):Boolean
 		{
-			for each (var factory:IPluginFactory in _pluginFactory)
+			for each (var factory:IPluginFactory in _pluginsFactories)
 			{
 				if (factory.isSupportVO(vo)) return true;
 			}
@@ -804,7 +796,7 @@ package com.rnlib.net.amf
 
 		protected function matchPlugin(vo:IPluginVO):IPlugin
 		{
-			for each (var factory:IPluginFactory in _pluginFactory)
+			for each (var factory:IPluginFactory in _pluginsFactories)
 			{
 				if (factory.isSupportVO(vo)) return factory.newInstance();
 			}
