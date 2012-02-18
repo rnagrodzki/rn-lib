@@ -615,7 +615,7 @@ package com.rnlib.net.amf
 		 * Invoke register remote method
 		 * @param vo
 		 */
-		protected function callRemoteMethod(vo:MethodVO):void
+		protected function callRemoteMethod(vo:MethodVO, plugin:IPlugin=null):void
 		{
 			_isPendingRequest = true;
 
@@ -632,7 +632,7 @@ package com.rnlib.net.amf
 			rm.resultHandler = vo.result; // force call currently specified method handler
 			rm.faultHandler = vo.fault; // force call currently specified method handler
 
-			if (vo.args is IMultipartPlugin)
+			if (plugin is IMultipartPlugin)
 			{
 				rm.internalFaultHandler = IMultipartPlugin(vo.args).onFault;
 				rm.internalResultHandler = IMultipartPlugin(vo.args).onResult;
@@ -772,7 +772,7 @@ package com.rnlib.net.amf
 			var plugin:IMultipartPlugin = e.target as IMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			vo.args = plugin.args;
-			callRemoteMethod(vo);
+			callRemoteMethod(vo, plugin);
 		}
 
 		protected function onMultipartPluginComplete(e:PluginEvent):void
