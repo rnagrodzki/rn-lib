@@ -76,8 +76,6 @@ package com.rnlib.net.amf
 		 */
 		public var proceedAfterError:Boolean = true;
 
-		protected var _showBusyCursor:Boolean = true;
-
 		public function RemoteAmfService()
 		{
 			defaultMethods();
@@ -133,6 +131,41 @@ package com.rnlib.net.amf
 		{
 			if (_nc)
 				_nc.close();
+		}
+
+		//---------------------------------------------------------------
+		//              	<------ CURSORS ------>
+		//---------------------------------------------------------------
+
+		protected var _showBusyCursor:Boolean = true;
+
+		public function get showBusyCursor():Boolean
+		{
+			return _showBusyCursor;
+		}
+
+		public function set showBusyCursor(value:Boolean):void
+		{
+			if (_showBusyCursor && !value) CursorManager.removeBusyCursor();
+
+			_showBusyCursor = value;
+		}
+
+		protected static var _currentCursorID:int;
+
+		protected function showCursor():void
+		{
+			if (_showBusyCursor && _currentCursorID != -1)
+			{
+				CursorManager.setBusyCursor();
+				_currentCursorID = CursorManager.currentCursorID;
+			}
+		}
+
+		protected function removeCursor():void
+		{
+			if (_showBusyCursor) CursorManager.removeCursor(_currentCursorID);
+			_currentCursorID = -1;
 		}
 
 		//---------------------------------------------------------------
@@ -212,18 +245,6 @@ package com.rnlib.net.amf
 				_queue = new PriorityQueue();
 
 			_concurrency = value;
-		}
-
-		public function get showBusyCursor():Boolean
-		{
-			return _showBusyCursor;
-		}
-
-		public function set showBusyCursor(value:Boolean):void
-		{
-			if (_showBusyCursor && !value) CursorManager.removeBusyCursor();
-
-			_showBusyCursor = value;
 		}
 
 		//---------------------------------------------------------------
@@ -644,7 +665,7 @@ package com.rnlib.net.amf
 
 			_nc.call.apply(_nc, args.concat(vo.args));
 
-			if (_showBusyCursor) CursorManager.setBusyCursor();
+			showCursor();
 		}
 
 		protected function prepareResultMediator(vo:MethodVO):ResultMediatorVO
@@ -870,7 +891,7 @@ package com.rnlib.net.amf
 		 */
 		protected function onResult(result:Object, name:String, id:int, uid:int):void
 		{
-			if (_showBusyCursor) CursorManager.removeBusyCursor();
+			removeCursor();
 
 			var vo:ResultMediatorVO = _requests[id];
 
@@ -905,7 +926,7 @@ package com.rnlib.net.amf
 		 */
 		protected function onFault(fault:Object, name:String, id:int, uid:int):void
 		{
-			if (_showBusyCursor) CursorManager.removeBusyCursor();
+			removeCursor();
 
 			var vo:ResultMediatorVO = _requests[id];
 
@@ -941,7 +962,7 @@ package com.rnlib.net.amf
 			}
 			_isPendingRequest = false;
 
-			if (_showBusyCursor) CursorManager.removeBusyCursor();
+			removeCursor();
 		}
 
 		//---------------------------------------------------------------
