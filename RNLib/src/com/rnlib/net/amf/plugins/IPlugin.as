@@ -39,5 +39,12 @@ package com.rnlib.net.amf.plugins
 		 * arguments to pass into request on server.
 		 */
 		function get args():Array;
+
+		/**
+		 * Dispatcher pass to give possibility dispatching events
+		 * on RemoteAmfService.
+		 */
+		function get dispatcher():IEventDispatcher;
+		function set dispatcher(value:IEventDispatcher):void;
 	}
 }

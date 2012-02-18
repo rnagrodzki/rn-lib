@@ -7,6 +7,7 @@ package com.rnlib.net.amf.plugins
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.IEventDispatcher;
 
 	public class FileReferencePlugin extends EventDispatcher implements IPlugin, IDisposable
 	{
@@ -56,6 +57,18 @@ package com.rnlib.net.amf.plugins
 		public function dispose():void
 		{
 			_vo = null;
+		}
+
+		protected var _dispatcher:IEventDispatcher;
+
+		public function get dispatcher():IEventDispatcher
+		{
+			return _dispatcher;
+		}
+
+		public function set dispatcher(value:IEventDispatcher):void
+		{
+			_dispatcher = value;
 		}
 	}
 }

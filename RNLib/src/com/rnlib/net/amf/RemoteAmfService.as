@@ -685,6 +685,7 @@ package com.rnlib.net.amf
 		{
 			var pluginVO:IPluginVO = vo.args as IPluginVO;
 			var plugin:IPlugin = matchPlugin(pluginVO);
+			plugin.dispatcher = this;
 
 			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_CREATED, plugin));
 

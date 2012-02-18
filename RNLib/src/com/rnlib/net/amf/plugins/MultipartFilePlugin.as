@@ -7,6 +7,7 @@ package com.rnlib.net.amf.plugins
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.IEventDispatcher;
 	import flash.utils.ByteArray;
 
 	public class MultipartFilePlugin extends EventDispatcher implements IMultipartPlugin, IDisposable
@@ -79,6 +80,18 @@ package com.rnlib.net.amf.plugins
 		public function get args():Array
 		{
 			return _vo.args;
+		}
+
+		protected var _dispatcher:IEventDispatcher;
+
+		public function get dispatcher():IEventDispatcher
+		{
+			return _dispatcher;
+		}
+
+		public function set dispatcher(value:IEventDispatcher):void
+		{
+			_dispatcher = value;
 		}
 	}
 }
