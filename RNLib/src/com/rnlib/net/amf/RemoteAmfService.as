@@ -8,6 +8,7 @@ package com.rnlib.net.amf
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 	import com.rnlib.net.amf.plugins.IMultipartPlugin;
+	import com.rnlib.net.amf.plugins.IMultipartPlugin;
 	import com.rnlib.net.amf.plugins.IPlugin;
 	import com.rnlib.net.amf.plugins.IPluginFactory;
 	import com.rnlib.net.amf.plugins.IPluginVO;
@@ -615,7 +616,7 @@ package com.rnlib.net.amf
 		 * Invoke register remote method
 		 * @param vo
 		 */
-		protected function callRemoteMethod(vo:MethodVO, plugin:IPlugin=null):void
+		protected function callRemoteMethod(vo:MethodVO, plugin:IPlugin = null):void
 		{
 			_isPendingRequest = true;
 
@@ -634,8 +635,9 @@ package com.rnlib.net.amf
 
 			if (plugin is IMultipartPlugin)
 			{
-				rm.internalFaultHandler = IMultipartPlugin(plugin).onFault;
-				rm.internalResultHandler = IMultipartPlugin(plugin).onResult;
+				rm.plugin = plugin;
+				rm.internalFaultHandler = onPluginFault;
+				rm.internalResultHandler = onPluginResult;
 			}
 			else
 			{
@@ -656,6 +658,18 @@ package com.rnlib.net.amf
 		//---------------------------------------------------------------
 		//			<------ EXECUTE PLUGINS JUST IN TIME ------>
 		//---------------------------------------------------------------
+
+		protected function onPluginResult(plugin:IMultipartPlugin,r:Object):void
+		{
+			plugin.onResult(r);
+			plugin.next();
+		}
+
+		protected function onPluginFault(plugin:IMultipartPlugin,f:Object):void
+		{
+			plugin.onFault(f);
+			plugin.next();
+		}
 
 		/**
 		 * Dictionary of IPlugins
@@ -967,11 +981,11 @@ package com.rnlib.net.amf
 
 		public function toString():String
 		{
-			var str:String ="[RemoteAmfService]\n"
-			+"* endpoint:\t" + (_endpoint || "--not set--")+"\n"
-			+"* service:\t" + (_service || "--not set--")+"\n"
-			+"* concurrency:\t" + (_concurrency || "--not set--")+"\n"
-			+"* register plugins:\t" + (_pluginsFactories || "[]");
+			var str:String = "[RemoteAmfService]\n"
+					+ "* endpoint:\t" + (_endpoint || "--not set--") + "\n"
+					+ "* service:\t" + (_service || "--not set--") + "\n"
+					+ "* concurrency:\t" + (_concurrency || "--not set--") + "\n"
+					+ "* register plugins:\t" + (_pluginsFactories || "[]");
 
 			return str;
 		}
@@ -984,6 +998,8 @@ package com.rnlib.net.amf
 }
 
 import com.rnlib.interfaces.IDisposable;
+import com.rnlib.net.amf.plugins.IMultipartPlugin;
+import com.rnlib.net.amf.plugins.IPlugin;
 
 class MethodHelperVO implements IDisposable
 {
@@ -1009,13 +1025,19 @@ class ResultMediatorVO implements IDisposable
 	public var uid:int;
 	public var id:int;
 	public var name:String;
+	public var plugin:IPlugin;
 
 	public var resultHandler:Function;
 	public var internalResultHandler:Function;
 
 	public function result(r:Object):void
 	{
-		internalResultHandler(r, name, id, uid);
+		if (plugin is IMultipartPlugin)
+		{
+			internalResultHandler(plugin,r);
+		}
+		else
+			internalResultHandler(r, name, id, uid);
 		dispose();
 	}
 
@@ -1024,7 +1046,12 @@ class ResultMediatorVO implements IDisposable
 
 	public function fault(f:Object):void
 	{
-		internalFaultHandler(f, name, id, uid);
+		if (plugin is IMultipartPlugin)
+		{
+			internalFaultHandler(plugin,f);
+		}
+		else
+			internalFaultHandler(f, name, id, uid);
 		dispose();
 	}
 
@@ -1036,5 +1063,6 @@ class ResultMediatorVO implements IDisposable
 		internalResultHandler = null;
 		faultHandler = null;
 		resultHandler = null;
+		plugin = null;
 	}
 }
