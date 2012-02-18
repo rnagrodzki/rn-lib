@@ -862,7 +862,7 @@ package com.rnlib.net.amf
 			disconnect();
 			for each (var vo:ResultMediatorVO in _requests)
 			{
-				if (callFault && vo.faultHandler)
+				if (callFault && vo.faultHandler != null)
 					vo.faultHandler("Ignore by user");
 				vo.dispose();
 				_requests[vo.id] = null;

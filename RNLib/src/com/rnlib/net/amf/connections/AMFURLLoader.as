@@ -256,7 +256,7 @@ package com.rnlib.net.amf.connections
 					if (client)
 					{
 						headerHandler = client[header.name];
-						if (headerHandler)
+						if (headerHandler != null)
 						{
 							headerHandler.apply(null, [header.data]);
 						}
@@ -280,9 +280,9 @@ package com.rnlib.net.amf.connections
 				var separator:int = targetURI.indexOf("/", 1);
 				var responseType:String = targetURI.substring(separator + 1);
 
-				if (responseType == "onResult" && _result)
+				if (responseType == "onResult" && _result != null)
 					_result(message.body);
-				else if (responseType == "onStatus" && _fault)
+				else if (responseType == "onStatus" && _fault != null)
 					_fault(message.body);
 			}
 

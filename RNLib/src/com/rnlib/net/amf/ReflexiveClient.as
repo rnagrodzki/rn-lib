@@ -31,7 +31,7 @@ package com.rnlib.net.amf
 
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
-			if (callback)
+			if (callback!=null)
 				callback.apply(null, [name].concat(rest));
 		}
 
