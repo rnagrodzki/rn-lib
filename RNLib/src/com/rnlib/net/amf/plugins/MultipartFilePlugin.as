@@ -19,7 +19,7 @@ package com.rnlib.net.amf.plugins
 
 		private var _filePos:uint = 0;
 
-		protected function getNextFilePart():ByteArray
+		protected function getNextFilePart():void
 		{
 			var ba:ByteArray = new ByteArray();
 			_vo.fr.data.position = _filePos;
