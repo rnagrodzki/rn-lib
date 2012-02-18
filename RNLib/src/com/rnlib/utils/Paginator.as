@@ -3,13 +3,15 @@
  */
 package com.rnlib.utils
 {
+	import com.rnlib.interfaces.IDisposable;
+
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 
 	import mx.collections.IList;
 	import mx.events.CollectionEvent;
 
-	public class Paginator extends EventDispatcher
+	public class Paginator extends EventDispatcher implements IDisposable
 	{
 		public static const INDEX_CHANGED:String = "indexChanged";
 

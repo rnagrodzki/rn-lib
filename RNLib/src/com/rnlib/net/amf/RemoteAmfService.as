@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.amf
 {
+	import com.rnlib.interfaces.IDisposable;
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
@@ -51,7 +52,7 @@ package com.rnlib.net.amf
 
 	use namespace flash_proxy;
 
-	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport
+	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport, IDisposable
 	{
 
 		protected var _nc:IAMFConnection;
@@ -743,6 +744,7 @@ package com.rnlib.net.amf
 			rm.faultHandler = vo.fault; // force call currently specified method handler
 
 			_requests[rm.id] = rm;
+			vo.dispose();
 
 			onFault(e.data, rm.name, rm.id, rm.uid);
 		}
@@ -762,6 +764,7 @@ package com.rnlib.net.amf
 			plugin.dispose(); // here is plugin life end
 			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 			callRemoteMethod(vo);
+			vo.dispose();
 		}
 
 		protected function onMultipartPluginReady(e:PluginEvent):void
@@ -790,6 +793,7 @@ package com.rnlib.net.amf
 			rm.faultHandler = vo.fault; // force call currently specified method handler
 
 			_requests[rm.id] = rm;
+			vo.dispose();
 
 			onResult(e.data, rm.name, rm.id, rm.uid);
 		}
@@ -821,6 +825,8 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
+			vo.dispose();
+
 			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused)
 				callRemoteMethod(_queue.item);
 		}
@@ -977,7 +983,9 @@ package com.rnlib.net.amf
 	}
 }
 
-class MethodHelperVO
+import com.rnlib.interfaces.IDisposable;
+
+class MethodHelperVO implements IDisposable
 {
 	public var name:String;
 	public var result:Function;
@@ -996,7 +1004,7 @@ class MethodHelperVO
 	}
 }
 
-class ResultMediatorVO
+class ResultMediatorVO implements IDisposable
 {
 	public var uid:int;
 	public var id:int;

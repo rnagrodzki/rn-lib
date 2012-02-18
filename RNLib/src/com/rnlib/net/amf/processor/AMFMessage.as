@@ -5,6 +5,8 @@ package com.rnlib.net.amf.processor
 {
 	import avmplus.getQualifiedClassName;
 
+	import com.rnlib.interfaces.IDisposable;
+
 	/**
 	 * An AMF packet level message. Request messages and response messages have the
 	 * same general structure.
@@ -22,7 +24,7 @@ package com.rnlib.net.amf.processor
 	 * reset for each AMFMessage. Note that targetURI and responseURI Strings are
 	 * never sent by reference and do not participate in by-reference serialization.
 	 */
-	public class AMFMessage
+	public class AMFMessage implements IDisposable
 	{
 		public function AMFMessage(targetURI:String = null, responseURI:String = null, body:* = undefined)
 		{
@@ -42,6 +44,13 @@ package com.rnlib.net.amf.processor
 					+ targetURI
 					+ "\n"
 					+ body;
+		}
+
+		public function dispose():void
+		{
+			targetURI = null;
+			responseURI = null;
+			body = null;
 		}
 	}
 }

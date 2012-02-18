@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.amf.connections
 {
+	import com.rnlib.interfaces.IDisposable;
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.processor.AMFHeader;
 
@@ -14,7 +15,7 @@ package com.rnlib.net.amf.connections
 
 	import mx.core.ClassFactory;
 
-	public class AMFULConnection extends EventDispatcher implements IAMFConnection
+	public class AMFULConnection extends EventDispatcher implements IAMFConnection, IDisposable
 	{
 		protected var _factory:ClassFactory;
 

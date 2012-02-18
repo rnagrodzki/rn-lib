@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.loaders
 {
+	import com.rnlib.interfaces.IDisposable;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
 
@@ -17,7 +18,7 @@ package com.rnlib.net.loaders
 
 	[Event(name="complete", type="com.rnlib.net.loaders.SequentialLoaderEvent")]
 
-	public class SequentialURLLoader extends EventDispatcher
+	public class SequentialURLLoader extends EventDispatcher implements IDisposable
 	{
 		protected var _queue:IQueue;
 		protected var _urlLoader:URLLoader;

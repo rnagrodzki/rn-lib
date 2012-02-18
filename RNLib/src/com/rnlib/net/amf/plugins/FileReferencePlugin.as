@@ -3,10 +3,12 @@
  */
 package com.rnlib.net.amf.plugins
 {
+	import com.rnlib.interfaces.IDisposable;
+
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 
-	public class FileReferencePlugin extends EventDispatcher implements IPlugin
+	public class FileReferencePlugin extends EventDispatcher implements IPlugin, IDisposable
 	{
 		protected var _vo:FileReferencePluginVO;
 

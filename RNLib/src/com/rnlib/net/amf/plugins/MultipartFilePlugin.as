@@ -3,11 +3,13 @@
  */
 package com.rnlib.net.amf.plugins
 {
+	import com.rnlib.interfaces.IDisposable;
+
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.ByteArray;
 
-	public class MultipartFilePlugin extends EventDispatcher implements IMultipartPlugin
+	public class MultipartFilePlugin extends EventDispatcher implements IMultipartPlugin, IDisposable
 	{
 		protected var _vo:FileReferencePluginVO;
 

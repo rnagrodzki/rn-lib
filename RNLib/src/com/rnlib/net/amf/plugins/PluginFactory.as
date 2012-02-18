@@ -23,5 +23,11 @@ package com.rnlib.net.amf.plugins
 		{
 			return vo is _generatorVO;
 		}
+
+		public function dispose():void
+		{
+			_generator = null;
+			_generatorVO = null;
+		}
 	}
 }

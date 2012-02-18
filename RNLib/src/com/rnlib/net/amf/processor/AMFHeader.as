@@ -3,6 +3,8 @@
  */
 package com.rnlib.net.amf.processor
 {
+	import com.rnlib.interfaces.IDisposable;
+
 	/**
 	 * An AMF packet level header. Request and response headers have an identical
 	 * structure.
@@ -11,7 +13,7 @@ package com.rnlib.net.amf.processor
 	 * reset for each AMFHeader. Note that the header name String is never sent by
 	 * reference and does not participate in by-reference serialization.
 	 */
-	public class AMFHeader
+	public class AMFHeader implements IDisposable
 	{
 		public function AMFHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined)
 		{
@@ -23,5 +25,11 @@ package com.rnlib.net.amf.processor
 		public var name:String;
 		public var mustUnderstand:Boolean;
 		public var data:*;
+
+		public function dispose():void
+		{
+			name = null;
+			data = null;
+		}
 	}
 }

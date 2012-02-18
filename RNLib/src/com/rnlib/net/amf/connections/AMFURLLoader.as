@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.amf.connections
 {
+	import com.rnlib.interfaces.IDisposable;
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.net.amf.processor.AMFMessage;
@@ -22,7 +23,7 @@ package com.rnlib.net.amf.connections
 	import flash.net.URLRequestMethod;
 	import flash.utils.ByteArray;
 
-	internal class AMFURLLoader extends EventDispatcher
+	internal class AMFURLLoader extends EventDispatcher implements IDisposable
 	{
 		private var _loader:URLLoader = new URLLoader();
 

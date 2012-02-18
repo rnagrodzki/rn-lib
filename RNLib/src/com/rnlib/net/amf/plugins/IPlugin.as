@@ -29,6 +29,8 @@ package com.rnlib.net.amf.plugins
 		/**
 		 * Method calling by RemoteAmfService on end of life
 		 * plugin.
+		 *
+		 * @see com.rnlib.interfaces.IDisposable
 		 */
 		function dispose():void;
 

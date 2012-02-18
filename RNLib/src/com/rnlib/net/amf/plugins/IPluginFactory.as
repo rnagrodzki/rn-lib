@@ -3,7 +3,9 @@
  */
 package com.rnlib.net.amf.plugins
 {
-	public interface IPluginFactory
+	import com.rnlib.interfaces.IDisposable;
+
+	public interface IPluginFactory extends IDisposable
 	{
 		function newInstance():IPlugin;
 

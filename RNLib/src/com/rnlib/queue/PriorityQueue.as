@@ -3,7 +3,9 @@
  */
 package com.rnlib.queue
 {
-	public class PriorityQueue implements IQueue
+	import com.rnlib.interfaces.IDisposable;
+
+	public class PriorityQueue implements IQueue, IDisposable
 	{
 		[ArrayElementType("ItemVO")]
 		protected var _source:Array = [];

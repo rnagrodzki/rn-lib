@@ -3,6 +3,7 @@
  */
 package com.rnlib.net.amf.connections
 {
+	import com.rnlib.interfaces.IDisposable;
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.ReflexiveClient;
 
@@ -22,7 +23,7 @@ package com.rnlib.net.amf.connections
 	[Event(name="reconnect", type="com.rnlib.net.amf.AMFEvent")]
 	[Event(name="header", type="com.rnlib.net.amf.AMFEvent")]
 
-	public class AMFNetConnection extends EventDispatcher implements IAMFConnection
+	public class AMFNetConnection extends EventDispatcher implements IAMFConnection, IDisposable
 	{
 		private var _nc:NetConnection;
 

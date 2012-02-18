@@ -19,6 +19,11 @@ package com.rnlib.net.amf.connections
 
 		function call(command:String, result:Function = null, fault:Function = null, ...args):void;
 
+		/**
+		 * Dispose connection
+		 *
+		 * @see com.rnlib.interfaces.IDisposable
+		 */
 		function dispose():void;
 
 		//---------------------------------------------------------------

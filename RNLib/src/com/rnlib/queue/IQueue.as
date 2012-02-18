@@ -5,6 +5,11 @@ package com.rnlib.queue
 {
 	public interface IQueue
 	{
+		/**
+		 * Dispose queue
+		 *
+		 * @see com.rnlib.interfaces.IDisposable
+		 */
 		function dispose():void;
 
 		function push(...rest):void;

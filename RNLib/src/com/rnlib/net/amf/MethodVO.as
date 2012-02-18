@@ -3,10 +3,12 @@
  */
 package com.rnlib.net.amf
 {
+	import com.rnlib.interfaces.IDisposable;
+
 	/**
 	 * Helper for data storage calls of remote methods
 	 */
-	public class MethodVO
+	public class MethodVO implements IDisposable
 	{
 		/**
 		 * Unique identifier for any remote call
@@ -34,5 +36,13 @@ package com.rnlib.net.amf
 		 * Arguments to pass to remote method
 		 */
 		public var args:Object;
+
+		public function dispose():void
+		{
+			name = null;
+			result = null;
+			fault = null;
+			args = null;
+		}
 	}
 }
