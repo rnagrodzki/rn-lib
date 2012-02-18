@@ -9,6 +9,12 @@ package com.rnlib.net.amf
 
 	use namespace flash_proxy;
 
+	/**
+	 * Class supported recognize all unregistered
+	 * amf headers calls and of course these registered.
+	 * If NetConnection attempt to call specified method
+	 * event will be fired with header details.
+	 */
 	public class ReflexiveClient extends Proxy
 	{
 		public function ReflexiveClient()
@@ -31,7 +37,7 @@ package com.rnlib.net.amf
 
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
-			if (callback!=null)
+			if (callback != null)
 				callback.apply(null, [name].concat(rest));
 		}
 

@@ -7,8 +7,8 @@ package com.rnlib.net.amf.plugins
 	{
 		protected var _generator:Class;
 		protected var _generatorVO:Class;
-		
-		public function PluginFactory(generator:Class,voGenerator:Class)
+
+		public function PluginFactory(generator:Class, voGenerator:Class)
 		{
 			_generator = generator;
 			_generatorVO = voGenerator;

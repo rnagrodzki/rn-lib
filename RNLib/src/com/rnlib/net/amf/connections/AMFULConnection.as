@@ -42,10 +42,10 @@ package com.rnlib.net.amf.connections
 
 		public function connect(uri:String):void
 		{
-			_url=uri;
+			_url = uri;
 			_connected = true;
 
-			if(_redispatcher)
+			if (_redispatcher)
 				_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.CONNECTED));
 		}
 
@@ -63,7 +63,7 @@ package com.rnlib.net.amf.connections
 			loader.url = _url;
 			loader.redispatcher = _redispatcher;
 			loader.objectEncoding = objectEncoding;
-			if(_amfHeaders) loader.amfHeaders = _amfHeaders.concat();
+			if (_amfHeaders) loader.amfHeaders = _amfHeaders.concat();
 
 			loader.addEventListener(Event.COMPLETE, onComplete);
 
@@ -133,7 +133,7 @@ package com.rnlib.net.amf.connections
 				//todo: notify by fault close connection
 			}
 
-			if(_redispatcher)
+			if (_redispatcher)
 				_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.DISCONNECTED));
 		}
 

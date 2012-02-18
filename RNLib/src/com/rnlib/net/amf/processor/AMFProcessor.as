@@ -3,7 +3,6 @@
  */
 package com.rnlib.net.amf.processor
 {
-	import com.rnlib.net.amf.*;
 	import flash.net.ObjectEncoding;
 	import flash.utils.ByteArray;
 

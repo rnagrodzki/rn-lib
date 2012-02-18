@@ -12,12 +12,29 @@ package com.rnlib.net.amf
 		public static const DISCONNECTED:String = "disconnected";
 		public static const PARSE_ERROR:String = "parseError";
 
+		/**
+		 * Service received header from response from server
+		 */
 		public static const HEADER:String = "header";
 
+		/**
+		 * Service received response from server
+		 */
 		public static const RESULT:String = "result";
+
+		/**
+		 * Service received response from server
+		 */
 		public static const FAULT:String = "fault";
 
+		/**
+		 * Unique identifier of remote call
+		 */
 		public var uid:int = -1;
+
+		/**
+		 * Data pass to event
+		 */
 		public var data:Object;
 
 		public function AMFEvent(type:String, uid:int = -1, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)

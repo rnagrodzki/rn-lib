@@ -507,6 +507,12 @@ package com.rnlib.net.amf
 			return null;
 		}
 
+		/**
+		 * Method responsible for transparent call remote methods
+		 * @param name
+		 * @param rest
+		 * @return
+		 */
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
 			var hasProp:Boolean = hasOwnProperty(name);
@@ -665,7 +671,7 @@ package com.rnlib.net.amf
 			var pluginVO:IPluginVO = vo.args as IPluginVO;
 			var plugin:IPlugin = matchPlugin(pluginVO);
 
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_CREATED,plugin));
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_CREATED, plugin));
 
 			registerPluginHandlers(plugin);
 			_plugins[plugin] = vo;
@@ -727,7 +733,7 @@ package com.rnlib.net.amf
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED,plugin));
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.uid = vo.uid;
@@ -754,7 +760,7 @@ package com.rnlib.net.amf
 			removePluginHandlers(plugin);
 			vo.args = plugin.args;
 			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED,plugin));
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 			callRemoteMethod(vo);
 		}
 
@@ -774,7 +780,7 @@ package com.rnlib.net.amf
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED,plugin));
+			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.uid = vo.uid;
@@ -947,6 +953,26 @@ package com.rnlib.net.amf
 			}
 
 			return null;
+		}
+
+		//---------------------------------------------------------------
+		//              <------ TO STRING ------>
+		//---------------------------------------------------------------
+
+		public function toString():String
+		{
+			var str:String ="[RemoteAmfService]\n"
+			+"* endpoint:\t" + (_endpoint || "--not set--")+"\n"
+			+"* service:\t" + (_service || "--not set--")+"\n"
+			+"* concurrency:\t" + (_concurrency || "--not set--")+"\n"
+			+"* register plugins:\t" + (_pluginsFactories || "[]");
+
+			return str;
+		}
+
+		public function toLocaleString():Object
+		{
+			return toString();
 		}
 	}
 }

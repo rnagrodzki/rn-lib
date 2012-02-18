@@ -53,7 +53,7 @@ package com.rnlib.net.amf.connections
 			_timer.addEventListener(TimerEvent.TIMER, onTick);
 
 			_redispatcher = this;
-	}
+		}
 
 		public function dispose():void
 		{

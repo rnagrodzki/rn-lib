@@ -14,7 +14,7 @@ package com.rnlib.net.amf.plugins
 		public var fr:FileReference;
 
 		private var _args:Array;
-		
+
 		public function get args():Array
 		{
 			return _args;
