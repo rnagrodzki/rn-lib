@@ -852,7 +852,10 @@ package com.rnlib.net.amf
 			plugin.dispose(); // here is plugin life end
 			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 
-			callFinalFault(vo, e.data);
+			var rm:ResultMediatorVO = prepareResultMediator(vo);
+			vo.dispose();
+
+			onResult(e.data, rm.name, rm.id, rm.uid);
 		}
 
 		//---------------------------------------------------------------
