@@ -162,6 +162,10 @@ package com.rnlib.net.amf
 			}
 		}
 
+		/**
+		 * Method implemented because standard CursorManager.removeBusyCursor()
+		 * doesn't work.
+		 */
 		protected function removeCursor():void
 		{
 			if (_showBusyCursor) CursorManager.removeCursor(_currentCursorID);
