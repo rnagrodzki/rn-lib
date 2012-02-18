@@ -634,8 +634,8 @@ package com.rnlib.net.amf
 
 			if (plugin is IMultipartPlugin)
 			{
-				rm.internalFaultHandler = IMultipartPlugin(vo.args).onFault;
-				rm.internalResultHandler = IMultipartPlugin(vo.args).onResult;
+				rm.internalFaultHandler = IMultipartPlugin(plugin).onFault;
+				rm.internalResultHandler = IMultipartPlugin(plugin).onResult;
 			}
 			else
 			{
