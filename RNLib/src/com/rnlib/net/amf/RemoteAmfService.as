@@ -8,7 +8,6 @@ package com.rnlib.net.amf
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 	import com.rnlib.net.amf.plugins.IMultipartPlugin;
-	import com.rnlib.net.amf.plugins.IMultipartPlugin;
 	import com.rnlib.net.amf.plugins.IPlugin;
 	import com.rnlib.net.amf.plugins.IPluginFactory;
 	import com.rnlib.net.amf.plugins.IPluginVO;
@@ -626,12 +625,7 @@ package com.rnlib.net.amf
 				return;
 			}
 
-			var rm:ResultMediatorVO = new ResultMediatorVO();
-			rm.uid = vo.uid;
-			rm.id = _reqCount++;
-			rm.name = vo.name;
-			rm.resultHandler = vo.result; // force call currently specified method handler
-			rm.faultHandler = vo.fault; // force call currently specified method handler
+			var rm:ResultMediatorVO = prepareResultMediator(vo);
 
 			if (plugin is IMultipartPlugin)
 			{
@@ -645,8 +639,6 @@ package com.rnlib.net.amf
 				rm.internalResultHandler = onResult;
 			}
 
-			_requests[rm.id] = rm;
-
 			var fullName:String = _service ? _service + "." + vo.name : vo.name;
 			var args:Array = [fullName, rm.result, rm.fault];
 
@@ -655,20 +647,78 @@ package com.rnlib.net.amf
 			if (_showBusyCursor) CursorManager.setBusyCursor();
 		}
 
+		protected function prepareResultMediator(vo:MethodVO):ResultMediatorVO
+		{
+			var rm:ResultMediatorVO = new ResultMediatorVO();
+			rm.uid = vo.uid;
+			rm.id = _reqCount++;
+			rm.name = vo.name;
+			rm.resultHandler = vo.result; // force call currently specified method handler
+			rm.faultHandler = vo.fault; // force call currently specified method handler
+
+			_requests[rm.id] = rm;
+
+			return rm;
+		}
+
 		//---------------------------------------------------------------
 		//			<------ EXECUTE PLUGINS JUST IN TIME ------>
 		//---------------------------------------------------------------
 
-		protected function onPluginResult(plugin:IMultipartPlugin,r:Object):void
+		protected function callFinalFault(vo:MethodVO, data:Object = null):void
 		{
-			plugin.onResult(r);
-			plugin.next();
+			var rm:ResultMediatorVO = prepareResultMediator(vo);
+			vo.dispose();
+
+			onFault(data, rm.name, rm.id, rm.uid);
 		}
 
-		protected function onPluginFault(plugin:IMultipartPlugin,f:Object):void
+		protected function onPluginResult(plugin:IMultipartPlugin, r:Object):void
 		{
-			plugin.onFault(f);
-			plugin.next();
+			try
+			{ plugin.onResult(r);}
+			catch (e:Error)
+			{
+				var vo:MethodVO = _plugins[plugin];
+				if (vo) callFinalFault(vo, e);
+			}
+
+			// check if plugin wasn't disposed
+			var vo:MethodVO = _plugins[plugin];
+			if (vo)
+			{
+				try
+				{ plugin.next();}
+				catch (e:Error)
+				{
+					var vo:MethodVO = _plugins[plugin];
+					if (vo) callFinalFault(vo, e);
+				}
+			}
+		}
+
+		protected function onPluginFault(plugin:IMultipartPlugin, f:Object):void
+		{
+			try
+			{ plugin.onFault(f);}
+			catch (e:Error)
+			{
+				var vo:MethodVO = _plugins[plugin];
+				if (vo) callFinalFault(vo, e);
+			}
+
+			// check if plugin wasn't disposed
+			var vo:MethodVO = _plugins[plugin];
+			if (vo)
+			{
+				try
+				{ plugin.next();}
+				catch (e:Error)
+				{
+					var vo:MethodVO = _plugins[plugin];
+					if (vo) callFinalFault(vo, e);
+				}
+			}
 		}
 
 		/**
@@ -684,6 +734,8 @@ package com.rnlib.net.amf
 		protected function waitForPlugin(vo:MethodVO):void
 		{
 			var pluginVO:IPluginVO = vo.args as IPluginVO;
+			if (!pluginVO) return;
+
 			var plugin:IPlugin = matchPlugin(pluginVO);
 			plugin.dispatcher = this;
 
@@ -691,7 +743,14 @@ package com.rnlib.net.amf
 
 			registerPluginHandlers(plugin);
 			_plugins[plugin] = vo;
-			plugin.init(pluginVO);
+
+			try
+			{ plugin.init(pluginVO);}
+			catch (e:Error)
+			{
+				var vo:MethodVO = _plugins[plugin];
+				if (vo) callFinalFault(vo, e);
+			}
 
 			pluginVO = null;
 			plugin = null;
@@ -751,14 +810,7 @@ package com.rnlib.net.amf
 			plugin.dispose(); // here is plugin life end
 			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 
-			var rm:ResultMediatorVO = new ResultMediatorVO();
-			rm.uid = vo.uid;
-			rm.id = _reqCount++;
-			rm.name = vo.name;
-			rm.resultHandler = vo.result; // force call currently specified method handler
-			rm.faultHandler = vo.fault; // force call currently specified method handler
-
-			_requests[rm.id] = rm;
+			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
 
 			onFault(e.data, rm.name, rm.id, rm.uid);
@@ -800,17 +852,7 @@ package com.rnlib.net.amf
 			plugin.dispose(); // here is plugin life end
 			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 
-			var rm:ResultMediatorVO = new ResultMediatorVO();
-			rm.uid = vo.uid;
-			rm.id = _reqCount++;
-			rm.name = vo.name;
-			rm.resultHandler = vo.result; // force call currently specified method handler
-			rm.faultHandler = vo.fault; // force call currently specified method handler
-
-			_requests[rm.id] = rm;
-			vo.dispose();
-
-			onResult(e.data, rm.name, rm.id, rm.uid);
+			callFinalFault(vo, e.data);
 		}
 
 		//---------------------------------------------------------------
@@ -1035,7 +1077,7 @@ class ResultMediatorVO implements IDisposable
 	{
 		if (plugin is IMultipartPlugin)
 		{
-			internalResultHandler(plugin,r);
+			internalResultHandler(plugin, r);
 		}
 		else
 			internalResultHandler(r, name, id, uid);
@@ -1049,7 +1091,7 @@ class ResultMediatorVO implements IDisposable
 	{
 		if (plugin is IMultipartPlugin)
 		{
-			internalFaultHandler(plugin,f);
+			internalFaultHandler(plugin, f);
 		}
 		else
 			internalFaultHandler(f, name, id, uid);
