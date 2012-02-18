@@ -151,11 +151,13 @@ package com.rnlib.net.amf
 			_showBusyCursor = value;
 		}
 
-		protected static var _currentCursorID:int;
+		protected static var _currentCursorID:int = -1;
 
 		protected function showCursor():void
 		{
-			if (_showBusyCursor && _currentCursorID != -1)
+			if(_currentCursorID != -1) removeCursor();
+
+			if (_showBusyCursor)
 			{
 				CursorManager.setBusyCursor();
 				_currentCursorID = CursorManager.currentCursorID;
