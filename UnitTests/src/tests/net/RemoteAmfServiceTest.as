@@ -4,6 +4,7 @@
 package tests.net
 {
 	import com.rnlib.net.RequestConcurrency;
+	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 	import com.rnlib.net.amf.plugins.FileReferencePlugin;
@@ -14,11 +15,14 @@ package tests.net
 
 	import flexunit.framework.Assert;
 
+	import mockolate.ingredients.answers.MethodInvokingAnswer;
 	import mockolate.mock;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	import mockolate.stub;
 
+	import org.flexunit.asserts.fail;
+	import org.flexunit.async.Async;
 	import org.flexunit.rules.IMethodRule;
 	import org.hamcrest.assertThat;
 	import org.hamcrest.object.instanceOf;
@@ -62,6 +66,8 @@ package tests.net
 		{
 			service.dispose();
 			service = null;
+			_passOnFault = null;
+			_passOnResult = null;
 		}
 
 		[Test(description="Check property after create", order="1")]
@@ -79,7 +85,7 @@ package tests.net
 			Assert.assertFalse(service.continueAfterFault);
 		}
 
-		[Test(description="Test initialize component without configuration", order="2")]
+		[Test(description="Test initialize component with base configuration", order="2")]
 		public function configuration():void
 		{
 			assertThat(exConn, received().setter("reconnectRepeatCount").once());
@@ -97,9 +103,9 @@ package tests.net
 			assertThat(exConn, received().getter("connected").once());
 			assertThat(exConn, received().method("connect").once());
 
-			service.fault = function (fault:Object):void {};
+			service.fault = function (fault:Object):void { fail("fault called"); };
 			Assert.assertNotNull(service.fault);
-			service.result = function (result:Object):void {};
+			service.result = function (result:Object):void { fail("result called"); };
 			Assert.assertNotNull(service.result);
 
 			service.continueAfterFault = true;
@@ -111,7 +117,7 @@ package tests.net
 			service.showBusyCursor = false;
 			Assert.assertFalse(service.showBusyCursor);
 
-			var plugins:Array=[new PluginFactory(FileReferencePlugin,FileReferencePluginVO)];
+			var plugins:Array = [new PluginFactory(FileReferencePlugin, FileReferencePluginVO)];
 			service.pluginsFactories = plugins;
 			assertThat(plugins, service.pluginsFactories);
 		}
@@ -126,6 +132,72 @@ package tests.net
 
 			assertThat(exConn, received().method("close").once());
 			assertThat(exConn, received().method("dispose").once());
+		}
+
+		[Test(description="Test call not added remote method", order="4", expects="Error")]
+		public function testCallNotAddedMethod():void
+		{
+			service.myRemoteMethod(true);
+		}
+
+		[Test(description="Test adding remote methods nad colling without endpoint", order="5", expects="Error")]
+		public function testAddingRemoteMethodsNoEndpoint():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+			Async.failOnEvent(this, service, AMFEvent.RESULT, 100);
+
+			_passOnResult = "returnThisInResult";
+			service.addMethod("test");
+			service.test(); //this throw Error because endpoint is not set
+		}
+
+		[Test(description="Test adding remote methods and calling", order="6")]
+		public function testAddingRemoteMethods():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
+
+			service.endpoint = "http://example.com";
+			_passOnResult = "returnThisInResult";
+			_calledRemoteMethod = "myOtherRemoteMethod";
+			service.addMethod("myOtherRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.myOtherRemoteMethod();
+		}
+
+		protected function testAddingRemoteMethodsHandler(ev:AMFEvent, extra:* = null):void
+		{
+			Assert.assertEquals(_passOnResult, ev.data);
+		}
+
+		protected var _calledRemoteMethod:String;
+		protected var _passOnResult:Object;
+
+		public function callOnResult(method:String, result:Function, fault:Function):void
+		{
+			Assert.assertEquals(_calledRemoteMethod, method);
+			result(_passOnResult);
+		}
+
+		protected var _passOnFault:Object;
+
+		public function callOnFault(method:String, result:Function, fault:Function):void
+		{
+			Assert.assertEquals(_calledRemoteMethod, method);
+			fault(_passOnFault);
+		}
+
+		[Test(description="Test adding remote methods and calling", order="7")]
+		public function callingRemoteMethodOfService():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			_passOnResult = "returnThisInResult";
+			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
+			service.addMethod("myOtherRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.myOtherRemoteMethod();
 		}
 	}
 }

@@ -155,7 +155,7 @@ package com.rnlib.net.amf
 
 		protected function showCursor():void
 		{
-			if(_currentCursorID != -1) removeCursor();
+			if (_currentCursorID != -1) removeCursor();
 
 			if (_showBusyCursor)
 			{
@@ -378,7 +378,9 @@ package com.rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
-		 * Declare service for remote calls
+		 * Declare service for remote calls. If not set all calls
+		 * of remote method will be interpret as calling global
+		 * remote methods and not method of remote service.
 		 */
 		public function get service():String
 		{
@@ -546,6 +548,9 @@ package com.rnlib.net.amf
 			var hasProp:Boolean = hasOwnProperty(name);
 			if (hasProp && _remoteMethods[name])
 			{
+				if (!_endpoint)
+					throw new Error("Endpoint not set");
+
 				var pluginVO:IPluginVO = testParamsRemoteMethod.apply(this, rest);
 
 				var mvo:MethodHelperVO = _remoteMethods[name];
@@ -1012,7 +1017,7 @@ package com.rnlib.net.amf
 		 */
 		public function get pluginsFactories():Array
 		{
-			if(!_pluginsFactories) return null;
+			if (!_pluginsFactories) return null;
 			return _pluginsFactories.concat(null);
 		}
 
