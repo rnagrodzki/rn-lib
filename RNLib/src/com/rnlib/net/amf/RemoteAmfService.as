@@ -1012,6 +1012,7 @@ package com.rnlib.net.amf
 		 */
 		public function get pluginsFactories():Array
 		{
+			if(!_pluginsFactories) return null;
 			return _pluginsFactories.concat(null);
 		}
 

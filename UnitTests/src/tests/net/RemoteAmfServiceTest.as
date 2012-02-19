@@ -3,10 +3,13 @@
  */
 package tests.net
 {
+	import com.rnlib.net.RequestConcurrency;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.events.IEventDispatcher;
+
+	import flexunit.framework.Assert;
 
 	import mockolate.mock;
 	import mockolate.received;
@@ -34,7 +37,7 @@ package tests.net
 		[Mock(type="strict")]
 		public var exConn:IAMFConnection;
 
-		public var amf:RemoteAmfService;
+		public var service:RemoteAmfService;
 
 		[Before]
 		public function before():void
@@ -48,34 +51,49 @@ package tests.net
 			mock(exConn).setter("reconnectRepeatCount").arg(uint);
 			mock(exConn).setter("redispatcher").arg(instanceOf(IEventDispatcher));
 
-			amf = new RemoteAmfService();
-			amf.connection = exConn;
+			service = new RemoteAmfService();
+			service.connection = exConn;
 		}
 
 		[After]
 		public function after():void
 		{
-			amf.dispose();
-			amf = null;
+			service.dispose();
+			service = null;
 		}
 
-		[Test(description="Test initialize component without configuration", order="1")]
+		[Test(description="Check property after create", order="1")]
+		public function checkPropertyAfterCreate():void
+		{
+			Assert.assertNotNull(service.connection);
+			Assert.assertNull(service.service);
+			Assert.assertNull(service.endpoint);
+			Assert.assertNotNull(service.queue);
+			Assert.assertEquals(service.concurrency,RequestConcurrency.QUEUE);
+			Assert.assertTrue(service.showBusyCursor);
+			Assert.assertNull(service.result);
+			Assert.assertNull(service.fault);
+			Assert.assertNull(service.pluginsFactories);
+			Assert.assertFalse(service.continueAfterFault);
+		}
+
+		[Test(description="Test initialize component without configuration", order="2")]
 		public function configuration():void
 		{
 			assertThat(exConn, received().setter("reconnectRepeatCount").once());
 			assertThat(exConn, received().setter("redispatcher").once());
 			assertThat(exConn, received().method("connect").never());
-			
-			amf.endpoint = "http://rnlib.rafal-nagrodzki.com/amf";
+
+			service.endpoint = "http://rnlib.rafal-nagrodzki.com/amf";
 
 			assertThat(exConn, received().getter("connected").once());
 			assertThat(exConn, received().method("connect").once());
 		}
 
-		[Test(description="Test disposing component", order="2")]
+		[Test(description="Test disposing component", order="3")]
 		public function testDisposeComponent():void
 		{
-			amf.dispose();
+			service.dispose();
 
 			assertThat(exConn, received().setter("reconnectRepeatCount").once());
 			assertThat(exConn, received().setter("redispatcher").once());
