@@ -83,7 +83,10 @@ package com.rnlib.queue
 
 			// sort method is called only then when it's needed
 			if (_requireSort)
+			{
 				_source.sortOn(["priority", "count"]);
+				_requireSort = false;
+			}
 
 			var vo:ItemVO = ItemVO(_source.shift());
 
@@ -96,6 +99,17 @@ package com.rnlib.queue
 		public function get length():uint
 		{
 			return _source.length;
+		}
+
+		public function clone():IQueue
+		{
+			if (_requireSort)
+			{
+				_source.sortOn(["priority", "count"]);
+				_requireSort = false;
+			}
+
+			return new PriorityQueue(_source.concat(null));
 		}
 	}
 }
