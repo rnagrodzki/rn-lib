@@ -6,6 +6,9 @@ package tests.net
 	import com.rnlib.net.RequestConcurrency;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+	import com.rnlib.net.amf.plugins.FileReferencePlugin;
+	import com.rnlib.net.amf.plugins.FileReferencePluginVO;
+	import com.rnlib.net.amf.plugins.PluginFactory;
 
 	import flash.events.IEventDispatcher;
 
@@ -17,7 +20,6 @@ package tests.net
 	import mockolate.stub;
 
 	import org.flexunit.rules.IMethodRule;
-
 	import org.hamcrest.assertThat;
 	import org.hamcrest.object.instanceOf;
 	import org.morefluent.integrations.flexunit4.MorefluentRule;
@@ -69,7 +71,7 @@ package tests.net
 			Assert.assertNull(service.service);
 			Assert.assertNull(service.endpoint);
 			Assert.assertNotNull(service.queue);
-			Assert.assertEquals(service.concurrency,RequestConcurrency.QUEUE);
+			Assert.assertEquals(service.concurrency, RequestConcurrency.QUEUE);
 			Assert.assertTrue(service.showBusyCursor);
 			Assert.assertNull(service.result);
 			Assert.assertNull(service.fault);
@@ -84,10 +86,34 @@ package tests.net
 			assertThat(exConn, received().setter("redispatcher").once());
 			assertThat(exConn, received().method("connect").never());
 
-			service.endpoint = "http://rnlib.rafal-nagrodzki.com/amf";
+			const url:String = "http://rnlib.rafal-nagrodzki.com/amf";
+			service.endpoint = url;
+			Assert.assertEquals(url, service.endpoint);
+
+			const serviceName:String = "TestService";
+			service.service = serviceName;
+			Assert.assertEquals(serviceName, service.service);
 
 			assertThat(exConn, received().getter("connected").once());
 			assertThat(exConn, received().method("connect").once());
+
+			service.fault = function (fault:Object):void {};
+			Assert.assertNotNull(service.fault);
+			service.result = function (result:Object):void {};
+			Assert.assertNotNull(service.result);
+
+			service.continueAfterFault = true;
+			Assert.assertTrue(service.continueAfterFault);
+
+			service.concurrency = RequestConcurrency.LAST;
+			Assert.assertEquals(RequestConcurrency.LAST, service.concurrency);
+
+			service.showBusyCursor = false;
+			Assert.assertFalse(service.showBusyCursor);
+
+			var plugins:Array=[new PluginFactory(FileReferencePlugin,FileReferencePluginVO)];
+			service.pluginsFactories = plugins;
+			assertThat(plugins, service.pluginsFactories);
 		}
 
 		[Test(description="Test disposing component", order="3")]

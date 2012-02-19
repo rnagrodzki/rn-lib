@@ -706,20 +706,20 @@ package com.rnlib.net.amf
 			{ plugin.onResult(r);}
 			catch (e:Error)
 			{
-				var vo:MethodVO = _plugins[plugin];
-				if (vo) callFinalFault(vo, e);
+				var vo1:MethodVO = _plugins[plugin];
+				if (vo1) callFinalFault(vo1, e);
 			}
 
 			// check if plugin wasn't disposed
-			var vo:MethodVO = _plugins[plugin];
-			if (vo)
+			var vo2:MethodVO = _plugins[plugin];
+			if (vo2)
 			{
 				try
 				{ plugin.next();}
 				catch (e:Error)
 				{
-					var vo:MethodVO = _plugins[plugin];
-					if (vo) callFinalFault(vo, e);
+					var vo3:MethodVO = _plugins[plugin];
+					if (vo3) callFinalFault(vo3, e);
 				}
 			}
 		}
@@ -730,20 +730,20 @@ package com.rnlib.net.amf
 			{ plugin.onFault(f);}
 			catch (e:Error)
 			{
-				var vo:MethodVO = _plugins[plugin];
-				if (vo) callFinalFault(vo, e);
+				var vo1:MethodVO = _plugins[plugin];
+				if (vo1) callFinalFault(vo1, e);
 			}
 
 			// check if plugin wasn't disposed
-			var vo:MethodVO = _plugins[plugin];
-			if (vo)
+			var vo2:MethodVO = _plugins[plugin];
+			if (vo2)
 			{
 				try
 				{ plugin.next();}
 				catch (e:Error)
 				{
-					var vo:MethodVO = _plugins[plugin];
-					if (vo) callFinalFault(vo, e);
+					var vo3:MethodVO = _plugins[plugin];
+					if (vo3) callFinalFault(vo3, e);
 				}
 			}
 		}
