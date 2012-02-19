@@ -51,6 +51,7 @@ package com.rnlib.net.amf
 			if (callback != null)
 				callback.apply(null, [vo]);
 
+			//todo: add uid support for event
 			if (_dispatcher)
 				_dispatcher.dispatchEvent(new AMFEvent(AMFEvent.HEADER, -1, vo));
 		}
