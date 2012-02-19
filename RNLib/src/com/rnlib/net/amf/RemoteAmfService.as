@@ -194,6 +194,7 @@ package com.rnlib.net.amf
 			{
 				//todo: why unit tests fails sometimes on this?
 				_remoteMethods[vo.name] = null;
+				delete _remoteMethods[vo.name];
 				vo.dispose();
 			}
 

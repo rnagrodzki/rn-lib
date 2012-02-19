@@ -12,6 +12,8 @@ package tests.net
 	import com.rnlib.net.amf.plugins.PluginFactory;
 
 	import flash.events.IEventDispatcher;
+	import flash.utils.clearTimeout;
+	import flash.utils.setTimeout;
 
 	import flexunit.framework.Assert;
 
@@ -45,9 +47,14 @@ package tests.net
 
 		public var service:RemoteAmfService;
 
+		public static const TIMEOUT:int = 100;
+
 		[Before]
 		public function before():void
 		{
+			_requestUID = -1;
+			_intervalID = -1;
+
 			mock(exConn).method("close");
 			mock(exConn).method("dispose");
 			mock(exConn).method("connect");
@@ -55,8 +62,8 @@ package tests.net
 			stub(exConn).method("addEventListener").anyArgs();
 			stub(exConn).method("removeEventListener").anyArgs();
 			mock(exConn).setter("reconnectRepeatCount").arg(uint);
-			mock(exConn).setter("redispatcher").arg(instanceOf(IEventDispatcher));
 
+			mock(exConn).setter("redispatcher").arg(instanceOf(IEventDispatcher));
 			service = new RemoteAmfService();
 			service.connection = exConn;
 		}
@@ -66,8 +73,13 @@ package tests.net
 		{
 			service.dispose();
 			service = null;
+			_calledRemoteMethod = null;
 			_passOnFault = null;
 			_passOnResult = null;
+			_requestUID = -1;
+			if (_intervalID > -1)
+				clearTimeout(_intervalID);
+			_intervalID = -1;
 		}
 
 		[Test(description="Check property after create", order="1")]
@@ -144,39 +156,48 @@ package tests.net
 		public function testAddingRemoteMethodsNoEndpoint():void
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
-			Async.failOnEvent(this, service, AMFEvent.RESULT, 100);
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
 
 			_passOnResult = "returnThisInResult";
 			service.addMethod("test");
 			service.test(); //this throw Error because endpoint is not set
 		}
 
-		[Test(description="Test adding remote methods and calling", order="6")]
+		[Test(description="Test adding remote methods and calling", order="6", async)]
 		public function testAddingRemoteMethods():void
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
-			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
-			Async.failOnEvent(this, service, AMFEvent.FAULT, 100);
+			Async.handleEvent(this, service, AMFEvent.RESULT, finalAssertionOnResult, TIMEOUT);
+			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
 
 			service.endpoint = "http://example.com";
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod"); // because service property is not set test will be called as global remote function not service method
-			service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod();
 		}
 
-		protected function testAddingRemoteMethodsHandler(ev:AMFEvent, extra:* = null):void
+		protected function finalAssertionOnResult(ev:AMFEvent, extra:* = null):void
 		{
+			Assert.assertEquals(_requestUID, ev.uid);
 			Assert.assertEquals(_passOnResult, ev.data);
+		}
+
+		protected function finalAssertionOnFault(ev:AMFEvent, extra:* = null):void
+		{
+			Assert.assertEquals(_requestUID, ev.uid);
+			Assert.assertEquals(_passOnFault, ev.data);
 		}
 
 		protected var _calledRemoteMethod:String;
 		protected var _passOnResult:Object;
+		protected var _requestUID:int;
+		protected var _intervalID:int = -1;
 
 		public function callOnResult(method:String, result:Function, fault:Function):void
 		{
 			Assert.assertEquals(_calledRemoteMethod, method);
-			result(_passOnResult);
+			_intervalID = setTimeout(delayFunction, 1, result, _passOnResult);
 		}
 
 		protected var _passOnFault:Object;
@@ -184,51 +205,63 @@ package tests.net
 		public function callOnFault(method:String, result:Function, fault:Function):void
 		{
 			Assert.assertEquals(_calledRemoteMethod, method);
-			fault(_passOnFault);
+			_intervalID = setTimeout(delayFunction, 1, fault, _passOnFault);
 		}
 
-		[Test(description="Test adding remote methods and calling", order="7")]
+		/**
+		 * Imitate response from server
+		 * @param rest
+		 */
+		protected function delayFunction(...rest):void
+		{
+			clearTimeout(_intervalID);
+			_intervalID = -1;
+			var f:Function = rest.shift();
+			f.apply(service, rest);
+		}
+
+		[Test(description="Test adding remote methods and calling", order="7", async)]
 		public function callingRemoteMethodOfService():void
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
-			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
-			Async.failOnEvent(this, service, AMFEvent.FAULT, 100);
+			Async.handleEvent(this, service, AMFEvent.RESULT, finalAssertionOnResult, TIMEOUT);
+			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
 
 			service.endpoint = "http://example.com";
 			service.service = "ExampleService";
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod");
-			service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod();
 		}
 
-		[Test(description="Test calling remote method with fault", order="8")]
+		[Test(description="Test calling remote method with fault", order="8", async)]
 		public function callingRemoteMethodFault():void
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
-			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
-			Async.failOnEvent(this, service, AMFEvent.RESULT, 100);
+			Async.handleEvent(this, service, AMFEvent.FAULT, finalAssertionOnFault, TIMEOUT);
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
 
 			service.endpoint = "http://example.com";
-			_passOnResult = "returnThisInFault";
+			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod");
-			service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod();
 		}
 
-		[Test(description="Test calling remote method with fault", order="9")]
+		[Test(description="Test calling remote method with fault", order="9", async)]
 		public function callingRemoteMethodOfServiceFault():void
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
-			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
-			Async.failOnEvent(this, service, AMFEvent.RESULT, 100);
+			Async.handleEvent(this, service, AMFEvent.FAULT, finalAssertionOnFault, TIMEOUT);
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
 
 			service.endpoint = "http://example.com";
 			service.service = "ExampleService";
-			_passOnResult = "returnThisInFault";
+			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod");
-			service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod();
 		}
 	}
 }
