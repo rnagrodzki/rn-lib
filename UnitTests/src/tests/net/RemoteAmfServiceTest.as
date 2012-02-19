@@ -198,7 +198,7 @@ package tests.net
 			service.service = "ExampleService";
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
-			service.addMethod("myOtherRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.addMethod("myOtherRemoteMethod");
 			service.myOtherRemoteMethod();
 		}
 
@@ -212,7 +212,7 @@ package tests.net
 			service.endpoint = "http://example.com";
 			_passOnResult = "returnThisInFault";
 			_calledRemoteMethod = "myFaultRemoteMethod";
-			service.addMethod("myFaultRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.addMethod("myFaultRemoteMethod");
 			service.myFaultRemoteMethod();
 		}
 
@@ -227,7 +227,7 @@ package tests.net
 			service.service = "ExampleService";
 			_passOnResult = "returnThisInFault";
 			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
-			service.addMethod("myFaultRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.addMethod("myFaultRemoteMethod");
 			service.myFaultRemoteMethod();
 		}
 	}
