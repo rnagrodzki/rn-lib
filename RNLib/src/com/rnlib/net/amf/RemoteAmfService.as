@@ -266,7 +266,8 @@ package com.rnlib.net.amf
 		 */
 		public function get queue():IQueue
 		{
-			return _queue;
+			if (!_queue) return null;
+			return _queue.clone();
 		}
 
 		public function set queue(value:IQueue):void
