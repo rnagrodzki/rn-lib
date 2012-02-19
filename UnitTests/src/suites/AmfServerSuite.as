@@ -3,12 +3,12 @@
  */
 package suites
 {
-	import tests.net.AMFBaseServerNCTest;
-	import tests.net.AMFBaseServerTest;
-	import tests.net.ByteArrayPlayground;
-	import tests.net.ByteArrayPlaygroundNC;
-	import tests.net.PHPServerFeatures;
-	import tests.net.PHPServerFeaturesNC;
+	import tests.net.server.AMFBaseServerNCTest;
+	import tests.net.server.AMFBaseServerTest;
+	import tests.net.server.ByteArrayPlayground;
+	import tests.net.server.ByteArrayPlaygroundNC;
+	import tests.net.server.PHPServerFeatures;
+	import tests.net.server.PHPServerFeaturesNC;
 
 	[Suite]
 	[RunWith("org.flexunit.runners.Suite")]

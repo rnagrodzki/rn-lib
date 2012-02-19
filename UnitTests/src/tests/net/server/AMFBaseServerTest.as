@@ -1,7 +1,7 @@
 /**
  * Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com)
  */
-package tests.net
+package tests.net.server
 {
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;

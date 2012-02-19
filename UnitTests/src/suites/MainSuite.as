@@ -4,6 +4,7 @@
 package suites
 {
 	import tests.net.AMFNetConnectionTest;
+	import tests.net.ReflexiveClientTest;
 	import tests.net.RemoteAmfServiceTest;
 	import tests.queue.QueueTest;
 	import tests.utils.ArrayUtilTest;
@@ -20,6 +21,7 @@ package suites
 //		public var xmlUtil:XMLUtilTest;
 //		public var extendedNetConnection:AMFNetConnectionTest;
 		public var remoteAmfService:RemoteAmfServiceTest;
+		public var reflexiveClient:ReflexiveClientTest;
 //		public var amfServer:AmfServerSuite;
 	}
 }
