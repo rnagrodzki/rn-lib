@@ -192,6 +192,7 @@ package com.rnlib.net.amf
 
 			for each (var vo:MethodHelperVO in _remoteMethods)
 			{
+				//todo: why unit tests fails sometimes on this?
 				_remoteMethods[vo.name] = null;
 				vo.dispose();
 			}

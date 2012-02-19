@@ -156,6 +156,7 @@ package tests.net
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
 			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
+			Async.failOnEvent(this, service, AMFEvent.FAULT, 100);
 
 			service.endpoint = "http://example.com";
 			_passOnResult = "returnThisInResult";
@@ -191,6 +192,7 @@ package tests.net
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
 			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
+			Async.failOnEvent(this, service, AMFEvent.FAULT, 100);
 
 			service.endpoint = "http://example.com";
 			service.service = "ExampleService";
@@ -198,6 +200,35 @@ package tests.net
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod"); // because service property is not set test will be called as global remote function not service method
 			service.myOtherRemoteMethod();
+		}
+
+		[Test(description="Test calling remote method with fault", order="8")]
+		public function callingRemoteMethodFault():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
+			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
+			Async.failOnEvent(this, service, AMFEvent.RESULT, 100);
+
+			service.endpoint = "http://example.com";
+			_passOnResult = "returnThisInFault";
+			_calledRemoteMethod = "myFaultRemoteMethod";
+			service.addMethod("myFaultRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.myFaultRemoteMethod();
+		}
+
+		[Test(description="Test calling remote method with fault", order="9")]
+		public function callingRemoteMethodOfServiceFault():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
+			Async.handleEvent(this, service, AMFEvent.RESULT, testAddingRemoteMethodsHandler, 100);
+			Async.failOnEvent(this, service, AMFEvent.RESULT, 100);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			_passOnResult = "returnThisInFault";
+			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
+			service.addMethod("myFaultRemoteMethod"); // because service property is not set test will be called as global remote function not service method
+			service.myFaultRemoteMethod();
 		}
 	}
 }
