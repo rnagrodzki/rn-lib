@@ -263,5 +263,112 @@ package tests.net
 			service.addMethod("myFaultRemoteMethod");
 			_requestUID = service.myFaultRemoteMethod();
 		}
+
+		[Test(description="Test capture repsonse by method callback", order="10", async)]
+		public function callingRemoteMethodOfService_Callback():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			_passOnResult = "returnThisInResult";
+			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
+			service.addMethod("myOtherRemoteMethod", onResultCallback, onFaultCallback);
+			_requestUID = service.myOtherRemoteMethod();
+		}
+
+		protected function onResultCallback(result:Object):void
+		{
+			Assert.assertEquals(_passOnResult, result);
+		}
+
+		protected function onFaultCallback(fault:Object):void
+		{
+			Assert.assertEquals(_passOnFault, fault);
+		}
+
+		[Test(description="Test capture repsonse by method callback", order="11", async)]
+		public function callingRemoteMethodOfServiceFault_Callback():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			_passOnFault = "returnThisInFault";
+			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
+			service.addMethod("myFaultRemoteMethod", onResultCallback, onFaultCallback);
+			_requestUID = service.myFaultRemoteMethod();
+		}
+
+		[Test(description="Test capture repsonse by service callback", order="12", async)]
+		public function callingRemoteMethodOfService_GlobalCallback():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			service.result = onResultCallback;
+			service.fault = onFaultCallback;
+			_passOnResult = "returnThisInResult";
+			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
+			service.addMethod("myOtherRemoteMethod");
+			_requestUID = service.myOtherRemoteMethod();
+		}
+
+		[Test(description="Test capture repsonse by service callback", order="13", async)]
+		public function callingRemoteMethodOfServiceFault_GlobalCallback():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			service.result = onResultCallback;
+			service.fault = onFaultCallback;
+			_passOnFault = "returnThisInFault";
+			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
+			service.addMethod("myFaultRemoteMethod");
+			_requestUID = service.myFaultRemoteMethod();
+		}
+
+		[Test(description="Test callbacks priority", order="14", async)]
+		public function callingRemoteMethodOfService_PriorityCallbacks():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			service.result = faultOnServiceCallback;
+			service.fault = faultOnServiceCallback;
+			_passOnResult = "returnThisInResult";
+			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
+			service.addMethod("myOtherRemoteMethod", onResultCallback, onFaultCallback);
+			_requestUID = service.myOtherRemoteMethod();
+		}
+
+		protected function faultOnServiceCallback(data:Object):void
+		{
+			fail("Bad callback priority");
+		}
+
+		[Test(description="Test callbacks priority", order="15", async)]
+		public function callingRemoteMethodOfServiceFault_PriorityCallbacks():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnFault"));
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
+
+			service.endpoint = "http://example.com";
+			service.service = "ExampleService";
+			service.result = faultOnServiceCallback;
+			service.fault = faultOnServiceCallback;
+			_passOnFault = "returnThisInFault";
+			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
+			service.addMethod("myFaultRemoteMethod", onResultCallback, onFaultCallback);
+			_requestUID = service.myFaultRemoteMethod();
+		}
 	}
 }
