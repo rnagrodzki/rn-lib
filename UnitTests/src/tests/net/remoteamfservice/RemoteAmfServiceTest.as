@@ -1,7 +1,7 @@
 /**
  * Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com)
  */
-package tests.net
+package tests.net.remoteamfservice
 {
 	import com.rnlib.net.RequestConcurrency;
 	import com.rnlib.net.amf.AMFEvent;
