@@ -862,7 +862,15 @@ package com.rnlib.net.amf
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
-			vo.args = plugin.args;
+
+			try
+			{ vo.args = plugin.args;}
+			catch (e:Error)
+			{
+				callFinalFault(vo, e);
+				return;
+			}
+
 			plugin.dispose(); // here is plugin life end
 			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
 			callRemoteMethod(vo);
@@ -873,7 +881,15 @@ package com.rnlib.net.amf
 		{
 			var plugin:IMultipartPlugin = e.target as IMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
-			vo.args = plugin.args;
+
+			try
+			{ vo.args = plugin.args;}
+			catch (e:Error)
+			{
+				callFinalFault(vo, e);
+				return;
+			}
+
 			callRemoteMethod(vo, plugin);
 		}
 

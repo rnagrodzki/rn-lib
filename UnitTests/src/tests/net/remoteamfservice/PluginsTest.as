@@ -23,15 +23,22 @@ package tests.net.remoteamfservice
 	import mockolate.stub;
 
 	import org.flexunit.async.Async;
+	import org.flexunit.rules.IMethodRule;
 	import org.hamcrest.object.instanceOf;
+	import org.morefluent.integrations.flexunit4.MorefluentRule;
+	import org.morefluent.integrations.flexunit4.after;
 
 	import tests.net.remoteamfservice.plugins.BrokenPluginVO;
-
 	import tests.net.remoteamfservice.plugins.TestPluginFactory;
 	import tests.net.remoteamfservice.plugins.TestPluginVO;
 
 	public class PluginsTest
 	{
+		[Rule]
+		// make sure you have MorefluentRule defined in your test
+		// https://bitbucket.org/loomis/morefluent/overview
+		// https://bitbucket.org/loomis/morefluent/wiki/Home
+		public var moreFluentRule:IMethodRule = new MorefluentRule();
 
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
@@ -47,7 +54,7 @@ package tests.net.remoteamfservice
 		public static const TIMEOUT:int = 100;
 
 		[Before]
-		public function before():void
+		public function beforeTest():void
 		{
 			_requestUID = -1;
 			_intervalID = -1;
@@ -64,6 +71,8 @@ package tests.net.remoteamfservice
 			stub(plugin).method("dispose");
 			mock(plugin).setter("dispatcher").arg(instanceOf(IEventDispatcher));
 			mock(plugin).getter("dispatcher").returns(new EventDispatcher());
+			stub(plugin).method("addEventListener").anyArgs();
+			stub(plugin).method("removeEventListener").anyArgs();
 
 			service = new RemoteAmfService();
 			service.connection = exConn;
@@ -72,7 +81,7 @@ package tests.net.remoteamfservice
 		}
 
 		[After]
-		public function after():void
+		public function afterTest():void
 		{
 			service.dispose();
 			service = null;
@@ -90,6 +99,7 @@ package tests.net.remoteamfservice
 		{
 			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
 			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
+			Async.proceedOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
 
 			_passOnResult = "testValue";
 			mock(plugin).method("init")
@@ -148,11 +158,12 @@ package tests.net.remoteamfservice
 		public function pluginCancelEvent():void
 		{
 			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
+			Async.proceedOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
 
-			_passOnFault = "testValue";
+			_passOnFault = "Cancel by user";
 			mock(plugin).method("init")
 					.args(instanceOf(IPluginVO))
-					.dispatches(new PluginEvent(PluginEvent.CANCEL,_passOnFault), 10);
+					.dispatches(new PluginEvent(PluginEvent.CANCEL, _passOnFault), 10);
 			mock(plugin).getter("args").returns([_passOnResult]);
 
 			_calledRemoteMethod = service.service + ".testPlugin";
@@ -161,12 +172,51 @@ package tests.net.remoteamfservice
 			_requestUID = service.testPlugin(new TestPluginVO());
 		}
 
-		[Test(description="Try pass into remote method unregisters PluginVO", order="3",expects="Error")]
+		[Test(description="Try pass into remote method unregisters PluginVO", order="3", expects="Error")]
 		public function tryPassUnregisteredPluginVO():void
 		{
 			service.pluginsFactories = [new TestPluginFactory(plugin, TestPluginVO)];
 			service.addMethod("testPlugin", onResultCallback, onFaultCallback);
 			_requestUID = service.testPlugin(new BrokenPluginVO());
+		}
+
+		[Test(description="Throwing exception by Plugin on init", order="4", async)]
+		public function throwExceptionByPluginOnInit():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+
+			after(AMFEvent.FAULT).on(service).pass();
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
+
+			_passOnFault = new Error("Error by plugin vo init method");
+			mock(plugin).method("init")
+					.args(instanceOf(IPluginVO))
+					.throws(_passOnFault as Error);
+
+			_calledRemoteMethod = service.service + ".testPlugin";
+			service.pluginsFactories = [new TestPluginFactory(plugin, TestPluginVO)];
+			service.addMethod("testPlugin", onResultCallback, onFaultCallback);
+			_requestUID = service.testPlugin(new TestPluginVO());
+		}
+
+		[Test(description="Throwing exception by Plugin on geter args", order="5", async)]
+		public function throwExceptionByPluginOnArgs():void
+		{
+			mock(exConn).method("call").answers(new MethodInvokingAnswer(this, "callOnResult"));
+
+			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
+			Async.proceedOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
+
+			_passOnFault = new Error("Error by plugin vo args method");
+			mock(plugin).method("init")
+					.args(instanceOf(IPluginVO))
+					.dispatches(new PluginEvent(PluginEvent.COMPLETE), 10);
+			mock(plugin).getter("args").throws(_passOnFault as Error);
+
+			_calledRemoteMethod = service.service + ".testPlugin";
+			service.pluginsFactories = [new TestPluginFactory(plugin, TestPluginVO)];
+			service.addMethod("testPlugin", onResultCallback, onFaultCallback);
+			_requestUID = service.testPlugin(new TestPluginVO());
 		}
 	}
 }
