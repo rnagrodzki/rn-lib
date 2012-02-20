@@ -7,12 +7,12 @@ package com.rnlib.net.amf
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.net.plugins.INetMultipartPlugin;
 	import com.rnlib.net.plugins.INetPlugin;
 	import com.rnlib.net.plugins.INetPluginFactory;
 	import com.rnlib.net.plugins.INetPluginVO;
 	import com.rnlib.net.plugins.NetPluginEvent;
-	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
 
@@ -177,37 +177,6 @@ package com.rnlib.net.amf
 		//---------------------------------------------------------------
 		//              <------ DEVELOPER INTERFACE METHODS ------>
 		//---------------------------------------------------------------
-
-		/**
-		 * Dispose all request, connections and remote methods.
-		 */
-		public function dispose():void
-		{
-			if (_nc)
-			{
-				_nc.dispose();
-			}
-
-			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
-
-			for each (var vo:MethodHelperVO in _remoteMethods)
-			{
-				//todo: why unit tests fails sometimes on this?
-				_remoteMethods[vo.name] = null;
-				delete _remoteMethods[vo.name];
-				vo.dispose();
-			}
-
-			if (_queue)
-			{
-				_queue.dispose();
-			}
-
-			_isPendingRequest = false;
-			_remoteMethods = new Dictionary();
-			_requests = new Dictionary();
-			_plugins = new Dictionary();
-		}
 
 		private function defaultMethods():void
 		{
@@ -714,6 +683,7 @@ package com.rnlib.net.amf
 			{ plugin.onResult(r);}
 			catch (e:Error)
 			{
+				disposePlugin(plugin);
 				var vo1:MethodVO = _plugins[plugin];
 				if (vo1) callFinalFault(vo1, e);
 			}
@@ -726,6 +696,7 @@ package com.rnlib.net.amf
 				{ plugin.next();}
 				catch (e:Error)
 				{
+					disposePlugin(plugin);
 					var vo3:MethodVO = _plugins[plugin];
 					if (vo3) callFinalFault(vo3, e);
 				}
@@ -738,6 +709,7 @@ package com.rnlib.net.amf
 			{ plugin.onFault(f);}
 			catch (e:Error)
 			{
+				disposePlugin(plugin);
 				var vo1:MethodVO = _plugins[plugin];
 				if (vo1) callFinalFault(vo1, e);
 			}
@@ -750,6 +722,7 @@ package com.rnlib.net.amf
 				{ plugin.next();}
 				catch (e:Error)
 				{
+					disposePlugin(plugin);
 					var vo3:MethodVO = _plugins[plugin];
 					if (vo3) callFinalFault(vo3, e);
 				}
@@ -783,12 +756,31 @@ package com.rnlib.net.amf
 			{ plugin.init(pluginVO);}
 			catch (e:Error)
 			{
-				var vo:MethodVO = _plugins[plugin];
-				if (vo) callFinalFault(vo, e);
+				var vo1:MethodVO = _plugins[plugin];
+				disposePlugin(plugin);
+				if (vo1)
+				{
+					callFinalFault(vo1, e);
+					vo1.dispose();
+				}
 			}
 
 			pluginVO = null;
 			plugin = null;
+		}
+
+		protected function disposePlugin(plugin:INetPlugin):void
+		{
+			_plugins[plugin] = null;
+			delete _plugins[plugin];
+
+			removePluginHandlers(plugin);
+
+			try
+			{ plugin.dispose();} catch (e:Error)
+			{ }
+
+			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
 		}
 
 		/**
@@ -839,11 +831,7 @@ package com.rnlib.net.amf
 		{
 			var plugin:INetPlugin = e.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
-			_plugins[plugin] = null;
-			delete _plugins[plugin];
-			removePluginHandlers(plugin);
-			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
+			disposePlugin(plugin);
 
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
@@ -859,20 +847,18 @@ package com.rnlib.net.amf
 		{
 			var plugin:INetPlugin = e.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
-			_plugins[plugin] = null;
-			delete _plugins[plugin];
-			removePluginHandlers(plugin);
 
 			try
 			{ vo.args = plugin.args;}
 			catch (e:Error)
 			{
+				disposePlugin(plugin);
 				callFinalFault(vo, e);
+				vo.dispose();
 				return;
 			}
 
-			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
+			disposePlugin(plugin);
 			callRemoteMethod(vo);
 			vo.dispose();
 		}
@@ -881,27 +867,27 @@ package com.rnlib.net.amf
 		{
 			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
+			vo = vo.clone();
 
 			try
 			{ vo.args = plugin.args;}
 			catch (e:Error)
 			{
+				disposePlugin(plugin);
 				callFinalFault(vo, e);
+				vo.dispose();
 				return;
 			}
 
 			callRemoteMethod(vo, plugin);
+			vo.dispose();
 		}
 
 		protected function onMultipartPluginComplete(e:NetPluginEvent):void
 		{
 			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
-			_plugins[plugin] = null;
-			delete _plugins[plugin];
-			removePluginHandlers(plugin);
-			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
+			disposePlugin(plugin);
 
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
@@ -1091,6 +1077,46 @@ package com.rnlib.net.amf
 		public function toLocaleString():Object
 		{
 			return toString();
+		}
+
+		//---------------------------------------------------------------
+		//              <------ INTERFACE DISPOSABLE ------>
+		//---------------------------------------------------------------
+
+		/**
+		 * Dispose all request, connections and remote methods.
+		 */
+		public function dispose():void
+		{
+			if (_nc)
+			{
+				_nc.dispose();
+			}
+
+			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
+
+			for each (var vo:MethodHelperVO in _remoteMethods)
+			{
+				_remoteMethods[vo.name] = null;
+				delete _remoteMethods[vo.name];
+				vo.dispose();
+			}
+
+			for each (var factory:INetPluginFactory in _pluginsFactories)
+			{
+				factory.dispose();
+			}
+			_pluginsFactories = null;
+
+			if (_queue)
+			{
+				_queue.dispose();
+			}
+
+			_isPendingRequest = false;
+			_remoteMethods = new Dictionary();
+			_requests = new Dictionary();
+			_plugins = new Dictionary();
 		}
 	}
 }

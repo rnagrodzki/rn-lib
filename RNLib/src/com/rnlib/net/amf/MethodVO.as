@@ -44,5 +44,16 @@ package com.rnlib.net.amf
 			fault = null;
 			args = null;
 		}
+
+		public function clone():MethodVO
+		{
+			var vo:MethodVO=new MethodVO();
+			vo.args = args;
+			vo.name = name;
+			vo.result = result;
+			vo.fault = fault;
+			vo.uid = uid;
+			return vo;
+		}
 	}
 }

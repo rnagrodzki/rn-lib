@@ -8,7 +8,7 @@ package com.rnlib.net.plugins
 		protected var _generator:Class;
 		protected var _generatorVO:Class;
 
-		public function NetPluginFactory(generator:Class, voGenerator:Class)
+		public function NetPluginFactory(generator:Class, voGenerator:Class = null)
 		{
 			_generator = generator;
 			_generatorVO = voGenerator;
@@ -21,6 +21,8 @@ package com.rnlib.net.plugins
 
 		public function isSupportVO(vo:INetPluginVO):Boolean
 		{
+			if (!_generatorVO) return true;
+
 			return vo is _generatorVO;
 		}
 
