@@ -651,6 +651,13 @@ package com.rnlib.net.amf
 			showCursor();
 		}
 
+		/**
+		 * Encapsulate rewriting MethodVO object on ResultMediatorVO
+		 * and registering new instance in _requests Dictionary
+		 *
+		 * @param vo MethodVO to rewrite on ResultMediatorVO
+		 * @return new instance of ResultMediatorVO
+		 */
 		protected function prepareResultMediator(vo:MethodVO):ResultMediatorVO
 		{
 			var rm:ResultMediatorVO = new ResultMediatorVO();
@@ -669,6 +676,11 @@ package com.rnlib.net.amf
 		//			<------ EXECUTE PLUGINS JUST IN TIME ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * End of lifecycle single method call notifying about fault
+		 * @param vo
+		 * @param data
+		 */
 		protected function callFinalFault(vo:MethodVO, data:Object = null):void
 		{
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
@@ -677,6 +689,11 @@ package com.rnlib.net.amf
 			onFault(data, rm.name, rm.id, rm.uid);
 		}
 
+		/**
+		 * Global handler for IMultipartPlugins
+		 * @param plugin
+		 * @param r Object with result
+		 */
 		protected function onPluginResult(plugin:INetMultipartPlugin, r:Object):void
 		{
 			try
@@ -703,6 +720,11 @@ package com.rnlib.net.amf
 			}
 		}
 
+		/**
+		 * Global handler for IMultipartPlugins
+		 * @param plugin
+		 * @param f Object with fault information
+		 */
 		protected function onPluginFault(plugin:INetMultipartPlugin, f:Object):void
 		{
 			try
@@ -769,6 +791,10 @@ package com.rnlib.net.amf
 			plugin = null;
 		}
 
+		/**
+		 * Encapsulate disposing plugin
+		 * @param plugin INetPlugin to dispose
+		 */
 		protected function disposePlugin(plugin:INetPlugin):void
 		{
 			_plugins[plugin] = null;
@@ -863,6 +889,10 @@ package com.rnlib.net.amf
 			vo.dispose();
 		}
 
+		/**
+		 * MultipartPlugin is ready to share arguments for remote method
+		 * @param e
+		 */
 		protected function onMultipartPluginReady(e:NetPluginEvent):void
 		{
 			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
@@ -883,6 +913,10 @@ package com.rnlib.net.amf
 			vo.dispose();
 		}
 
+		/**
+		 * MultipartPlugin finish successfully his work
+		 * @param e
+		 */
 		protected function onMultipartPluginComplete(e:NetPluginEvent):void
 		{
 			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
@@ -966,6 +1000,10 @@ package com.rnlib.net.amf
 		//              <------ IGNORE PENDING REQUESTS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Ignore all pending requests
+		 * @param callFault
+		 */
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
 		{
 			disconnect();
@@ -1039,6 +1077,11 @@ package com.rnlib.net.amf
 			return item is INetPluginFactory;
 		}
 
+		/**
+		 * Check if passed ValueObject is supported by any registered INetPlugin
+		 * @param vo
+		 * @return
+		 */
 		protected function pluginVOisSupported(vo:INetPluginVO):Boolean
 		{
 			for each (var factory:INetPluginFactory in _pluginsFactories)
@@ -1049,6 +1092,11 @@ package com.rnlib.net.amf
 			return false;
 		}
 
+		/**
+		 * Find matching plugin to passed ValueObject
+		 * @param vo
+		 * @return
+		 */
 		protected function matchPlugin(vo:INetPluginVO):INetPlugin
 		{
 			for each (var factory:INetPluginFactory in _pluginsFactories)
