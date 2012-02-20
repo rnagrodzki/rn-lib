@@ -3,27 +3,27 @@
  */
 package tests.net.remoteamfservice.plugins
 {
-	import com.rnlib.net.amf.plugins.IPlugin;
-	import com.rnlib.net.amf.plugins.IPluginFactory;
-	import com.rnlib.net.amf.plugins.IPluginVO;
+	import com.rnlib.net.plugins.INetPlugin;
+	import com.rnlib.net.plugins.INetPluginFactory;
+	import com.rnlib.net.plugins.INetPluginVO;
 
-	public class TestPluginFactory implements IPluginFactory
+	public class TestPluginFactory implements INetPluginFactory
 	{
-		protected var _plugin:IPlugin;
+		protected var _plugin:INetPlugin;
 		protected var _vo:Class;
 
-		public function TestPluginFactory(plugin:IPlugin, vo:Class)
+		public function TestPluginFactory(plugin:INetPlugin, vo:Class)
 		{
 			_plugin = plugin;
 			_vo = vo;
 		}
 
-		public function newInstance():IPlugin
+		public function newInstance():INetPlugin
 		{
 			return _plugin;
 		}
 
-		public function isSupportVO(vo:IPluginVO):Boolean
+		public function isSupportVO(vo:INetPluginVO):Boolean
 		{
 			return vo is _vo;
 		}

@@ -7,9 +7,9 @@ package tests.net.remoteamfservice
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
-	import com.rnlib.net.amf.plugins.FileReferencePlugin;
-	import com.rnlib.net.amf.plugins.FileReferencePluginVO;
-	import com.rnlib.net.amf.plugins.PluginFactory;
+	import com.rnlib.net.plugins.FileReferencePlugin;
+	import com.rnlib.net.plugins.FileReferencePluginVO;
+	import com.rnlib.net.plugins.NetPluginFactory;
 
 	import flash.events.IEventDispatcher;
 	import flash.utils.clearTimeout;
@@ -129,7 +129,7 @@ package tests.net.remoteamfservice
 			service.showBusyCursor = false;
 			Assert.assertFalse(service.showBusyCursor);
 
-			var plugins:Array = [new PluginFactory(FileReferencePlugin, FileReferencePluginVO)];
+			var plugins:Array = [new NetPluginFactory(FileReferencePlugin, FileReferencePluginVO)];
 			service.pluginsFactories = plugins;
 			assertThat(plugins, service.pluginsFactories);
 		}

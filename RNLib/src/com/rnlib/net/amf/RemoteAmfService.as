@@ -7,11 +7,11 @@ package com.rnlib.net.amf
 	import com.rnlib.net.*;
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
-	import com.rnlib.net.amf.plugins.IMultipartPlugin;
-	import com.rnlib.net.amf.plugins.IPlugin;
-	import com.rnlib.net.amf.plugins.IPluginFactory;
-	import com.rnlib.net.amf.plugins.IPluginVO;
-	import com.rnlib.net.amf.plugins.PluginEvent;
+	import com.rnlib.net.plugins.INetMultipartPlugin;
+	import com.rnlib.net.plugins.INetPlugin;
+	import com.rnlib.net.plugins.INetPluginFactory;
+	import com.rnlib.net.plugins.INetPluginVO;
+	import com.rnlib.net.plugins.NetPluginEvent;
 	import com.rnlib.net.amf.processor.AMFHeader;
 	import com.rnlib.queue.IQueue;
 	import com.rnlib.queue.PriorityQueue;
@@ -43,12 +43,12 @@ package com.rnlib.net.amf
 	/**
 	 * Dispatch then new plugin is created
 	 */
-	[Event(name="pluginCreated", type="com.rnlib.net.amf.plugins.PluginEvent")]
+	[Event(name="pluginCreated", type="com.rnlib.net.plugins.NetPluginEvent")]
 
 	/**
 	 * Dispatch then plugin is disposed
 	 */
-	[Event(name="pluginDisposed", type="com.rnlib.net.amf.plugins.PluginEvent")]
+	[Event(name="pluginDisposed", type="com.rnlib.net.plugins.NetPluginEvent")]
 
 	use namespace flash_proxy;
 
@@ -515,7 +515,7 @@ package com.rnlib.net.amf
 		 * have registered Plugin or <code>0</code> if PluginVO is not acceptable by any
 		 * registered Plugin
 		 */
-		protected function testParamsRemoteMethod(...rest):IPluginVO
+		protected function testParamsRemoteMethod(...rest):INetPluginVO
 		{
 			if (!rest) return null;
 
@@ -523,12 +523,12 @@ package com.rnlib.net.amf
 			{
 				var param:Object = rest[i];
 
-				if (param is IPluginVO)
+				if (param is INetPluginVO)
 				{
-					var vo:IPluginVO = param as IPluginVO;
+					var vo:INetPluginVO = param as INetPluginVO;
 
 					if (!pluginVOisSupported(vo))
-						throw new ArgumentError("Not found associated IPlugin with given IPluginVO");
+						throw new ArgumentError("Not found associated INetPlugin with given IPluginVO");
 
 					rest.splice(i, 1);
 					vo.args = vo.args ? vo.args.concat(rest) : rest;
@@ -554,7 +554,7 @@ package com.rnlib.net.amf
 				if (!_endpoint)
 					throw new Error("Endpoint not set");
 
-				var pluginVO:IPluginVO = testParamsRemoteMethod.apply(this, rest);
+				var pluginVO:INetPluginVO = testParamsRemoteMethod.apply(this, rest);
 
 				var mvo:MethodHelperVO = _remoteMethods[name];
 				var vo:MethodVO = new MethodVO();
@@ -650,11 +650,11 @@ package com.rnlib.net.amf
 		 * Invoke register remote method
 		 * @param vo
 		 */
-		protected function callRemoteMethod(vo:MethodVO, plugin:IPlugin = null):void
+		protected function callRemoteMethod(vo:MethodVO, plugin:INetPlugin = null):void
 		{
 			_isPendingRequest = true;
 
-			if (vo.args is IPluginVO)
+			if (vo.args is INetPluginVO)
 			{
 				waitForPlugin(vo);
 				return;
@@ -662,7 +662,7 @@ package com.rnlib.net.amf
 
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 
-			if (plugin is IMultipartPlugin)
+			if (plugin is INetMultipartPlugin)
 			{
 				rm.plugin = plugin;
 				rm.internalFaultHandler = onPluginFault;
@@ -708,7 +708,7 @@ package com.rnlib.net.amf
 			onFault(data, rm.name, rm.id, rm.uid);
 		}
 
-		protected function onPluginResult(plugin:IMultipartPlugin, r:Object):void
+		protected function onPluginResult(plugin:INetMultipartPlugin, r:Object):void
 		{
 			try
 			{ plugin.onResult(r);}
@@ -732,7 +732,7 @@ package com.rnlib.net.amf
 			}
 		}
 
-		protected function onPluginFault(plugin:IMultipartPlugin, f:Object):void
+		protected function onPluginFault(plugin:INetMultipartPlugin, f:Object):void
 		{
 			try
 			{ plugin.onFault(f);}
@@ -768,13 +768,13 @@ package com.rnlib.net.amf
 		 */
 		protected function waitForPlugin(vo:MethodVO):void
 		{
-			var pluginVO:IPluginVO = vo.args as IPluginVO;
+			var pluginVO:INetPluginVO = vo.args as INetPluginVO;
 			if (!pluginVO) return;
 
-			var plugin:IPlugin = matchPlugin(pluginVO);
+			var plugin:INetPlugin = matchPlugin(pluginVO);
 			plugin.dispatcher = this;
 
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_CREATED, plugin));
+			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_CREATED, plugin));
 
 			registerPluginHandlers(plugin);
 			_plugins[plugin] = vo;
@@ -795,19 +795,19 @@ package com.rnlib.net.amf
 		 * Encapsulate register plugin handlers
 		 * @param plugin
 		 */
-		protected function registerPluginHandlers(plugin:IPlugin):void
+		protected function registerPluginHandlers(plugin:INetPlugin):void
 		{
-			plugin.addEventListener(PluginEvent.CANCEL, onPluginCancel, false, 0, true);
+			plugin.addEventListener(NetPluginEvent.CANCEL, onPluginCancel, false, 0, true);
 
-			if (plugin is IMultipartPlugin)
+			if (plugin is INetMultipartPlugin)
 			{
-				plugin.addEventListener(PluginEvent.READY, onMultipartPluginReady, false, 0, true);
-				plugin.addEventListener(PluginEvent.COMPLETE, onMultipartPluginComplete, false, 0, true);
+				plugin.addEventListener(NetPluginEvent.READY, onMultipartPluginReady, false, 0, true);
+				plugin.addEventListener(NetPluginEvent.COMPLETE, onMultipartPluginComplete, false, 0, true);
 			}
 			else
 			{
-				plugin.addEventListener(PluginEvent.READY, onPluginComplete, false, 0, true);
-				plugin.addEventListener(PluginEvent.COMPLETE, onPluginComplete, false, 0, true);
+				plugin.addEventListener(NetPluginEvent.READY, onPluginComplete, false, 0, true);
+				plugin.addEventListener(NetPluginEvent.COMPLETE, onPluginComplete, false, 0, true);
 			}
 		}
 
@@ -815,19 +815,19 @@ package com.rnlib.net.amf
 		 * Encapsulate remove plugin handlers
 		 * @param plugin
 		 */
-		protected function removePluginHandlers(plugin:IPlugin):void
+		protected function removePluginHandlers(plugin:INetPlugin):void
 		{
-			plugin.removeEventListener(PluginEvent.CANCEL, onPluginCancel, false);
+			plugin.removeEventListener(NetPluginEvent.CANCEL, onPluginCancel, false);
 
-			if (plugin is IMultipartPlugin)
+			if (plugin is INetMultipartPlugin)
 			{
-				plugin.removeEventListener(PluginEvent.READY, onMultipartPluginReady, false);
-				plugin.removeEventListener(PluginEvent.COMPLETE, onMultipartPluginComplete, false);
+				plugin.removeEventListener(NetPluginEvent.READY, onMultipartPluginReady, false);
+				plugin.removeEventListener(NetPluginEvent.COMPLETE, onMultipartPluginComplete, false);
 			}
 			else
 			{
-				plugin.removeEventListener(PluginEvent.READY, onPluginComplete, false);
-				plugin.removeEventListener(PluginEvent.COMPLETE, onPluginComplete, false);
+				plugin.removeEventListener(NetPluginEvent.READY, onPluginComplete, false);
+				plugin.removeEventListener(NetPluginEvent.COMPLETE, onPluginComplete, false);
 			}
 		}
 
@@ -835,15 +835,15 @@ package com.rnlib.net.amf
 		 * If plugin cancel operation is forced call fault handler
 		 * @param e
 		 */
-		private function onPluginCancel(e:PluginEvent):void
+		private function onPluginCancel(e:NetPluginEvent):void
 		{
-			var plugin:IPlugin = e.target as IPlugin;
+			var plugin:INetPlugin = e.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
+			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
 
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
@@ -855,9 +855,9 @@ package com.rnlib.net.amf
 		 * We will proceed only on ready/complete event
 		 * @param e
 		 */
-		private function onPluginComplete(e:PluginEvent):void
+		private function onPluginComplete(e:NetPluginEvent):void
 		{
-			var plugin:IPlugin = e.target as IPlugin;
+			var plugin:INetPlugin = e.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
@@ -872,14 +872,14 @@ package com.rnlib.net.amf
 			}
 
 			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
+			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
 			callRemoteMethod(vo);
 			vo.dispose();
 		}
 
-		protected function onMultipartPluginReady(e:PluginEvent):void
+		protected function onMultipartPluginReady(e:NetPluginEvent):void
 		{
-			var plugin:IMultipartPlugin = e.target as IMultipartPlugin;
+			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
 
 			try
@@ -893,15 +893,15 @@ package com.rnlib.net.amf
 			callRemoteMethod(vo, plugin);
 		}
 
-		protected function onMultipartPluginComplete(e:PluginEvent):void
+		protected function onMultipartPluginComplete(e:NetPluginEvent):void
 		{
-			var plugin:IMultipartPlugin = e.target as IMultipartPlugin;
+			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
 			removePluginHandlers(plugin);
 			plugin.dispose(); // here is plugin life end
-			dispatchEvent(new PluginEvent(PluginEvent.PLUGIN_DISPOSED, plugin));
+			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
 
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
@@ -1028,7 +1028,7 @@ package com.rnlib.net.amf
 		//              <------ PLUGINS ------>
 		//---------------------------------------------------------------
 
-		[ArrayElementType("com.rnlib.net.amf.plugins.IPluginFactory")]
+		[ArrayElementType("com.rnlib.net.plugins.INetPluginFactory")]
 		protected var _pluginsFactories:Array;
 
 		/**
@@ -1050,12 +1050,12 @@ package com.rnlib.net.amf
 
 		private static function filterPlugins(item:*, index:int, array:Array):Boolean
 		{
-			return item is IPluginFactory;
+			return item is INetPluginFactory;
 		}
 
-		protected function pluginVOisSupported(vo:IPluginVO):Boolean
+		protected function pluginVOisSupported(vo:INetPluginVO):Boolean
 		{
-			for each (var factory:IPluginFactory in _pluginsFactories)
+			for each (var factory:INetPluginFactory in _pluginsFactories)
 			{
 				if (factory.isSupportVO(vo)) return true;
 			}
@@ -1063,9 +1063,9 @@ package com.rnlib.net.amf
 			return false;
 		}
 
-		protected function matchPlugin(vo:IPluginVO):IPlugin
+		protected function matchPlugin(vo:INetPluginVO):INetPlugin
 		{
-			for each (var factory:IPluginFactory in _pluginsFactories)
+			for each (var factory:INetPluginFactory in _pluginsFactories)
 			{
 				if (factory.isSupportVO(vo)) return factory.newInstance();
 			}
@@ -1096,8 +1096,8 @@ package com.rnlib.net.amf
 }
 
 import com.rnlib.interfaces.IDisposable;
-import com.rnlib.net.amf.plugins.IMultipartPlugin;
-import com.rnlib.net.amf.plugins.IPlugin;
+import com.rnlib.net.plugins.INetMultipartPlugin;
+import com.rnlib.net.plugins.INetPlugin;
 
 class MethodHelperVO implements IDisposable
 {
@@ -1123,14 +1123,14 @@ class ResultMediatorVO implements IDisposable
 	public var uid:int;
 	public var id:int;
 	public var name:String;
-	public var plugin:IPlugin;
+	public var plugin:INetPlugin;
 
 	public var resultHandler:Function;
 	public var internalResultHandler:Function;
 
 	public function result(r:Object):void
 	{
-		if (plugin is IMultipartPlugin)
+		if (plugin is INetMultipartPlugin)
 		{
 			internalResultHandler(plugin, r);
 		}
@@ -1144,7 +1144,7 @@ class ResultMediatorVO implements IDisposable
 
 	public function fault(f:Object):void
 	{
-		if (plugin is IMultipartPlugin)
+		if (plugin is INetMultipartPlugin)
 		{
 			internalFaultHandler(plugin, f);
 		}

@@ -6,9 +6,9 @@ package tests.net.remoteamfservice
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
-	import com.rnlib.net.amf.plugins.IPlugin;
-	import com.rnlib.net.amf.plugins.IPluginVO;
-	import com.rnlib.net.amf.plugins.PluginEvent;
+	import com.rnlib.net.plugins.INetPlugin;
+	import com.rnlib.net.plugins.INetPluginVO;
+	import com.rnlib.net.plugins.NetPluginEvent;
 
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
@@ -47,7 +47,7 @@ package tests.net.remoteamfservice
 		public var exConn:IAMFConnection;
 
 		[Mock(type="strict")]
-		public var plugin:IPlugin;
+		public var plugin:INetPlugin;
 
 		public var service:RemoteAmfService;
 
@@ -103,8 +103,8 @@ package tests.net.remoteamfservice
 
 			_passOnResult = "testValue";
 			mock(plugin).method("init")
-					.args(instanceOf(IPluginVO))
-					.dispatches(new PluginEvent(PluginEvent.COMPLETE), 10);
+					.args(instanceOf(INetPluginVO))
+					.dispatches(new NetPluginEvent(NetPluginEvent.COMPLETE), 10);
 			mock(plugin).getter("args").returns([_passOnResult]);
 
 			_calledRemoteMethod = service.service + ".testPlugin";
@@ -162,8 +162,8 @@ package tests.net.remoteamfservice
 
 			_passOnFault = "Cancel by user";
 			mock(plugin).method("init")
-					.args(instanceOf(IPluginVO))
-					.dispatches(new PluginEvent(PluginEvent.CANCEL, _passOnFault), 10);
+					.args(instanceOf(INetPluginVO))
+					.dispatches(new NetPluginEvent(NetPluginEvent.CANCEL, _passOnFault), 10);
 			mock(plugin).getter("args").returns([_passOnResult]);
 
 			_calledRemoteMethod = service.service + ".testPlugin";
@@ -190,7 +190,7 @@ package tests.net.remoteamfservice
 
 			_passOnFault = new Error("Error by plugin vo init method");
 			mock(plugin).method("init")
-					.args(instanceOf(IPluginVO))
+					.args(instanceOf(INetPluginVO))
 					.throws(_passOnFault as Error);
 
 			_calledRemoteMethod = service.service + ".testPlugin";
@@ -209,8 +209,8 @@ package tests.net.remoteamfservice
 
 			_passOnFault = new Error("Error by plugin vo args method");
 			mock(plugin).method("init")
-					.args(instanceOf(IPluginVO))
-					.dispatches(new PluginEvent(PluginEvent.COMPLETE), 10);
+					.args(instanceOf(INetPluginVO))
+					.dispatches(new NetPluginEvent(NetPluginEvent.COMPLETE), 10);
 			mock(plugin).getter("args").throws(_passOnFault as Error);
 
 			_calledRemoteMethod = service.service + ".testPlugin";

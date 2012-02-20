@@ -3,9 +3,9 @@
  */
 package tests.net.remoteamfservice.plugins
 {
-	import com.rnlib.net.amf.plugins.IPluginVO;
+	import com.rnlib.net.plugins.INetPluginVO;
 
-	public class TestPluginVO implements IPluginVO
+	public class TestPluginVO implements INetPluginVO
 	{
 		public function TestPluginVO()
 		{
