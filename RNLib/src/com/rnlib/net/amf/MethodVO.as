@@ -37,12 +37,18 @@ package com.rnlib.net.amf
 		 */
 		public var args:Object;
 
+		/**
+		 * Request object
+		 */
+		public var request:AMFRequest;
+
 		public function dispose():void
 		{
 			name = null;
 			result = null;
 			fault = null;
 			args = null;
+			request = null; // don't dispose this
 		}
 
 		public function clone():MethodVO
@@ -53,6 +59,7 @@ package com.rnlib.net.amf
 			vo.result = result;
 			vo.fault = fault;
 			vo.uid = uid;
+			vo.request = request;
 			return vo;
 		}
 	}

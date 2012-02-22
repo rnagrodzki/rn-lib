@@ -21,7 +21,9 @@ package com.rnlib.net.amf
 	import flash.events.IEventDispatcher;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
+	import flash.utils.clearTimeout;
 	import flash.utils.flash_proxy;
+	import flash.utils.setTimeout;
 
 	import mx.managers.CursorManager;
 	import mx.rpc.mxml.IMXMLSupport;
@@ -90,7 +92,7 @@ package com.rnlib.net.amf
 			connection = new AMFULConnection();
 		}
 
-		//---------------------------------------------------------------
+		//--------------------------------------------md-------------------
 		//              <------ CONNECTION ------>
 		//---------------------------------------------------------------
 
@@ -525,13 +527,15 @@ package com.rnlib.net.amf
 
 				var pluginVO:INetPluginVO = testParamsRemoteMethod.apply(this, rest);
 
-				var mvo:MethodHelperVO = _remoteMethods[name];
+				var mvo:MethodHelperVO = _remoteMethods[name]; // dictionary of registered methods
 				var vo:MethodVO = new MethodVO();
 				vo.uid = _CALL_UID++;
 				vo.name = name;
 				vo.args = pluginVO ? pluginVO : rest;
 				vo.result = mvo.result;
 				vo.fault = mvo.fault;
+
+				var request:AMFRequest = new AMFRequest();
 
 				switch (_concurrency)
 				{
@@ -548,7 +552,7 @@ package com.rnlib.net.amf
 						concurrencySingle(vo);
 						break;
 				}
-				return vo.uid;
+				return request;
 			}
 			else if (hasProp)
 			{
@@ -591,29 +595,58 @@ package com.rnlib.net.amf
 			if (_isPendingRequest || _isPaused)
 				_queue.push(vo);
 			else
-				callRemoteMethod(vo);
+				callAsyncRemoteMethod(vo);
 		}
 
 		protected function concurrencyLast(vo:MethodVO):void
 		{
 			ignoreAllPendingRequests(false);
-			callRemoteMethod(vo);
+			callAsyncRemoteMethod(vo);
 		}
 
 		protected function concurrencySingle(vo:MethodVO):void
 		{
 			ignoreAllPendingRequests(true);
-			callRemoteMethod(vo);
+			callAsyncRemoteMethod(vo);
 		}
 
 		protected function concurrencyMultiple(vo:MethodVO):void
 		{
-			callRemoteMethod(vo);
+			callAsyncRemoteMethod(vo);
 		}
 
 		//---------------------------------------------------------------
 		//              <------ CALLING REMOTE SERVICE ------>
 		//---------------------------------------------------------------
+
+		/**
+		 * Identifier asynchronous caller
+		 */
+		protected var _asyncCallerID:int = -1;
+
+		/**
+		 * Make truly asynchronous calling remote method
+		 * @param vo
+		 */
+		protected function callAsyncRemoteMethod(vo:MethodVO):void
+		{
+			if (_asyncCallerID != -1) clearTimeout(_asyncCallerID);
+
+			_asyncCallerID = setTimeout(callSyncRemoteMethod, 1, vo);
+		}
+
+		/**
+		 * Handler for asynchronous call remote method cleaning up all mess.
+		 * Method never should be call directly by developer.
+		 * @param vo
+		 */
+		protected function callSyncRemoteMethod(vo:MethodVO):void
+		{
+			clearTimeout(_asyncCallerID);
+			_asyncCallerID = -1;
+
+			callRemoteMethod(vo);
+		}
 
 		/**
 		 * Invoke register remote method
@@ -946,9 +979,9 @@ package com.rnlib.net.amf
 			var vo:ResultMediatorVO = _requests[id];
 
 			if (vo.resultHandler != null)
-				vo.resultHandler(result);
+				vo.resultHandler.apply(null,[result].concat(vo.request.extraResult));
 			else if (this.result != null)
-				this.result(result);
+				this.apply(null,[result].concat(vo.request.extraResult));
 
 			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, result));
 
@@ -981,9 +1014,9 @@ package com.rnlib.net.amf
 			var vo:ResultMediatorVO = _requests[id];
 
 			if (vo.faultHandler != null)
-				vo.faultHandler(fault);
+				vo.faultHandler.apply(null,[fault].concat(vo.request.extraFault));
 			else if (this.fault != null)
-				this.fault(fault);
+				this.fault.apply(null,[fault].concat(vo.request.extraFault));
 
 			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, fault));
 
@@ -1006,13 +1039,20 @@ package com.rnlib.net.amf
 		 */
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
 		{
+			if (_asyncCallerID != -1)
+			{
+				clearTimeout(_asyncCallerID);
+				_asyncCallerID = -1;
+			}
+
 			disconnect();
 			for each (var vo:ResultMediatorVO in _requests)
 			{
 				if (callFault && vo.faultHandler != null)
 					vo.faultHandler("Ignore by user");
-				vo.dispose();
 				_requests[vo.id] = null;
+				delete _requests[vo.id];
+				vo.dispose();
 			}
 			_isPendingRequest = false;
 
@@ -1170,6 +1210,7 @@ package com.rnlib.net.amf
 }
 
 import com.rnlib.interfaces.IDisposable;
+import com.rnlib.net.amf.AMFRequest;
 import com.rnlib.net.plugins.INetMultipartPlugin;
 import com.rnlib.net.plugins.INetPlugin;
 
@@ -1198,6 +1239,7 @@ class ResultMediatorVO implements IDisposable
 	public var id:int;
 	public var name:String;
 	public var plugin:INetPlugin;
+	public var request:AMFRequest;
 
 	public var resultHandler:Function;
 	public var internalResultHandler:Function;
@@ -1236,5 +1278,6 @@ class ResultMediatorVO implements IDisposable
 		faultHandler = null;
 		resultHandler = null;
 		plugin = null;
+		request = null;
 	}
 }
