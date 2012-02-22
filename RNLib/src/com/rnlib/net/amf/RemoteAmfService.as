@@ -634,6 +634,7 @@ package com.rnlib.net.amf
 		{
 			if (_asyncCallerID != -1) clearTimeout(_asyncCallerID);
 
+			_isPendingRequest = true;
 			_asyncCallerID = setTimeout(callSyncRemoteMethod, 1, vo);
 		}
 
@@ -982,7 +983,7 @@ package com.rnlib.net.amf
 			var vo:ResultMediatorVO = _requests[id];
 
 			var res:Array = [result];
-			if (vo.request.extraResult) res.concat(vo.request.extraResult);
+			if (vo.request.extraResult) res = res.concat(vo.request.extraResult);
 
 			if (vo.resultHandler != null)
 				vo.resultHandler.apply(null, res);
@@ -1020,7 +1021,7 @@ package com.rnlib.net.amf
 			var vo:ResultMediatorVO = _requests[id];
 
 			var res:Array = [fault];
-			if (vo.request.extraFault) res.concat(vo.request.extraFault);
+			if (vo.request.extraFault) res = res.concat(vo.request.extraFault);
 
 			if (vo.faultHandler != null)
 				vo.faultHandler.apply(null, res);
