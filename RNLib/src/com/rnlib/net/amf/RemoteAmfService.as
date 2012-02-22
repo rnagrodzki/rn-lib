@@ -682,6 +682,7 @@ package com.rnlib.net.amf
 			var fullName:String = _service ? _service + "." + vo.name : vo.name;
 			var args:Array = [fullName, rm.result, rm.fault];
 
+			rm.request.requestSend = true;
 			_nc.call.apply(_nc, args.concat(vo.args));
 
 			showCursor();
@@ -982,15 +983,19 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
-			var res:Array = [result];
-			if (vo.request.extraResult) res = res.concat(vo.request.extraResult);
+			var res:Object = result;
+			if (vo.request.extraResult)
+			{
+				res = [result];
+				res = res.concat(vo.request.extraResult);
+			}
 
 			if (vo.resultHandler != null)
 				vo.resultHandler.apply(null, res);
 			else if (this.result != null)
 				this.apply(null, res);
 
-			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, result));
+			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, res));
 
 			_isPendingRequest = false;
 
@@ -1020,15 +1025,19 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
-			var res:Array = [fault];
-			if (vo.request.extraFault) res = res.concat(vo.request.extraFault);
+			var res:Object = fault;
+			if (vo.request.extraFault)
+			{
+				res = [fault];
+				res = res.concat(vo.request.extraFault);
+			}
 
 			if (vo.faultHandler != null)
 				vo.faultHandler.apply(null, res);
 			else if (this.fault != null)
 				this.fault.apply(null, res);
 
-			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, fault));
+			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, res));
 
 			_isPendingRequest = false;
 

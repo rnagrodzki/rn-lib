@@ -22,5 +22,11 @@ package com.rnlib.net.amf
 			extraFault = rest;
 			return this;
 		}
+
+		internal var requestSend:Boolean = false;
+		public function get called():Boolean
+		{
+			return requestSend;
+		}
 	}
 }
