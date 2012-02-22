@@ -699,6 +699,7 @@ package com.rnlib.net.amf
 			rm.name = vo.name;
 			rm.resultHandler = vo.result; // force call currently specified method handler
 			rm.faultHandler = vo.fault; // force call currently specified method handler
+			rm.request = vo.request;
 
 			_requests[rm.id] = rm;
 
