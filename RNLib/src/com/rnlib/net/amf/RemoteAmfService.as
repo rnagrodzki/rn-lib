@@ -536,6 +536,8 @@ package com.rnlib.net.amf
 				vo.fault = mvo.fault;
 
 				var request:AMFRequest = new AMFRequest();
+				request.uid = vo.uid;
+				vo.request = request;
 
 				switch (_concurrency)
 				{
@@ -979,10 +981,13 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
+			var res:Array = [result];
+			if (vo.request.extraResult) res.concat(vo.request.extraResult);
+
 			if (vo.resultHandler != null)
-				vo.resultHandler.apply(null,[result].concat(vo.request.extraResult));
+				vo.resultHandler.apply(null, res);
 			else if (this.result != null)
-				this.apply(null,[result].concat(vo.request.extraResult));
+				this.apply(null, res);
 
 			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, result));
 
@@ -1014,10 +1019,13 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
+			var res:Array = [fault];
+			if (vo.request.extraFault) res.concat(vo.request.extraFault);
+
 			if (vo.faultHandler != null)
-				vo.faultHandler.apply(null,[fault].concat(vo.request.extraFault));
+				vo.faultHandler.apply(null, res);
 			else if (this.fault != null)
-				this.fault.apply(null,[fault].concat(vo.request.extraFault));
+				this.fault.apply(null, res);
 
 			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, fault));
 
