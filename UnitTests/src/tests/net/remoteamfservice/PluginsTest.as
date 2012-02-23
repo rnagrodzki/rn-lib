@@ -6,7 +6,6 @@ package tests.net.remoteamfservice
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
-	import com.rnlib.net.plugins.INetPlugin;
 	import com.rnlib.net.plugins.INetPluginVO;
 	import com.rnlib.net.plugins.NetPluginEvent;
 
