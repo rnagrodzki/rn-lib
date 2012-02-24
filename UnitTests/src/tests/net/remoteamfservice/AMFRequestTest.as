@@ -21,6 +21,7 @@ package tests.net.remoteamfservice
 		override public function beforeTest():void
 		{
 			_request = null;
+			_extraArgs = null;
 
 			super.beforeTest();
 			service.endpoint = "http://example.com";
@@ -30,6 +31,7 @@ package tests.net.remoteamfservice
 		override public function afterTest():void
 		{
 			_request = null;
+			_extraArgs = null;
 
 			super.afterTest();
 		}
