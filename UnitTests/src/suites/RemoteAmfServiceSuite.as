@@ -3,6 +3,7 @@
  */
 package suites
 {
+	import tests.net.remoteamfservice.AMFRequestTest;
 	import tests.net.remoteamfservice.PluginsTest;
 	import tests.net.remoteamfservice.RemoteAmfServiceTest;
 	import tests.net.remoteamfservice.UnpredictableUsageCases;
@@ -14,5 +15,6 @@ package suites
 		public var base:RemoteAmfServiceTest;
 		public var unpredictableUsages:UnpredictableUsageCases;
 		public var plugins:PluginsTest;
+		public var request:AMFRequestTest;
 	}
 }
