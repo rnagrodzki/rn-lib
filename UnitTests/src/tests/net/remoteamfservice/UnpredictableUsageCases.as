@@ -3,7 +3,7 @@
  */
 package tests.net.remoteamfservice
 {
-	public class UnpredictableUsageCases
+	public class UnpredictableUsageCases extends RemoteAmfServiceBaseMockTest
 	{
 		[Ignore]
 		[Test(description="Exmaple", order="1")]
