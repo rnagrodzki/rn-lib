@@ -12,8 +12,6 @@ package tests.net.remoteamfservice
 	import com.rnlib.net.plugins.NetPluginFactory;
 
 	import flash.events.IEventDispatcher;
-	import flash.utils.clearTimeout;
-	import flash.utils.setTimeout;
 
 	import flexunit.framework.Assert;
 
@@ -53,7 +51,6 @@ package tests.net.remoteamfservice
 		public function before():void
 		{
 			_requestUID = -1;
-			_intervalID = -1;
 
 			mock(exConn).method("close");
 			mock(exConn).method("dispose");
@@ -77,9 +74,6 @@ package tests.net.remoteamfservice
 			_passOnFault = null;
 			_passOnResult = null;
 			_requestUID = -1;
-			if (_intervalID > -1)
-				clearTimeout(_intervalID);
-			_intervalID = -1;
 		}
 
 		[Test(description="Check property after create", order="1")]
@@ -174,7 +168,7 @@ package tests.net.remoteamfservice
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod"); // because service property is not set test will be called as global remote function not service method
-			_requestUID = service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod().uid;
 		}
 
 		protected function finalAssertionOnResult(ev:AMFEvent, extra:* = null):void
@@ -192,32 +186,18 @@ package tests.net.remoteamfservice
 		protected var _calledRemoteMethod:String;
 		protected var _passOnResult:Object;
 		protected var _requestUID:int;
-		protected var _intervalID:int = -1;
+		protected var _passOnFault:Object;
 
 		public function callOnResult(method:String, result:Function, fault:Function):void
 		{
 			Assert.assertEquals(_calledRemoteMethod, method);
-			_intervalID = setTimeout(delayFunction, 1, result, _passOnResult);
+			result(_passOnResult);
 		}
-
-		protected var _passOnFault:Object;
 
 		public function callOnFault(method:String, result:Function, fault:Function):void
 		{
 			Assert.assertEquals(_calledRemoteMethod, method);
-			_intervalID = setTimeout(delayFunction, 1, fault, _passOnFault);
-		}
-
-		/**
-		 * Imitate response from server
-		 * @param rest
-		 */
-		protected function delayFunction(...rest):void
-		{
-			clearTimeout(_intervalID);
-			_intervalID = -1;
-			var f:Function = rest.shift();
-			f.apply(service, rest);
+			fault(_passOnFault);
 		}
 
 		[Test(description="Test adding remote methods and calling", order="7", async)]
@@ -232,7 +212,7 @@ package tests.net.remoteamfservice
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod");
-			_requestUID = service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod().uid;
 		}
 
 		[Test(description="Test calling remote method with fault", order="8", async)]
@@ -246,7 +226,7 @@ package tests.net.remoteamfservice
 			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod");
-			_requestUID = service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod().uid;
 		}
 
 		[Test(description="Test calling remote method with fault", order="9", async)]
@@ -261,7 +241,7 @@ package tests.net.remoteamfservice
 			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod");
-			_requestUID = service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod().uid;
 		}
 
 		[Test(description="Test capture repsonse by method callback", order="10", async)]
@@ -275,7 +255,7 @@ package tests.net.remoteamfservice
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod", onResultCallback, onFaultCallback);
-			_requestUID = service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod().uid;
 		}
 
 		protected function onResultCallback(result:Object):void
@@ -299,7 +279,7 @@ package tests.net.remoteamfservice
 			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod", onResultCallback, onFaultCallback);
-			_requestUID = service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod().uid;
 		}
 
 		[Test(description="Test capture repsonse by service callback", order="12", async)]
@@ -315,7 +295,7 @@ package tests.net.remoteamfservice
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod");
-			_requestUID = service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod().uid;
 		}
 
 		[Test(description="Test capture repsonse by service callback", order="13", async)]
@@ -331,7 +311,7 @@ package tests.net.remoteamfservice
 			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod");
-			_requestUID = service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod().uid;
 		}
 
 		[Test(description="Test callbacks priority", order="14", async)]
@@ -347,7 +327,7 @@ package tests.net.remoteamfservice
 			_passOnResult = "returnThisInResult";
 			_calledRemoteMethod = "ExampleService.myOtherRemoteMethod";
 			service.addMethod("myOtherRemoteMethod", onResultCallback, onFaultCallback);
-			_requestUID = service.myOtherRemoteMethod();
+			_requestUID = service.myOtherRemoteMethod().uid;
 		}
 
 		protected function faultOnServiceCallback(data:Object):void
@@ -368,7 +348,7 @@ package tests.net.remoteamfservice
 			_passOnFault = "returnThisInFault";
 			_calledRemoteMethod = "ExampleService.myFaultRemoteMethod";
 			service.addMethod("myFaultRemoteMethod", onResultCallback, onFaultCallback);
-			_requestUID = service.myFaultRemoteMethod();
+			_requestUID = service.myFaultRemoteMethod().uid;
 		}
 	}
 }

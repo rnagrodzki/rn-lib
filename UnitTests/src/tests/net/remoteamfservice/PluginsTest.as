@@ -6,13 +6,12 @@ package tests.net.remoteamfservice
 	import com.rnlib.net.amf.AMFEvent;
 	import com.rnlib.net.amf.RemoteAmfService;
 	import com.rnlib.net.amf.connections.IAMFConnection;
+	import com.rnlib.net.plugins.INetPlugin;
 	import com.rnlib.net.plugins.INetPluginVO;
 	import com.rnlib.net.plugins.NetPluginEvent;
 
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
-	import flash.utils.clearTimeout;
-	import flash.utils.setTimeout;
 
 	import flexunit.framework.Assert;
 
@@ -56,7 +55,6 @@ package tests.net.remoteamfservice
 		public function beforeTest():void
 		{
 			_requestUID = -1;
-			_intervalID = -1;
 
 			mock(exConn).method("close");
 			mock(exConn).method("dispose");
@@ -88,9 +86,6 @@ package tests.net.remoteamfservice
 			_passOnFault = null;
 			_passOnResult = null;
 			_requestUID = -1;
-			if (_intervalID > -1)
-				clearTimeout(_intervalID);
-			_intervalID = -1;
 		}
 
 		[Test(description="Test adding plugin and calling request", order="1", async)]
@@ -125,32 +120,18 @@ package tests.net.remoteamfservice
 		protected var _calledRemoteMethod:String;
 		protected var _passOnResult:Object;
 		protected var _requestUID:int;
-		protected var _intervalID:int = -1;
-
-		public function callOnResult(method:String, result:Function, fault:Function, ...rest):void
-		{
-			Assert.assertEquals(_calledRemoteMethod, method);
-			_intervalID = setTimeout.apply(null, [delayFunction, 1, result].concat(rest));
-		}
-
 		protected var _passOnFault:Object;
 
-		public function callOnFault(method:String, result:Function, fault:Function, ...rest):void
+		public function callOnResult(method:String, result:Function, fault:Function):void
 		{
 			Assert.assertEquals(_calledRemoteMethod, method);
-			_intervalID = setTimeout.apply(null, [delayFunction, 1, fault].concat(rest));
+			result(_passOnResult);
 		}
 
-		/**
-		 * Imitate response from server by making truly async response
-		 * @param rest
-		 */
-		protected function delayFunction(...rest):void
+		public function callOnFault(method:String, result:Function, fault:Function):void
 		{
-			clearTimeout(_intervalID);
-			_intervalID = -1;
-			var f:Function = rest.shift();
-			f.apply(service, rest);
+			Assert.assertEquals(_calledRemoteMethod, method);
+			fault(_passOnFault);
 		}
 
 		[Test(description="Test sending cancel by plugin on init", order="2", async)]

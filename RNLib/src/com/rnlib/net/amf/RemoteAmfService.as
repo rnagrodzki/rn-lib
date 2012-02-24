@@ -983,10 +983,9 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
-			var res:Object = result;
+			var res:Object = [result];
 			if (vo.request.extraResult)
 			{
-				res = [result];
 				res = res.concat(vo.request.extraResult);
 			}
 
@@ -1025,10 +1024,9 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
-			var res:Object = fault;
+			var res:Object = [fault];
 			if (vo.request.extraFault)
 			{
-				res = [fault];
 				res = res.concat(vo.request.extraFault);
 			}
 
