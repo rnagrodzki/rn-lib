@@ -983,7 +983,7 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
-			var res:Object = [result];
+			var res:Array = [result];
 			if (vo.request.extraResult)
 			{
 				res = res.concat(vo.request.extraResult);
@@ -994,7 +994,7 @@ package com.rnlib.net.amf
 			else if (this.result != null)
 				this.apply(null, res);
 
-			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, res));
+			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, res.length == 1 ? res.shift() : res));
 
 			_isPendingRequest = false;
 
@@ -1024,7 +1024,7 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
-			var res:Object = [fault];
+			var res:Array = [fault];
 			if (vo.request.extraFault)
 			{
 				res = res.concat(vo.request.extraFault);
@@ -1035,7 +1035,7 @@ package com.rnlib.net.amf
 			else if (this.fault != null)
 				this.fault.apply(null, res);
 
-			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, res));
+			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, res.length == 1 ? res.shift() : res));
 
 			_isPendingRequest = false;
 
