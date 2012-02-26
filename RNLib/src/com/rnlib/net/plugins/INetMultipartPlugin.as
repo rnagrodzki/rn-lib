@@ -1,5 +1,5 @@
 /***************************************************************************************************
- Copyright (c) 2012. Rafał Nagrodzki (rafal.nagrodzki.dev@gmail.com)
+ Copyright (c) 2012. Rafał Nagrodzki (rafal[dot]nagrodzki[dot]dev[at]gmail[dot]com)
  http://rafal-nagrodzki.com/
 
  Permission is hereby granted, free of charge, to any person obtaining

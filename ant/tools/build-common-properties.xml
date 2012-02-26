@@ -1,0 +1,111 @@
+<!--
+    Copyright (c) 2007-2008 Allurent, Inc.
+    http://code.google.com/p/antennae/
+    
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<project name="tools.properties">
+    <dirname property="tools.properties.dir" file="${ant.file.tools.properties}" />
+
+    <!--
+        Instead of modifying properties in this file it is recommended that:
+
+        1) Make all modification in a build-user.properties file in the directory above
+           This is handy for developer specific settings
+
+        2) Create an override file that build-common-imports.xml includes ahead
+           of the standard build-common-properties.
+
+        Either of these approaches will allow updating the Antennae templates without
+        requiring the merge of localized changes into the distributed files.
+    -->
+
+    <!-- derived project properties -->
+    <property name="project.name" value="${ant.project.name}" />
+    <property name="project.swf" value="${project.name}.swf" />
+    <property name="project.swc" value="${project.name}.swc" />
+    <property name="project.air" value="${project.name}.air" />
+    <property name="project.air.desc" value="${project.name}-app.xml" />
+    <property name="project.flex.application" value="${project.name}.mxml" />
+    <property name="project.jar" value="${project.name}.jar" />
+    <property name="project.war" value="${project.name}.war" />
+
+    <!-- build properties -->
+    <property name="build.dir" value="bin" />
+    <property name="build.generated.dir" value="${build.dir}/generated" />
+    <property name="build.stage.dir" value="${build.dir}/stage" />
+    <property name="build.dist.dir" value="${build.dir}/dist" />
+    <!-- the base directory which all assets fall under, see flex-* targets -->
+    <property name="uptodate.dir" location="${tools.properties.dir}/.." />
+
+    <!-- flex properties -->
+    <property name="flex.frameworks.dir" value="${flex.dir}/frameworks" />
+    <property name="flex.config" value="${flex.frameworks.dir}/flex-config.xml" />
+    <property name="flex.dist.lib" value="${flex.dir}/lib" />
+    <property name="flex.compc.jar" value="${flex.dist.lib}/compc.jar" />
+    <property name="flex.mxmlc.jar" value="${flex.dist.lib}/mxmlc.jar" />
+    <property name="flex.mxmlc.options" value="" />
+    <property name="flex.compc.options" value="" />
+    <property name="src.flex.dir" value="src" />
+    <property name="build.compc.dir" value="${build.dir}/swc/" />
+    <property name="build.mxmlc.dir" value="${build.dir}/swf/" />
+    <!-- defined in build-user.properties -->
+    <!-- flex.dir -->
+    <!-- flex.standalone.player -->
+
+    <!-- air properties -->
+    <property name="air.config" value="${flex.frameworks.dir}/air-config.xml" />
+    <property name="air.adt.jar" value="${flex.dist.lib}/adt.jar" />
+    <condition property="air.adl" value="${flex.dir}/bin/adl.exe" else="${flex.dir}/bin/adl">
+        <os family="windows" />
+    </condition>
+    <property name="src.assets.dir" value="assets" />
+    <property name="build.assets.dir" value="${build.stage.dir}/assets" />
+    <property name="air.certificate.type" value="pkcs12" />
+
+    <!-- defined in build-user.properties -->
+    <!-- air.certificate -->
+    <!-- air.certificate.password -->
+
+    <!-- asdoc properties -->
+    <property name="asdoc.template.dir" value="${flex.dir}/asdoc/templates" />
+    <property name="asdoc.jar" value="${flex.dir}/lib/asdoc.jar" />
+    <property name="asdoc.xalan.jar" value="${flex.dir}/asdoc/lib/xalan.jar" />
+    <property name="build.asdoc.dir" value="${build.dir}/asdoc/" />
+
+    <!-- arc-flexunit properties -->
+    <property name="arc-flexunit.loglevel" value="info" />
+    <property name="arc-flexunit.class" value="FlexUnitAllTests" />
+    <property name="arc-flexunit.alltests.suite" value="${arc-flexunit.class}.suite()" />
+    <property name="arc-flexunit.reportserver.port" value="50031" />
+    <property name="arc-flexunit.reportserver.host" value="localhost" />
+    <property name="arc-flexunit.timeout" value="150000" />
+    <property name="arc-flexunit.filters" value="arc-flexunit.filters" />
+    <!-- Can be changed to -skipAlwaysFail if desired -->
+    <property name="arc-flexunit.filters-fail" value="-alwaysFail" />
+
+    <!-- javac properties -->
+    <property name="javac.debug" value="true" />
+    <property name="src.java.dir" value="src" />
+    <property name="build.javac.dir" value="${build.dir}/classes" />
+
+    <!-- misc properties -->
+    <property name="mac.open" value="/usr/bin/open" />
+</project>

@@ -1,0 +1,295 @@
+<!--
+    Copyright (c) 2007-2008 Allurent, Inc.
+    http://code.google.com/p/antennae/
+    
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<project name="tools.tasks">
+    <!--
+        ++ =======================================================================
+        ++ Macro: mxmlc
+        ++ Compile Flex source into a SWF
+        ++ =======================================================================
+    -->
+    <macrodef name="mxmlc" description="">
+        <attribute name="src"/>
+        <attribute name="dest"/>
+        <attribute name="src.path" default="${src.flex.dir}"/>
+        <attribute name="lib.path.id" default="flex.lib.path"/>
+        <attribute name="options" default="${flex.mxmlc.options}"/>
+        <attribute name="config" default="${flex.config}"/>
+        <sequential>
+            <fail>
+                <condition>
+                    <not>
+                        <isreference refid="@{lib.path.id}"/>
+                    </not>
+                </condition>
+            </fail>
+
+            <pathconvert property="_mxmlc.lib.files" refid="@{lib.path.id}" pathsep=","/>
+            <condition property="_mxmlc.libpath" value='-library-path+="${_mxmlc.lib.files}"' else="">
+                <not>
+                    <equals arg1="" arg2="${_mxmlc.lib.files}" trim="true"/>
+                </not>
+            </condition>
+
+            <java jar="${flex.mxmlc.jar}" dir="." fork="true" failonerror="true">
+                <jvmarg value="-Xmx512m"/>
+                <arg line="@{options} ${_mxmlc.libpath}"/>
+                <arg value="+flexlib=${flex.frameworks.dir}"/>
+                <arg value="-load-config=@{config}"/>
+                <arg value="-source-path=@{src.path}"/>
+                <arg value="-file-specs=@{src}"/>
+                <arg value="-output=@{dest}"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <!--
+        ++ =======================================================================
+        ++ Macro: compc
+        ++ Compile Flex source into a SWC
+        ++ =======================================================================
+    -->
+    <macrodef name="compc" description="">
+        <attribute name="src.dir"/>
+        <attribute name="dest"/>
+        <attribute name="lib.path.id" default="flex.lib.path"/>
+        <attribute name="options" default="${flex.compc.options}"/>
+        <attribute name="config" default="${flex.config}"/>
+
+        <sequential>
+            <fail>
+                <condition>
+                    <not>
+                        <isreference refid="@{lib.path.id}"/>
+                    </not>
+                </condition>
+            </fail>
+
+            <pathconvert property="_compc.lib.files" refid="@{lib.path.id}" pathsep=","/>
+            <condition property="_compc.libpath" value='-library-path+="${_compc.lib.files}"' else="">
+                <not>
+                    <equals arg1="" arg2="${_compc.lib.files}" trim="true"/>
+                </not>
+            </condition>
+
+            <java jar="${flex.compc.jar}" dir="." fork="true" failonerror="true">
+                <jvmarg value="-Xmx512m"/>
+                <arg line="@{options} ${_compc.libpath}"/>
+                <arg value="+flexlib=${flex.frameworks.dir}"/>
+                <arg value="-load-config=@{config}"/>
+                <arg value="-source-path=@{src.dir}"/>
+                <arg value="-include-sources=@{src.dir}"/>
+                <arg value="-output=@{dest}"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <!--
+        ++ =======================================================================
+        ++ Macro: adl
+        ++ Run an AIR application using ADL.
+        ++ Assumptions:
+        ++    1. ${project.swf} is located in build/stage directory
+        ++    2. 'assets' subdirectory is located in build/stage directory,
+        ++       and contains all static assets required by the AIR app.
+        ++ =======================================================================
+    -->
+    <macrodef name="adl" description="Run AIR application using ADL.">
+        <attribute name="dir" default="${build.stage.dir}"/>
+        <attribute name="descriptor" default="${build.stage.dir}/${project.air.desc}"/>
+
+        <sequential>
+            <exec executable="${air.adl}">
+                <arg value="@{descriptor}"/>
+                <arg value="@{dir}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!--
+        ++ =======================================================================
+        ++ Macro: adt
+        ++ Package an AIR application into an installable distribution.
+        ++ Assumptions:
+        ++    1. ${project.swf} is located in build/stage directory
+        ++    2. 'assets' subdirectory is located in build/stage directory,
+        ++       and contains all static assets required by the AIR app.
+        ++ =======================================================================
+    -->
+    <macrodef name="adt" description="Package AIR application installer.">
+        <attribute name="dir" default="${build.stage.dir}"/>
+        <attribute name="dest" default="${build.dist.dir}/${project.air}"/>
+        <attribute name="descriptor" default="${build.stage.dir}/${project.air.desc}"/>
+        <attribute name="cert" default="${air.certificate}"/>
+        <attribute name="cert-type" default="${air.certificate.type}"/>
+        <attribute name="cert-pwd" default="${air.certificate.password}"/>
+
+        <sequential>
+            <java jar="${air.adt.jar}" fork="true" failonerror="true">
+                <arg value="-package"/>
+                <arg value="-storetype"/>
+                <arg value="@{cert-type}"/>
+                <arg value="-keystore"/>
+                <arg value="@{cert}"/>
+                <arg value="-storepass"/>
+                <arg value="@{cert-pwd}"/>
+                <arg value="@{dest}"/>
+                <arg value="@{descriptor}"/>
+                <arg value="-C"/>
+                <arg value="@{dir}"/>
+                <arg value="${project.swf}"/>
+                <arg value="-C"/>
+                <arg value="@{dir}"/>
+                <arg value="assets"/>
+            </java>
+            <echo message="Created @{dest}"/>
+        </sequential>
+    </macrodef>
+
+    <!--
+        ++ =======================================================================
+        ++ Macro: asdoc
+        ++ Create documentation
+        ++ =======================================================================
+    -->
+    <macrodef name="asdoc" description="Generate ASDoc based documentation">
+        <attribute name="src.dir"/>
+        <attribute name="as.path"/>
+        <attribute name="dest.dir"/>
+        <attribute name="template.dir" default="${asdoc.template.dir}"/>
+        <attribute name="lib.path.id" default="flex.lib.path"/>
+        <attribute name="options" default=""/>
+        <attribute name="config" default="${flex.config}"/>
+
+        <sequential>
+            <pathconvert property="asdoc.src.files" pathsep="," dirsep=".">
+                <path>
+                    <fileset dir="@{src.dir}">
+                        <include name="**/*.as"/>
+                        <include name="**/*.mxml"/>
+                    </fileset>
+                </path>
+                <mapper>
+                    <regexpmapper from="^.*src(/|\\)(.*)\.(as|mxml)" to="\2"/>
+                    <!--<regexpmapper from="^.*@{src.dir}(/|\\)(.*)\.(as|mxml)" to="\2"/>-->
+                </mapper>
+            </pathconvert>
+
+            <fail>
+                <condition>
+                    <not>
+                        <isreference refid="@{lib.path.id}"/>
+                    </not>
+                </condition>
+            </fail>
+
+            <pathconvert property="asdoc.lib.files" refid="@{lib.path.id}" pathsep=","/>
+            <condition property="asdoc.libpath" value='-library-path+="${asdoc.lib.files}"' else="">
+                <not>
+                    <equals arg1="" arg2="${asdoc.lib.files}" trim="true"/>
+                </not>
+            </condition>
+
+            <echo message="@{src.dir}"/>
+            <echo message="@{options} ${asdoc.libpath}"/>
+            <echo message="-load-config=@{config}"/>
+            <echo message="+flexlib=${flex.frameworks.dir}"/>
+            <echo message="-source-path=@{as.path}"/>
+            <echo message="-doc-classes=${asdoc.src.files}"/>
+            <!--<echo message="-doc-classes=${asdoc.src.files}" />-->
+            <echo message="-output=@{dest.dir}/"/>
+            <echo message="-templates-path=@{template.dir}/"/>
+
+            <java classname="flex2.tools.ASDoc" dir="." fork="true" failonerror="true">
+                <classpath>
+                    <pathelement location="${asdoc.jar}"/>
+                    <pathelement location="${flex.mxmlc.jar}"/>
+                </classpath>
+                <jvmarg value="-Xmx512m"/>
+                <jvmarg value="-Xbootclasspath/p:${asdoc.xalan.jar}"/>
+                <arg line="@{options} ${asdoc.libpath}"/>
+                <arg value="-load-config=@{config}"/>
+                <arg value="+flexlib=${flex.frameworks.dir}"/>
+                <arg value="-source-path=@{as.path}"/>
+                <arg value="-doc-classes=${asdoc.src.files}"/>
+                <arg value="-output=@{dest.dir}/"/>
+                <arg value="-templates-path=@{template.dir}/"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <!--
+        ++ =======================================================================
+        ++ Macro: java-compile
+        ++ Compile a tree of java source into classes. Copy all non .java files
+        ++ into the classes directory so they can be found via java classloading.
+        ++ =======================================================================
+    -->
+    <macrodef name="java-compile" description="compile Java source tree">
+        <attribute name="src.dir" default="${src.java.dir}"/>
+        <attribute name="lib.path.id" default="javac.lib.path"/>
+        <attribute name="dest.dir" default="${build.javac.dir}"/>
+        <attribute name="debug" default="${javac.debug}"/>
+        <sequential>
+            <fail>
+                <condition>
+                    <not>
+                        <isreference refid="@{lib.path.id}"/>
+                    </not>
+                </condition>
+            </fail>
+
+            <!-- compile java -->
+            <javac srcdir="@{src.dir}" destdir="@{dest.dir}" debug="@{debug}">
+                <classpath>
+                    <path refid="@{lib.path.id}"/>
+                </classpath>
+            </javac>
+        </sequential>
+    </macrodef>
+
+    <!--
+        ++ =======================================================================
+        ++ Macro: echoAndRun
+        ++ For master build files give status of the next project and target being
+        ++ called
+        ++ =======================================================================
+    -->
+    <macrodef name="echoAndRun">
+        <attribute name="children.filelist.id" default="children.filelist"/>
+        <attribute name="target"/>
+        <sequential>
+            <fail>
+                <condition>
+                    <not>
+                        <isreference refid="@{children.filelist.id}"/>
+                    </not>
+                </condition>
+            </fail>
+
+            <subant target="@{target}" verbose="true">
+                <filelist refid="@{children.filelist.id}"/>
+            </subant>
+        </sequential>
+    </macrodef>
+</project>
