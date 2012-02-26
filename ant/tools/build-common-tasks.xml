@@ -210,15 +210,15 @@
                 </not>
             </condition>
 
-            <echo message="@{src.dir}"/>
-            <echo message="@{options} ${asdoc.libpath}"/>
-            <echo message="-load-config=@{config}"/>
-            <echo message="+flexlib=${flex.frameworks.dir}"/>
-            <echo message="-source-path=@{as.path}"/>
-            <echo message="-doc-classes=${asdoc.src.files}"/>
+            <!--<echo message="@{src.dir}"/>-->
+            <!--<echo message="@{options} ${asdoc.libpath}"/>-->
+            <!--<echo message="-load-config=@{config}"/>-->
+            <!--<echo message="+flexlib=${flex.frameworks.dir}"/>-->
+            <!--<echo message="-source-path=@{as.path}"/>-->
+            <!--<echo message="-doc-classes=${asdoc.src.files}"/>-->
             <!--<echo message="-doc-classes=${asdoc.src.files}" />-->
-            <echo message="-output=@{dest.dir}/"/>
-            <echo message="-templates-path=@{template.dir}/"/>
+            <!--<echo message="-output=@{dest.dir}/"/>-->
+            <!--<echo message="-templates-path=@{template.dir}/"/>-->
 
             <java classname="flex2.tools.ASDoc" dir="." fork="true" failonerror="true">
                 <classpath>

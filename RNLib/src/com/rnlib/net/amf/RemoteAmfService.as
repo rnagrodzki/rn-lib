@@ -76,17 +76,34 @@ package com.rnlib.net.amf
 
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport, IDisposable
 	{
-
+		/**
+		 * @private
+		 */
 		protected var _nc:IAMFConnection;
 
+		/**
+		 * @private
+		 */
 		protected var _service:String;
 
+		/**
+		 * @private
+		 */
 		protected var _remoteMethods:Dictionary = new Dictionary();
 
+		/**
+		 * @private
+		 */
 		protected var _defaultMethods:Array;
 
+		/**
+		 * @private
+		 */
 		protected var _isPendingRequest:Boolean = false;
 
+		/**
+		 * @private
+		 */
 		protected var _requests:Dictionary = new Dictionary();
 
 		private var _reqCount:int = 0;
@@ -104,8 +121,14 @@ package com.rnlib.net.amf
 			init();
 		}
 
+		/**
+		 * @private
+		 */
 		protected var _dispatcher:IEventDispatcher;
 
+		/**
+		 * @private
+		 */
 		protected function init():void
 		{
 			_dispatcher = new EventDispatcher(this);
@@ -159,6 +182,9 @@ package com.rnlib.net.amf
 		//              	<------ CURSORS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		protected var _showBusyCursor:Boolean = true;
 
 		public function get showBusyCursor():Boolean
@@ -173,6 +199,9 @@ package com.rnlib.net.amf
 			_showBusyCursor = value;
 		}
 
+		/**
+		 * @private
+		 */
 		protected static var _currentCursorID:int = -1;
 
 		protected function showCursor():void
@@ -213,6 +242,9 @@ package com.rnlib.net.amf
 		//              <------ CONCURRENCY ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		protected var _concurrency:String = RequestConcurrency.QUEUE;
 
 		/**
@@ -250,6 +282,9 @@ package com.rnlib.net.amf
 		//              		<------ QUEUE ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		private var _queue:IQueue = new PriorityQueue();
 
 		/**
@@ -279,13 +314,13 @@ package com.rnlib.net.amf
 		 * @param fault Fault handler
 		 *
 		 * @example <code>
-		 *     var ras : RemoteAmfService = new RemoteAmfService();
-		 *     ras.endpoint = "http://example.com/gateway";
-		 *     ras.service = "MyExampleService";
-		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
-		 *     ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"
-		 *     // or you can also send parameters to remote method as shown below
-		 *     ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures
+		 *     var ras : RemoteAmfService = new RemoteAmfService();<br />
+		 *     ras.endpoint = "http://example.com/gateway";<br />
+		 *     ras.service = "MyExampleService";<br />
+		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);<br />
+		 *     ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"<br />
+		 *     // or you can also send parameters to remote method as shown below<br />
+		 *     ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures<br />
 		 * </code>
 		 *
 		 * @see #removeMethod()
@@ -305,15 +340,15 @@ package com.rnlib.net.amf
 		 * @param name
 		 *
 		 * @example <code>
-		 *     var ras : RemoteAmfService = new RemoteAmfService();
-		 *     ras.endpoint = "http://example.com/gateway";
-		 *     ras.service = "MyExampleService";
-		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
-		 *     ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);
-		 *     ras.myRemoteFunction(); // ok
-		 *     ras.mySecondRemoteFunction(); // ok
-		 *     ras.removeMethod("mySecondRemoteFunction");
-		 *     ras.mySecondRemoteFunction(); // throw Error
+		 *     var ras : RemoteAmfService = new RemoteAmfService();<br />
+		 *     ras.endpoint = "http://example.com/gateway";<br />
+		 *     ras.service = "MyExampleService";<br />
+		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);<br />
+		 *     ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);<br />
+		 *     ras.myRemoteFunction(); // ok<br />
+		 *     ras.mySecondRemoteFunction(); // ok<br />
+		 *     ras.removeMethod("mySecondRemoteFunction");<br />
+		 *     ras.mySecondRemoteFunction(); // throw Error<br />
 		 * </code>
 		 *
 		 * @see #addMethod()
@@ -336,6 +371,9 @@ package com.rnlib.net.amf
 		//              <------ PAUSE AND RESUME ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		protected var _isPaused:Boolean = false;
 
 		/**
@@ -389,11 +427,14 @@ package com.rnlib.net.amf
 			_service = value;
 		}
 
+		/**
+		 * @private
+		 */
 		protected var _endpoint:String;
 
 		/**
 		 * AMF endpoint.
-		 * @exampleText endpoint = "http://myhost.com/amf"
+		 * @example endpoint = "http://myhost.com/amf"
 		 */
 		public function get endpoint():String
 		{
@@ -415,6 +456,9 @@ package com.rnlib.net.amf
 		//              <------ GLOBAL RESULT HANDLERS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		protected var _result:Function;
 
 		/**
@@ -430,6 +474,9 @@ package com.rnlib.net.amf
 			_result = value;
 		}
 
+		/**
+		 * @private
+		 */
 		protected var _fault:Function;
 
 		/**
@@ -586,12 +633,22 @@ package com.rnlib.net.amf
 			}
 		}
 
+		/**
+		 * @private
+		 * @param name
+		 * @param value
+		 */
 		override flash_proxy function setProperty(name:*, value:*):void
 		{
 			if (hasOwnProperty(name))
 				super.flash_proxy::setProperty(name, value);
 		}
 
+		/**
+		 * @private
+		 * @param name
+		 * @return
+		 */
 		override flash_proxy function getProperty(name:*):*
 		{
 			if (hasOwnProperty(name))
@@ -600,6 +657,11 @@ package com.rnlib.net.amf
 			return undefined;
 		}
 
+		/**
+		 * @private
+		 * @param name
+		 * @return
+		 */
 		override flash_proxy function hasProperty(name:*):Boolean
 		{
 			if (_defaultMethods.lastIndexOf(name) >= 0)
@@ -612,6 +674,10 @@ package com.rnlib.net.amf
 		//              <------ CONCURRENCY METHODS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 * @param vo
+		 */
 		protected function concurrencyQueue(vo:MethodVO):void
 		{
 			if (_isPendingRequest || _isPaused)
@@ -620,18 +686,30 @@ package com.rnlib.net.amf
 				callAsyncRemoteMethod(vo);
 		}
 
+		/**
+		 * @private
+		 * @param vo
+		 */
 		protected function concurrencyLast(vo:MethodVO):void
 		{
 			ignoreAllPendingRequests(false);
 			callAsyncRemoteMethod(vo);
 		}
 
+		/**
+		 * @private
+		 * @param vo
+		 */
 		protected function concurrencySingle(vo:MethodVO):void
 		{
 			ignoreAllPendingRequests(true);
 			callAsyncRemoteMethod(vo);
 		}
 
+		/**
+		 * @private
+		 * @param vo
+		 */
 		protected function concurrencyMultiple(vo:MethodVO):void
 		{
 			callAsyncRemoteMethod(vo);
@@ -642,6 +720,7 @@ package com.rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
+		 * @private
 		 * Identifier asynchronous caller
 		 */
 		protected var _asyncCallerID:int = -1;
@@ -810,6 +889,7 @@ package com.rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Dictionary of IPlugins
 		 */
 		protected var _plugins:Dictionary = new Dictionary();
@@ -1130,6 +1210,9 @@ package com.rnlib.net.amf
 		//---------------------------------------------------------------
 
 		[ArrayElementType("com.rnlib.net.plugins.INetPluginFactory")]
+		/**
+		 * @private
+		 */
 		protected var _pluginsFactories:Array;
 
 		/**
@@ -1251,6 +1334,9 @@ import com.rnlib.net.amf.AMFRequest;
 import com.rnlib.net.plugins.INetMultipartPlugin;
 import com.rnlib.net.plugins.INetPlugin;
 
+/**
+ * @private
+ */
 class MethodHelperVO implements IDisposable
 {
 	public var name:String;
@@ -1270,6 +1356,9 @@ class MethodHelperVO implements IDisposable
 	}
 }
 
+/**
+ * @private
+ */
 class ResultMediatorVO implements IDisposable
 {
 	public var uid:int;
