@@ -313,15 +313,18 @@ package com.rnlib.net.amf
 		 * @param result Result handler
 		 * @param fault Fault handler
 		 *
-		 * @example <code>
-		 *     var ras : RemoteAmfService = new RemoteAmfService();<br />
-		 *     ras.endpoint = "http://example.com/gateway";<br />
-		 *     ras.service = "MyExampleService";<br />
-		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);<br />
-		 *     ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"<br />
-		 *     // or you can also send parameters to remote method as shown below<br />
-		 *     ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures<br />
-		 * </code>
+		 * @example The following code show how use addMethod()
+		 * <listing version="3.0">
+		 * var ras : RemoteAmfService = new RemoteAmfService();
+		 * ras.endpoint = "http://example.com/gateway";
+		 * ras.service = "MyExampleService";
+		 *
+		 * ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
+		 * ras.myRemoteFunction(); // this will invoke remote method "myRemoteFunction" on remote service "MyExampleService"
+		 *
+		 * // or you can also send parameters to remote method as shown below
+		 * ras.myRemoteFunction("param1",2,{name:"x",url:"http://example.com"}); // or more complex structures
+		 * </listing>
 		 *
 		 * @see #removeMethod()
 		 */
@@ -339,17 +342,21 @@ package com.rnlib.net.amf
 		 * Remove remote method to dynamic invoke at runtime
 		 * @param name
 		 *
-		 * @example <code>
-		 *     var ras : RemoteAmfService = new RemoteAmfService();<br />
-		 *     ras.endpoint = "http://example.com/gateway";<br />
-		 *     ras.service = "MyExampleService";<br />
-		 *     ras.addMethod("myRemoteFunction",resultCallback,faultCallback);<br />
-		 *     ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);<br />
-		 *     ras.myRemoteFunction(); // ok<br />
-		 *     ras.mySecondRemoteFunction(); // ok<br />
-		 *     ras.removeMethod("mySecondRemoteFunction");<br />
-		 *     ras.mySecondRemoteFunction(); // throw Error<br />
-		 * </code>
+		 * @example The following code show how use removeMethod()
+		 * <listing version="3.0">
+		 * var ras : RemoteAmfService = new RemoteAmfService();
+		 * ras.endpoint = "http://example.com/gateway";
+		 * ras.service = "MyExampleService";
+		 *
+		 * ras.addMethod("myRemoteFunction",resultCallback,faultCallback);
+		 * ras.addMethod("mySecondRemoteFunction",resultCallback,faultCallback);
+		 *
+		 * ras.myRemoteFunction(); // ok
+		 * ras.mySecondRemoteFunction(); // ok
+		 *
+		 * ras.removeMethod("mySecondRemoteFunction");
+		 * ras.mySecondRemoteFunction(); // throw Error
+		 * </listing>
 		 *
 		 * @see #addMethod()
 		 */
