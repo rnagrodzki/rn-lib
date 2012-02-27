@@ -24,14 +24,26 @@
 
 <project name="external.libs">
 
-    <property name="project.name" value="ExternalLibs" />
+    <property name="project.main.dir" location="../../" />
+    <property file="../../ant/build-user.properties" />
+    <property name="project.name" value="External Libs" />
+    <import file="../../ant/build-imports.xml" />
 
-    <target name="build">
+
+    <path id="external.libs.src.dir.id" path="../src" description="Path id to source folder" />
+    <pathconvert property="external.libs.src.dir"
+                 refid="external.libs.src.dir.id" dirsep="/" />
+
+
+    <target name="build" >
         <echo message="Run build target ${project.name}" />
+        <compc dest="${project.main.dir}/bin/rn-lib-external.swc"
+               lib.path.id="external.libs.src.dir.id"
+               src.dir="${external.libs.src.dir}" />
     </target>
 
-    <target name="clear">
 
+    <target name="clear">
     </target>
 
 </project>

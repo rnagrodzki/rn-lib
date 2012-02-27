@@ -29,18 +29,30 @@
     <property name="project.name" value="RNLib" />
     <import file="../../ant/build-imports.xml" />
 
-    <target name="build">
+
+    <path id="rn.lib.src.dir.id" path="../src" description="Path id to source folder" />
+    <pathconvert property="rn.lib.src.dir"
+                 refid="rn.lib.src.dir.id" dirsep="/" />
+
+
+    <target name="build" >
         <echo message="Run build target ${project.name}" />
+        <compc dest="${project.main.dir}/bin/rn-lib.swc"
+               lib.path.id="rn.lib.src.dir.id"
+               src.dir="${rn.lib.src.dir}" />
     </target>
+
 
     <target name="clear">
-
     </target>
 
+
     <target name="asdoc">
-        <path id="asdoc.lib.path2" path="../src" />
-        <pathconvert property="asdocs.as.path" refid="asdoc.lib.path2" dirsep="/" />
-        <asdoc src.dir="${asdocs.as.path}" as.path="${asdocs.as.path}" lib.path.id="asdoc.lib.path2" dest.dir="${asdoc.result.dir}" />
+        <echo message="Generating ASDoc" />
+        <asdoc src.dir="${rn.lib.src.dir}"
+               as.path="${rn.lib.src.dir}"
+               lib.path.id="rn.lib.src.dir.id"
+               dest.dir="${asdoc.result.dir}" />
     </target>
 
 </project>

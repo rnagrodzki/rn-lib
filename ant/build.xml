@@ -36,4 +36,15 @@
         <mkdir dir="${root.dir}/asdoc" />
     </target>
 
+    <!-- Generate documentation -->
+    <target name="asdocs">
+        <delete dir="${root.dir}/asdoc" />
+        <mkdir dir="${root.dir}/asdoc" />
+        <subant target="asdoc" verbose="true">
+            <filelist dir="../">
+                <file name="RNLib/ant/build.xml" />
+            </filelist>
+        </subant>
+    </target>
+
 </project>
