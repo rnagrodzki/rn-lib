@@ -10,7 +10,9 @@
     <import file="build-macros.xml" />
 
     <!-- Project specific targets -->
-    <target name="build-all" depends="clear,init" description="Build all targets">
+    <target name="build-all" depends="build,asdocs" description="Build all targets" />
+
+    <target name="build" depends="clear,init">
         <run-builds>
             <targets>
                 <target name="build" />
