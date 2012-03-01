@@ -41,14 +41,67 @@
             _ras.addEventListener(AMFEvent.FAULT, onEventFault);
         }
 
+        private function initCallbackPerMethod():void
+        {
+            var ras:RemoteAmfService = new RemoteAmfService();
+            ras.addMethod("getItems", onItemsResult, onItemsFault);
+            ras.getItems(/*here you can pass args for remote method*/);
+        }
+
+        private function onItemsFault(fault:Object):void
+        {
+            // do something with fault response
+        }
+
+        private function onItemsResult(result:Object):void
+        {
+            // do something with result response
+        }
+
+        private function initGlobalCallbacks():void
+        {
+            var ras:RemoteAmfService = new RemoteAmfService();
+            ras.result = onResult;
+            ras.fault = onFault;
+            ras.addMethod("getItems");
+            ras.addMethod("getUsers");
+            ras.getUsers(/*here you can pass args for remote method*/);
+            ras.getItems(/*here you can pass args for remote method*/);
+        }
+
+        private function onFault(fault:Object):void
+        {
+            // do something with fault response
+            // on getUsers & getItems methods
+        }
+
+        private function onResult(result:Object):void
+        {
+            // do something with result response
+            // on getUsers & getItems methods
+        }
+
+        private function initEvents():void
+        {
+            var ras:RemoteAmfService = new RemoteAmfService();
+            ras.addEventListener(AMFEvent.RESULT, onEventResult);
+            ras.addEventListener(AMFEvent.FAULT, onEventFault);
+            ras.addMethod("getItems");
+            ras.addMethod("getUsers");
+            ras.getUsers(/*here you can pass args for remote method*/);
+            ras.getItems(/*here you can pass args for remote method*/);
+        }
+
         private function onEventResult(e:AMFEvent):void
         {
-
+            // do something with result response
+            // on getUsers & getItems methods
         }
 
         private function onEventFault(e:AMFEvent):void
         {
-
+            // do something with fault response
+            // on getUsers & getItems methods
         }
         ]]></fx:Script>
 
