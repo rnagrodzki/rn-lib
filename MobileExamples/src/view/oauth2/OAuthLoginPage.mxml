@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com) -->
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark" xmlns:oauth2="view.oauth2.*" creationComplete="creationCompleteHandler(event)">
+
+	<fx:Script><![CDATA[
+		import com.rnlib.oauth.OAuth2CodeGrant;
+		import com.rnlib.oauth.OAuth2Event;
+
+		import mx.events.FlexEvent;
+
+		public var grant:OAuth2CodeGrant = new OAuth2CodeGrant(
+				"62318369510.apps.googleusercontent.com",
+				"-KWwf_CxiGqGktNxtz8mH9Ir",
+				"http://localhost",
+				"https://www.googleapis.com/auth/tasks"
+		);
+
+		private function creationCompleteHandler(event:FlexEvent):void
+		{
+			data.auth(grant);
+			data.webView = web.web;
+
+			data.addEventListener(OAuth2Event.AUTH_SUCCESS, onAuth);
+			data.addEventListener(OAuth2Event.GET_ACCESS_TOKEN_SUCCESS, onToken);
+		}
+
+		private function onToken(ev:OAuth2Event):void
+		{
+			navigator.pushView(OAuthTasksList, data);
+		}
+
+		private function onAuth(ev:OAuth2Event):void
+		{
+			web.web.dispose();
+		}
+		]]></fx:Script>
+
+	<oauth2:MobileWebComponent id="web"
+	                           width="100%" height="100%"/>
+
+</s:View>

@@ -38,7 +38,10 @@ package com.rnlib.net.amf
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.HTTPStatusEvent;
 	import flash.events.IEventDispatcher;
+	import flash.events.IOErrorEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
 	import flash.utils.clearTimeout;
@@ -132,10 +135,11 @@ package com.rnlib.net.amf
 		protected function init():void
 		{
 			_dispatcher = new EventDispatcher(this);
+			silentIgnoreErrors = true;
 			connection = new AMFULConnection();
 		}
 
-		//--------------------------------------------md-------------------
+		//---------------------------------------------------------------
 		//              <------ CONNECTION ------>
 		//---------------------------------------------------------------
 
@@ -179,6 +183,51 @@ package com.rnlib.net.amf
 		}
 
 		//---------------------------------------------------------------
+		//              <------ SILENT IGNORE ERRORS ------>
+		//---------------------------------------------------------------
+
+		private var _silentIgnoreErrors:Boolean = false;
+
+		public function get silentIgnoreErrors():Boolean
+		{
+			return _silentIgnoreErrors;
+		}
+
+		public function set silentIgnoreErrors(value:Boolean):void
+		{
+			_silentIgnoreErrors = value;
+			if (value) registerErrorEvents();
+			else removeErrorEvents();
+		}
+
+		protected function registerErrorEvents():void
+		{
+			addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
+			addEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
+		}
+
+		protected function removeErrorEvents():void
+		{
+			removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
+			removeEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
+		}
+
+		protected function onIOError(ev:IOErrorEvent):void
+		{
+		}
+
+		protected function onSecurityError(ev:SecurityErrorEvent):void
+		{
+		}
+
+		protected function onStatus(e:HTTPStatusEvent):void
+		{
+
+		}
+
+		//---------------------------------------------------------------
 		//              	<------ CURSORS ------>
 		//---------------------------------------------------------------
 
@@ -194,7 +243,9 @@ package com.rnlib.net.amf
 
 		public function set showBusyCursor(value:Boolean):void
 		{
-			if (_showBusyCursor && !value) CursorManager.removeBusyCursor();
+			try
+			{ if (_showBusyCursor && !value) CursorManager.removeBusyCursor();} catch (e:Error)
+			{ }
 
 			_showBusyCursor = value;
 		}
@@ -210,8 +261,12 @@ package com.rnlib.net.amf
 
 			if (_showBusyCursor)
 			{
-				CursorManager.setBusyCursor();
-				_currentCursorID = CursorManager.currentCursorID;
+				try
+				{
+					CursorManager.setBusyCursor();
+					_currentCursorID = CursorManager.currentCursorID;
+				} catch (e:Error)
+				{ }
 			}
 		}
 
@@ -221,7 +276,9 @@ package com.rnlib.net.amf
 		 */
 		protected function removeCursor():void
 		{
-			if (_showBusyCursor) CursorManager.removeCursor(_currentCursorID);
+			try
+			{ if (_showBusyCursor) CursorManager.removeCursor(_currentCursorID);} catch (e:Error)
+			{ }
 			_currentCursorID = -1;
 		}
 
@@ -408,7 +465,7 @@ package com.rnlib.net.amf
 		{
 			_isPaused = false;
 
-			if (concurrency == RequestConcurrency.QUEUE && !_isPendingRequest && queue && queue.length > 0)
+			if (!_isPendingRequest && queue && queue.length > 0)
 				callRemoteMethod(_queue.item);
 		}
 
@@ -550,6 +607,21 @@ package com.rnlib.net.amf
 		}
 
 		//---------------------------------------------------------------
+		//              <------ SET CREDENTIALS ------>
+		//---------------------------------------------------------------
+
+		/**
+		 * Set credentials
+		 * @param user user name
+		 * @param password password
+		 */
+		public function setCredentials(user:String, password:String):void
+		{
+			removeHeader("Credentials");
+			addHeader("Credentials", false, {userid:user, password:password});
+		}
+
+		//---------------------------------------------------------------
 		//          <------ PART OF PROXY BEHAVIOR ------>
 		//---------------------------------------------------------------
 
@@ -576,7 +648,8 @@ package com.rnlib.net.amf
 						throw new ArgumentError("Not found associated INetPlugin with given IPluginVO");
 
 					rest.splice(i, 1);
-					vo.args = vo.args ? vo.args.concat(rest) : rest;
+					if (rest.length > 0)
+						vo.args = vo.args ? vo.args.concat(rest) : rest;
 
 					return vo;
 				}
@@ -593,6 +666,8 @@ package com.rnlib.net.amf
 		 */
 		override flash_proxy function callProperty(name:*, ...rest):*
 		{
+			if (name is QName) name = QName(name).localName;
+
 			var hasProp:Boolean = hasOwnProperty(name);
 			if (hasProp && _remoteMethods[name])
 			{
@@ -719,7 +794,31 @@ package com.rnlib.net.amf
 		 */
 		protected function concurrencyMultiple(vo:MethodVO):void
 		{
+			if (_maxConnections && _activeConnections >= _maxConnections)
+			{
+				_queue.push(vo);
+				return;
+			}
+
 			callAsyncRemoteMethod(vo);
+		}
+
+		//---------------------------------------------------------------
+		//              <------ MAX CONNECTIONS ------>
+		//---------------------------------------------------------------
+
+		protected var _activeConnections:uint;
+
+		private var _maxConnections:uint = 0;
+
+		public function get maxConnections():uint
+		{
+			return _maxConnections;
+		}
+
+		public function set maxConnections(value:uint):void
+		{
+			_maxConnections = value;
 		}
 
 		//---------------------------------------------------------------
@@ -730,7 +829,7 @@ package com.rnlib.net.amf
 		 * @private
 		 * Identifier asynchronous caller
 		 */
-		protected var _asyncCallerID:int = -1;
+		protected var _asyncCallerID:Dictionary = new Dictionary();
 
 		/**
 		 * Make truly asynchronous calling remote method
@@ -738,10 +837,9 @@ package com.rnlib.net.amf
 		 */
 		protected function callAsyncRemoteMethod(vo:MethodVO):void
 		{
-			if (_asyncCallerID != -1) clearTimeout(_asyncCallerID);
-
+			_activeConnections += 1;
 			_isPendingRequest = true;
-			_asyncCallerID = setTimeout(callSyncRemoteMethod, 1, vo);
+			_asyncCallerID[vo] = setTimeout(callSyncRemoteMethod, 1, vo);
 		}
 
 		/**
@@ -751,8 +849,8 @@ package com.rnlib.net.amf
 		 */
 		protected function callSyncRemoteMethod(vo:MethodVO):void
 		{
-			clearTimeout(_asyncCallerID);
-			_asyncCallerID = -1;
+			clearTimeout(_asyncCallerID[vo]);
+			delete _asyncCallerID[vo];
 
 			callRemoteMethod(vo);
 		}
@@ -920,7 +1018,11 @@ package com.rnlib.net.amf
 			_plugins[plugin] = vo;
 
 			try
-			{ plugin.init(pluginVO);}
+			{
+				plugin.init(pluginVO);
+				dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_INITIALIZED, plugin));
+
+			}
 			catch (e:Error)
 			{
 				var vo1:MethodVO = _plugins[plugin];
@@ -947,6 +1049,7 @@ package com.rnlib.net.amf
 
 			removePluginHandlers(plugin);
 
+			dispatchEvent(new NetPluginEvent(NetPluginEvent.PREPARE_TO_DISPOSE, plugin));
 			try
 			{ plugin.dispose();} catch (e:Error)
 			{ }
@@ -1108,9 +1211,13 @@ package com.rnlib.net.amf
 			_requests[id] = null;
 			delete _requests[id];
 			vo.dispose();
+			_activeConnections -= 1;
 
-			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused)
+			if (_queue && _queue.length > 0 && !_isPaused)
+			{
+				_activeConnections += 1;
 				callRemoteMethod(_queue.item);
+			}
 		}
 
 		/**
@@ -1148,9 +1255,13 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
+			_activeConnections -= 1;
 
-			if (_concurrency == RequestConcurrency.QUEUE && _queue && _queue.length > 0 && !_isPaused && continueAfterFault)
+			if (_queue && _queue.length > 0 && !_isPaused && continueAfterFault)
+			{
+				_activeConnections += 1;
 				callRemoteMethod(_queue.item);
+			}
 		}
 
 		//---------------------------------------------------------------
@@ -1163,10 +1274,10 @@ package com.rnlib.net.amf
 		 */
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
 		{
-			if (_asyncCallerID != -1)
+			for (var key:Object in _asyncCallerID)
 			{
-				clearTimeout(_asyncCallerID);
-				_asyncCallerID = -1;
+				clearTimeout(_asyncCallerID[key]);
+				delete _asyncCallerID[key];
 			}
 
 			disconnect();
@@ -1179,6 +1290,7 @@ package com.rnlib.net.amf
 				vo.dispose();
 			}
 			_isPendingRequest = false;
+			_activeConnections = 0;
 
 			removeCursor();
 		}

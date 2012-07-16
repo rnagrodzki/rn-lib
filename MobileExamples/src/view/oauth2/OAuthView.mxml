@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com) -->
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark">
+
+	<fx:Script><![CDATA[
+		import com.rnlib.oauth.OAuth2;
+
+		private function signUp_clickHandler(event:MouseEvent):void
+		{
+			var oauth:OAuth2 = new OAuth2(
+					"https://accounts.google.com/o/oauth2/auth",
+					"https://accounts.google.com/o/oauth2/token"
+			);
+
+			navigator.pushView(OAuthLoginPage, oauth);
+		}
+		]]></fx:Script>
+
+	<s:Button id="signUp" label="Sign-up" click="signUp_clickHandler(event)"
+	          verticalCenter="0" horizontalCenter="0"/>
+
+</s:View>

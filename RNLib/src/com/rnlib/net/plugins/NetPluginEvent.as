@@ -55,12 +55,28 @@ package com.rnlib.net.plugins
 		public static const PLUGIN_CREATED:String = "pluginCreated";
 
 		/**
+		 * Plugin was initialize with vo.
+		 * Data property of event contains instance of plugin.
+		 *
+		 * @see #data
+		 */
+		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
+
+		/**
 		 * Plugin was destroyed
-		 * Data property of event contains instance of new plugin.
+		 * Data property of event contains instance of plugin.
 		 *
 		 * @see #data
 		 */
 		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
+
+		/**
+		 * Plugin finish his job and will be disposed
+		 * Data property of event contains instance of plugin.
+		 *
+		 * @see #data
+		 */
+		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
 
 		public var data:Object;
 

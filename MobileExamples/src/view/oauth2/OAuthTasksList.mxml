@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) Rafał Nagrodzki (http://rafal-nagrodzki.com) -->
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark">
+
+	<fx:Script><![CDATA[
+		import com.rnlib.apis.googleTasks.GTaskEvent;
+		import com.rnlib.apis.googleTasks.GTaskService;
+		import com.rnlib.apis.googleTasks.GTasksListVO;
+		import com.rnlib.oauth.OAuth2;
+
+		import mx.collections.ArrayCollection;
+
+		override public function set data(value:Object):void
+		{
+			super.data = value;
+
+			var oauth:OAuth2 = value as OAuth2;
+			if (!oauth) return;
+
+			var service:GTaskService = new GTaskService();
+			service.addEventListener(GTaskEvent.ALL_TASKS_FROM_LIST_LOADED, onLoadList, false, 0, true);
+			service.oauth = oauth;
+			service.load();
+		}
+
+		[Bindable]
+		public var listVO:GTasksListVO;
+
+		private function onLoadList(ev:GTaskEvent):void
+		{
+			listVO = ev.data as GTasksListVO;
+		}
+		]]></fx:Script>
+
+	<s:List id="tasksList" dataProvider="{new ArrayCollection(listVO.items)}" width="100%" height="100%" labelField="title">
+		<s:layout>
+			<s:VerticalLayout gap="0"/>
+		</s:layout>
+	</s:List>
+
+</s:View>
