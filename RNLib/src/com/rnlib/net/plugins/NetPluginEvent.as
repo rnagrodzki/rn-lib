@@ -59,6 +59,7 @@ package com.rnlib.net.plugins
 		 */
 		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
 
+
 		/**
 		 * Plugin was destroyed
 		 * Data property of event contains instance of plugin.

@@ -671,7 +671,7 @@ package com.rnlib.net.amf
 				if (!_endpoint)
 					throw new Error("Endpoint not set");
 
-				var pluginVO:INetPluginVO = testParamsRemoteMethod.apply(this, rest);
+				var pluginVO:INetPluginVO = testParamsRemoteMethod.apply(this, rest) as INetPluginVO;
 
 				var mvo:MethodHelperVO = _remoteMethods[name]; // dictionary of registered methods
 				var vo:MethodVO = new MethodVO();
@@ -680,10 +680,12 @@ package com.rnlib.net.amf
 				vo.args = pluginVO ? pluginVO : rest;
 				vo.result = mvo.result;
 				vo.fault = mvo.fault;
+				vo.queue = _queue;
 
 				var request:AMFRequest = new AMFRequest();
 				request.uid = vo.uid;
 				vo.request = request;
+				request.updateQueue = vo.updateQueue;
 
 				switch (_concurrency)
 				{

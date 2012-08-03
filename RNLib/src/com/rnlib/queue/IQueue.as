@@ -43,6 +43,14 @@ package com.rnlib.queue
 		function pushWithPriority(item:*, priority:int = 1):void;
 
 		/**
+		 * Update item priority
+		 * @param item Searched item
+		 * @param priority New priority for item
+		 * @return <code>true</code> if item found and priority was updated, otherwise return <code>false</code>
+		 */
+		function updateItemPriority(item:*, priority:int):Boolean;
+
+		/**
 		 * Get next item in queue
 		 */
 		function get item():*;
@@ -56,6 +64,12 @@ package com.rnlib.queue
 		 * Clone queue object
 		 * @return Cloned queue
 		 */
-		function clone() : IQueue
+		function clone():IQueue;
+
+		/**
+		 * Sort elements in queue.
+		 * <p>Sort method is executed only if is needed.</p>
+		 */
+		function sort():void;
 	}
 }

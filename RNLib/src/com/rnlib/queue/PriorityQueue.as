@@ -56,21 +56,23 @@ package com.rnlib.queue
 		/**
 		 * Push items into queue.
 		 * All items will be pushed with default priority
-		 * @param rest	All items
+		 * @param rest    All items
 		 */
 		public function push(...rest):void
 		{
 			for each (var item:* in rest)
 			{
-//				trace("push into queue");
 				pushWithPriority(item);
 			}
 		}
 
 		/**
-		 * Push item into queue with priority
-		 * @param item	Item to pushed
-		 * @param priority	Priority for item into queue
+		 * Push item into queue with priority.
+		 * @param item    Item to pushed
+		 * @param priority    The priority level of the item in queue. The priority is designated by a signed
+		 * 		32-bit integer. The higher the number, the higher the priority. All items with priority n are
+		 * 		returned before item of priority n-1. If two or more items share the same priority,
+		 * 		they are returned in the order in which they were added. The default priority is 0.
 		 */
 		public function pushWithPriority(item:*, priority:int = 1):void
 		{
@@ -82,12 +84,45 @@ package com.rnlib.queue
 
 			if (!_requireSort)
 			{
-				var sort:Boolean = len > 0;
-
-				_requireSort = (sort && _source[len - 1].priority > priority);
+				_requireSort = (len && _source[len - 1].priority < priority);
 			}
 
 			_source[len] = vo;
+		}
+
+		/**
+		 * Update item priority
+		 * @param item Searched item
+		 * @param priority New priority for item
+		 * @return <code>true</code> if item found and priority was updated, otherwise return <code>false</code>
+		 */
+		public function updateItemPriority(item:*, priority:int):Boolean
+		{
+			for each (var itemVO:ItemVO in _source)
+			{
+				if(itemVO.item === item)
+				{
+					if(itemVO.priority == priority) return false;
+
+					itemVO.priority = priority;
+					_requireSort = true;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * Sort elements in queue.
+		 * <p>Sort method is executed only if is needed.</p>
+		 */
+		public function sort():void
+		{
+			if (_requireSort)
+			{
+				_source.sortOn(["priority", "count"], [Array.DESCENDING, Array.NUMERIC]);
+				_requireSort = false;
+			}
 		}
 
 		/**
@@ -98,13 +133,7 @@ package com.rnlib.queue
 			if (_source.length == 0)
 				return undefined;
 
-			// sort method is called only then when it's needed
-			if (_requireSort)
-			{
-				_source.sortOn(["priority", "count"]);
-				_requireSort = false;
-			}
-
+			sort();
 			var vo:ItemVO = ItemVO(_source.shift());
 
 			return vo.item;

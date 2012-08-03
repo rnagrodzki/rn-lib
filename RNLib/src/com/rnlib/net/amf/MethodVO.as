@@ -21,6 +21,7 @@
 package com.rnlib.net.amf
 {
 	import com.rnlib.interfaces.IDisposable;
+	import com.rnlib.queue.IQueue;
 
 	/**
 	 * Helper for data storage calls of remote methods
@@ -59,6 +60,11 @@ package com.rnlib.net.amf
 		 */
 		public var request:AMFRequest;
 
+		/**
+		 * Queue
+		 */
+		public var queue:IQueue;
+
 		public function dispose():void
 		{
 			name = null;
@@ -66,6 +72,7 @@ package com.rnlib.net.amf
 			fault = null;
 			args = null;
 			request = null; // don't dispose this
+			queue = null;
 		}
 
 		public function clone():MethodVO
@@ -77,7 +84,15 @@ package com.rnlib.net.amf
 			vo.fault = fault;
 			vo.uid = uid;
 			vo.request = request;
+			vo.queue = queue;
 			return vo;
+		}
+
+		public function updateQueue(priority:int):void
+		{
+			if(!queue) return;
+
+			queue.updateItemPriority(this, priority);
 		}
 	}
 }

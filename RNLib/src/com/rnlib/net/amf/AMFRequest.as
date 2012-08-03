@@ -20,7 +20,9 @@
  **************************************************************************************************/
 package com.rnlib.net.amf
 {
-	public class AMFRequest
+	import com.rnlib.interfaces.IDisposable;
+
+	public class AMFRequest implements IDisposable
 	{
 		public var uid:int;
 
@@ -41,9 +43,43 @@ package com.rnlib.net.amf
 		}
 
 		internal var requestSend:Boolean = false;
+
 		public function get called():Boolean
 		{
 			return requestSend;
+		}
+
+		internal var _priority:int = 1;
+		internal var updateQueue:Function;
+
+		/**
+		 * Set specific priority of request.
+		 * <p>Change can be affected only before added to request queue.
+		 * It means that in next frame change can't be made.</p>
+		 * @param priority
+		 * @return
+		 */
+		public function setPriority(priority:int = 1):AMFRequest
+		{
+			_priority = priority;
+			updateQueue(priority);
+			return this;
+		}
+
+		public function get priority():int
+		{
+			return _priority;
+		}
+
+		//---------------------------------------------------------------
+		//              <------ IDisposable ------>
+		//---------------------------------------------------------------
+
+		public function dispose():void
+		{
+			extraResult = null;
+			extraFault = null;
+			updateQueue = null;
 		}
 	}
 }
