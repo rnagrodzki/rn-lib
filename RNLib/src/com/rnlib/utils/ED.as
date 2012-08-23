@@ -20,6 +20,7 @@
  **************************************************************************************************/
 package com.rnlib.utils
 {
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -73,10 +74,11 @@ package com.rnlib.utils
 
 		private static var r:Array = [];
 
-		public static function render(e:Event, d:IEventDispatcher = null, override:Boolean = false):void
+		public static function render(e:Event, d:IEventDispatcher, override:Boolean = false):void
 		{
-			d = d || dispatcher;
-			dispatcher.addEventListener(Event.RENDER, onRender);
+			if (!(d is DisplayObject)) throw ArgumentError("Dispatcher cant be null, and must be instance of flash.display.DisplayObject");
+
+			d.addEventListener(Event.RENDER, onRender);
 
 			if (override) removeDuplicates(r, d, e);
 
