@@ -22,18 +22,16 @@ package com.rnlib.net.cache
 {
 	import com.rnlib.interfaces.IDisposable;
 
-	import flash.events.Event;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.net.registerClassAlias;
-	import flash.utils.getQualifiedClassName;
 
 	public class FileCacheManager implements IResponseCacheManager, IDisposable
 	{
 		public function FileCacheManager(file:File)
 		{
-			_file = file.clone();
+			_file = file;
 			initialize();
 		}
 
@@ -96,15 +94,16 @@ package com.rnlib.net.cache
 
 		protected function initialize():void
 		{
-			registerClassAlias(getQualifiedClassName(ResponseVO), ResponseVO);
+			registerClassAlias("fileCacheManager.ResponseVO", ResponseVO);
 
-			_file.addEventListener(Event.COMPLETE, onComplete);
-			_file.load();
-		}
-
-		private function onComplete(e:Event):void
-		{
-			_cache = _file.data.readObject();
+			if (_file.exists)
+			{
+				var stream:FileStream = new FileStream();
+				stream.open(_file, FileMode.READ);
+				_cache = stream.readObject();
+				stream.close();
+			}
+			else _cache = {};
 		}
 
 		protected function flush():Boolean
@@ -122,7 +121,7 @@ package com.rnlib.net.cache
 
 class ResponseVO
 {
-	public function ResponseVO(c:*, e:int)
+	public function ResponseVO(c:* = undefined, e:int = -1)
 	{
 		content = c;
 		expire = e;
