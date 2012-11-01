@@ -25,6 +25,7 @@ package com.rnlib.net.amf
 	import com.rnlib.net.amf.connections.AMFULConnection;
 	import com.rnlib.net.amf.connections.IAMFConnection;
 	import com.rnlib.net.amf.processor.AMFHeader;
+	import com.rnlib.net.cache.IResponseCacheManager;
 	import com.rnlib.net.plugins.INetMultipartPlugin;
 	import com.rnlib.net.plugins.INetPlugin;
 	import com.rnlib.net.plugins.INetPluginFactory;
@@ -280,6 +281,22 @@ package com.rnlib.net.amf
 		}
 
 		//---------------------------------------------------------------
+		//              <------ CACHE MANAGER ------>
+		//---------------------------------------------------------------
+
+		protected var _cacheManager:IResponseCacheManager;
+
+		public function get cacheManager():IResponseCacheManager
+		{
+			return _cacheManager;
+		}
+
+		public function set cacheManager(value:IResponseCacheManager):void
+		{
+			_cacheManager = value;
+		}
+
+		//---------------------------------------------------------------
 		//              <------ DEVELOPER INTERFACE METHODS ------>
 		//---------------------------------------------------------------
 
@@ -366,6 +383,8 @@ package com.rnlib.net.amf
 		 * @param name Name of remote method to invoke
 		 * @param result Result handler
 		 * @param fault Fault handler
+		 * @param cacheID Key for cacheManager to return response
+		 * @param cacheStorageTime Time for while cache will be valuable
 		 *
 		 * @example The following code show how use addMethod()
 		 * <listing version="3.0">
@@ -382,11 +401,13 @@ package com.rnlib.net.amf
 		 *
 		 * @see #removeMethod()
 		 */
-		public function addMethod(name:String, result:Function = null, fault:Function = null):void
+		public function addMethod(name:String, result:Function = null, fault:Function = null, cacheID:String = null, cacheStorageTime:int = -1):void
 		{
 			var vo:MethodHelperVO = new MethodHelperVO(name);
 			vo.result = result || _result;
 			vo.fault = fault || _fault;
+			vo.cacheID = cacheID;
+			vo.cacheStorageTime = cacheStorageTime;
 
 			removeMethod(name);
 			_remoteMethods[name] = vo
@@ -682,10 +703,10 @@ package com.rnlib.net.amf
 				vo.fault = mvo.fault;
 				vo.queue = _queue;
 
-				var request:AMFRequest = new AMFRequest();
-				request.uid = vo.uid;
+				var request:AMFRequest = new AMFRequest(vo.uid);
 				vo.request = request;
 				request.updateQueue = vo.updateQueue;
+				request.cacheID = mvo.cacheID;
 
 				switch (_concurrency)
 				{
@@ -861,6 +882,15 @@ package com.rnlib.net.amf
 		protected function callRemoteMethod(vo:MethodVO, plugin:INetPlugin = null):void
 		{
 			_isPendingRequest = true;
+			var rm:ResultMediatorVO;
+			var cacheID:String = vo.request.cacheID;
+
+			if (cacheManager && cacheID && cacheManager.isCached(cacheID))
+			{
+				rm = prepareResultMediator(vo);
+				onResult(cacheManager.getResponse(cacheID), rm.name, rm.id, rm.uid);
+				return;
+			}
 
 			if (vo.args is INetPluginVO)
 			{
@@ -868,7 +898,7 @@ package com.rnlib.net.amf
 				return;
 			}
 
-			var rm:ResultMediatorVO = prepareResultMediator(vo);
+			rm = prepareResultMediator(vo);
 
 			if (plugin is INetMultipartPlugin)
 			{
@@ -1192,6 +1222,11 @@ package com.rnlib.net.amf
 
 			var vo:ResultMediatorVO = _requests[id];
 
+			// push response into cache if is mark as to cache and not cached already
+			var cacheID:String = vo.request.cacheID;
+			if (cacheManager && cacheID && !cacheManager.isCached(cacheID))
+				cacheManager.setResponse(cacheID, result);
+
 			var res:Array = [result];
 			if (vo.request.extraResult)
 			{
@@ -1209,6 +1244,7 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
+			vo.request.dispose();
 			vo.dispose();
 			_activeConnections -= 1;
 
@@ -1254,6 +1290,8 @@ package com.rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
+			vo.request.dispose();
+			vo.dispose();
 			_activeConnections -= 1;
 
 			if (_queue && _queue.length > 0 && !_isPaused && continueAfterFault)
@@ -1460,6 +1498,8 @@ class MethodHelperVO implements IDisposable
 	public var name:String;
 	public var result:Function;
 	public var fault:Function;
+	public var cacheID:String;
+	public var cacheStorageTime:int;
 
 	public function MethodHelperVO(name:String = null)
 	{
@@ -1471,6 +1511,7 @@ class MethodHelperVO implements IDisposable
 		name = null;
 		result = null;
 		fault = null;
+		cacheID = null;
 	}
 }
 

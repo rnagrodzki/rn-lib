@@ -24,10 +24,25 @@ package com.rnlib.net.amf
 
 	public class AMFRequest implements IDisposable
 	{
-		public var uid:int;
+		protected var _uid:int;
+
+		public function AMFRequest(id:int)
+		{
+			_uid = id;
+		}
+
+		public function get uid():int
+		{
+			return _uid;
+		}
 
 		internal var extraResult:Array;
 
+		/**
+		 * Pass additional params on server response
+		 * @param rest
+		 * @return
+		 */
 		public function setExtraResultParams(...rest):AMFRequest
 		{
 			extraResult = rest;
@@ -36,6 +51,11 @@ package com.rnlib.net.amf
 
 		internal var extraFault:Array;
 
+		/**
+		 * Pass additional params on server response
+		 * @param rest
+		 * @return
+		 */
 		public function setExtraFaultParams(...rest):AMFRequest
 		{
 			extraFault = rest;
@@ -44,6 +64,9 @@ package com.rnlib.net.amf
 
 		internal var requestSend:Boolean = false;
 
+		/**
+		 * Is method already executed
+		 */
 		public function get called():Boolean
 		{
 			return requestSend;
@@ -51,6 +74,22 @@ package com.rnlib.net.amf
 
 		internal var _priority:int = 1;
 		internal var updateQueue:Function;
+
+		internal var cacheID:String;
+		internal var cacheStorageTime:int;
+
+		/**
+		 * Update cache property
+		 * @param id Cache ID for this request
+		 * @param storageTime Storage time
+		 * @return
+		 */
+		public function setCacheID(id:String, storageTime:int = -1):AMFRequest
+		{
+			cacheID = id;
+			cacheStorageTime = storageTime;
+			return this;
+		}
 
 		/**
 		 * Set specific priority of request.
