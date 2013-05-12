@@ -1,0 +1,52 @@
+<project name="Main" default="build-all">
+    <!-- Project specific overrides -->
+    <property name="root.dir" location="../"/>
+
+    <!-- Shared properties -->
+    <property file="build-user.properties" />
+
+    <!-- Common properties and targets -->
+    <import file="build-imports.xml" />
+    <import file="build-macros.xml" />
+
+    <!-- Project specific targets -->
+    <target name="build-all" depends="build,asdocs" description="Build all targets" />
+
+    <target name="build" depends="clear,init">
+        <run-builds>
+            <targets>
+                <target name="build" />
+            </targets>
+        </run-builds>
+    </target>
+
+    <target name="clear-all">
+        <run-builds>
+            <targets>
+                <target name="clear" />
+            </targets>
+        </run-builds>
+    </target>
+
+    <target name="clear">
+        <delete dir="${root.dir}/bin" />
+        <delete dir="${root.dir}/asdoc" />
+    </target>
+
+    <target name="init">
+        <mkdir dir="${root.dir}/bin" />
+        <mkdir dir="${root.dir}/asdoc" />
+    </target>
+
+    <!-- Generate documentation -->
+    <target name="asdocs">
+        <delete dir="${root.dir}/asdoc" />
+        <mkdir dir="${root.dir}/asdoc" />
+        <subant target="asdoc" verbose="true">
+            <filelist dir="../">
+                <file name="RNLib/ant/build.xml" />
+            </filelist>
+        </subant>
+    </target>
+
+</project>

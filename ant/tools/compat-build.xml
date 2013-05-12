@@ -1,0 +1,135 @@
+<!--
+    Copyright (c) 2008 Allurent, Inc.
+    http://code.google.com/p/antennae/
+    
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<project name="tools.compat">
+    <dirname property="tools.compat.dir" file="${ant.file.tools.compat}" />
+
+    <!--
+        This file provides backwards compatible mappings for
+        properties, targets, and tasks most likely to break as a
+        result of the naming changes introduced in Antennae as of
+        1.2.0. If you find that there are additional settings missing
+        for your configuration, they should be added here.
+        
+        To use this file see the comments in build-common-imports.xml.
+        
+        This mechanism should be considered depreciated and will be
+        removed in a future release of Antennae.
+    -->
+
+    <!--
+        Properties most likely to be overridden in a project's
+        build.xml file or read in from a build-user.properties
+        file. This also restores the old default values for build.dir,
+        src.flex.dir, and src.java.dir.
+    -->
+    <condition property="build.dir" value="${build.dir}" else="build">
+        <isset property="build.dir" />
+    </condition>
+
+    <condition property="project.flex.application" value="${project.flex2.application}">
+        <isset property="project.flex2.application" />
+    </condition>
+
+    <condition property="flex.dir" value="${flex2.dir}">
+        <isset property="flex2.dir" />
+    </condition>
+
+    <condition property="flex.mxmlc.options" value="${flex2.mxmlc.options}">
+        <isset property="flex2.mxmlc.options" />
+    </condition>
+
+    <condition property="flex.compc.options" value="${flex2.compc.options}">
+        <isset property="flex2.compc.options" />
+    </condition>
+
+    <condition property="src.flex.dir" value="${src.flex2.dir}" else="flex2">
+        <isset property="src.flex2.dir" />
+    </condition>
+
+    <condition property="flex.standalone.player" value="${flex2.standalone.player}">
+        <isset property="flex2.standalone.player" />
+    </condition>
+
+    <condition property="arc-flexunit.filters"
+               value="${arc-flexunit.filters}"
+               else="flexunit2.filters">
+        <isset property="arc-flexunit2.filters" />
+    </condition>
+
+    <condition property="src.java.dir" value="${src.java.dir}" else="java">
+        <isset property="src.java.dir" />
+    </condition>
+
+    <!--
+        Targets most likely to be called by a project's build.xml
+        file. Sub targets are not mapped. Fix is also put in to
+        transfer the flex2.lib.path into the new name.
+    -->
+    <target name="compat-path-fix">
+        <path id="flex.lib.path">
+            <path refid="flex2.lib.path" />
+        </path>
+    </target>
+
+    <target name="flex2-application" depends="compat-path-fix,flex-application" />
+    <target name="air-application" depends="compat-path-fix,tools.targets.air-application" />
+    <target name="flex2-library" depends="compat-path-fix,flex-library" />
+    <target name="air-library" depends="compat-path-fix,tools.targets.air-library" />
+    <target name="as3doc" depends="compat-path-fix,asdoc" />
+    <target name="flex2-test-application" depends="compat-path-fix,flex-test-application" />
+    <target name="test-flexunit2" depends="compat-path-fix,test-flexunit" />
+
+    <macrodef name="as3doc" description="Generate ASDoc based documentation">
+        <attribute name="src.dir" />
+        <attribute name="as.path" />
+        <attribute name="dest.dir" />
+        <attribute name="template.dir" default="${asdoc.template.dir}" />
+        <attribute name="lib.path.id" default="flex2.lib.path" />
+        <attribute name="options" default="" />
+        <attribute name="config" default="${flex.config}" />
+        <sequential>
+            <asdoc src.dir="@{src.dir}"
+                   as.path="@{as.path}"
+                   dest.dir="@{dest.dir}"
+                   template.dir="@{template.dir}"
+                   lib.path.id="@{lib.path.id}"
+                   options="@{options}"
+                   config="@{config}" />
+        </sequential>
+    </macrodef>
+
+    <!--
+        Other settings impacted by the renaming. This is not a
+        recommended way to pull in assets. These are defined here to
+        provide a single file that must be included to provide
+        backwards compatibility.  build-assets.xml have not been
+        imported at this point so we guess where the files will be.
+    -->
+    <property name="compat.lib.assets.dir" location="${tools.compat.dir}/../lib/" />
+    <property name="flexunit2.swc" location="${compat.lib.assets.dir}/flexunit.swc" />
+    <property name="arc-flexunit2.swc" location="${compat.lib.assets.dir}/arc-flexunit.swc" />
+    <property name="arc-flexunit2.jar" location="${compat.lib.assets.dir}/arc-flexunit.jar" />
+    <property name="arc-flexunit2.mxml" location="${compat.lib.assets.dir}/RunTests.mxml" />
+</project>
+

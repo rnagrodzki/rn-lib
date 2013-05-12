@@ -1,0 +1,48 @@
+<!--
+    Copyright (c) 2007-2008 Allurent, Inc.
+    http://code.google.com/p/antennae/
+    
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<project name="tools.imports">
+    <!--
+        Uncomment the next line to trigger the backwards compatible
+        mappings for properties, targets, and tasks most likely to
+        break as a result of the naming changes introduced in Antennae
+        as of 1.2.0.
+        
+        This mechanism should only be enabled if all projects should
+        use compatibility mode, otherwise this file should be imported
+        on a case by case basis. This restriction is due to the change
+        in default values for build.dir, src.flex.dir, and
+        src.java.dir.
+
+        For additional details see the comments in compat-build.xml.
+
+        This mechanism should be considered depreciated and will be
+        removed in a future release of Antennae.
+    -->
+    <!--
+        <import file="compat-build.xml" />
+    -->
+    <import file="build-common-properties.xml" />
+    <import file="build-common-tasks.xml" />
+    <import file="build-common-targets.xml" />
+</project>

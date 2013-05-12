@@ -1,0 +1,18 @@
+<project name="main.macros">
+
+    <macrodef name="run-builds">
+        <element name="targets" optional="no" />
+        <sequential>
+            <subant verbose="yes">
+                <filelist dir="../">
+                    <file name="ExternalLibs/ant/build.xml" />
+                    <file name="RNLib/ant/build.xml" />
+                    <file name="Examples/ant/build.xml" />
+                    <file name="UnitTests/ant/build.xml" />
+                </filelist>
+                <targets />
+            </subant>
+        </sequential>
+    </macrodef>
+
+</project>
