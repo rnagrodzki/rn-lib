@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2012 Rafał Nagrodzki (http://nagrodzki.net)
+ * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -405,12 +405,41 @@ package com.rnlib.net.amf
 		 */
 		public function addMethod(name:String, result:Function = null, fault:Function = null, cacheRule:ICacheRule = null):void
 		{
-			var vo:MethodHelperVO = new MethodHelperVO(name);
+			var vo:MethodHelperVO = _remoteMethods[name];
+
+			if (!vo || vo.mockGenerationFunc === null)
+			{
+				removeMethod(name);
+				vo = new MethodHelperVO(name);
+			}
+
+			vo.cacheRule = cacheRule;
 			vo.result = result || _result;
 			vo.fault = fault || _fault;
-			vo.cacheRule = cacheRule;
 
-			removeMethod(name);
+			_remoteMethods[name] = vo
+		}
+
+		/**
+		 * Mock method registered in service
+		 * @param name Name of remote function to mock
+		 * @param mockFunc Reference to function witch return mock data in form of array with 3 values
+		 * <ul>Values of array:
+		 * <li><code>Boolean</code> - if <code>true</code> call result, otherwise call fault.</li>
+		 * <li><code>uint</code> - interval to responde. If 0 call without interval.</li>
+		 * <li><code>Array</code> of arguments to pass as result.</li>
+		 * </ul>
+		 */
+		public function addMockMethod(name:String, mockFunc:Function):void
+		{
+			var vo:MethodHelperVO = _remoteMethods[name];
+
+			if (!vo)
+				vo = new MethodHelperVO(name);
+			vo.mockGenerationFunc = mockFunc;
+			vo.result ||= _result;
+			vo.fault ||= _fault;
+
 			_remoteMethods[name] = vo
 		}
 
@@ -710,7 +739,7 @@ package com.rnlib.net.amf
 				if (mvo.cacheRule)
 				{
 					request.cacheID = mvo.cacheRule.resolveID(name, vo.uid, rest);
-					request.cachePolicy = mvo.cacheRule.policy || CacheRuleConstants.POLICY_NEVER;
+					request.cacheTrigger = mvo.cacheRule.policy || CacheRuleConstants.POLICY_NEVER;
 				}
 
 				switch (_concurrency)
@@ -895,11 +924,13 @@ package com.rnlib.net.amf
 		protected function callRemoteMethod(vo:MethodVO, plugin:INetPlugin = null):void
 		{
 			_isPendingRequest = true;
-			var rm:ResultMediatorVO;
+			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			var cacheID:Object = vo.request.cacheID;
 
+			if (checkAndExecuteIfMock(rm, vo.args as Array)) return;
+
 			if (cacheManager &&
-					vo.request.cachePolicy == CacheRuleConstants.POLICY_BEFORE_REQUEST &&
+					vo.request.cacheTrigger == CacheRuleConstants.POLICY_BEFORE_REQUEST &&
 					cacheID && cacheManager.isCached(cacheID))
 			{
 				rm = prepareResultMediator(vo);
@@ -912,8 +943,6 @@ package com.rnlib.net.amf
 				waitForPlugin(vo);
 				return;
 			}
-
-			rm = prepareResultMediator(vo);
 
 			if (plugin is INetMultipartPlugin)
 			{
@@ -934,6 +963,48 @@ package com.rnlib.net.amf
 			_nc.call.apply(_nc, args.concat(vo.args));
 
 			showCursor();
+		}
+
+		/**
+		 * Method responsible for check request if is mocked.
+		 * @param vo
+		 * @param userArgs
+		 * @return
+		 */
+		protected function checkAndExecuteIfMock(vo:ResultMediatorVO, userArgs:Array):Boolean
+		{
+			var h:MethodHelperVO = _remoteMethods[vo.name];
+			vo.internalFaultHandler = onFault;
+			vo.internalResultHandler = onResult;
+
+			// this remote method is not mark as mock
+			if (h.mockGenerationFunc === null) return false;
+
+			/**
+			 * Value object created by mock generate function.
+			 * Contains all necessary values to call response method.
+			 */
+			var mockVO:MockResponseVO = h.mockGenerationFunc.apply(null, userArgs);
+
+			if (mockVO.interval == 0)
+				executeMockImpl(vo, mockVO);
+			else
+				setTimeout(executeMockImpl, mockVO.interval, vo, mockVO);
+
+			return true;
+		}
+
+		/**
+		 * Call response handlers with passed data.
+		 * @param vo
+		 * @param mock
+		 */
+		protected function executeMockImpl(vo:ResultMediatorVO, mock:MockResponseVO):void
+		{
+			if (mock.success)
+				onResult(mock.responseArgs, vo.name, vo.id, vo.uid);
+			else
+				onFault(mock.responseArgs, vo.name, vo.id, vo.uid);
 		}
 
 		/**
@@ -1242,9 +1313,9 @@ package com.rnlib.net.amf
 			var cacheID:Object = vo.request.cacheID;
 			if (cacheManager && cacheID)
 			{
-				if (vo.request.cachePolicy == CacheRuleConstants.POLICY_AFTER_REQUEST && !cacheManager.isCached(cacheID))
+				if (vo.request.cacheTrigger == CacheRuleConstants.POLICY_AFTER_REQUEST && !cacheManager.isCached(cacheID))
 					cacheManager.setResponse(cacheID, result);
-				else if (vo.request.cachePolicy == CacheRuleConstants.POLICY_BEFORE_REQUEST)
+				else if (vo.request.cacheTrigger == CacheRuleConstants.POLICY_BEFORE_REQUEST)
 					cacheManager.setResponse(cacheID, result);
 			}
 
@@ -1299,7 +1370,7 @@ package com.rnlib.net.amf
 			var cacheID:Object = vo.request.cacheID;
 			if (cacheManager &&
 					cacheID &&
-					vo.request.cachePolicy == CacheRuleConstants.POLICY_AFTER_REQUEST &&
+					vo.request.cacheTrigger == CacheRuleConstants.POLICY_AFTER_REQUEST &&
 					cacheManager.isCached(cacheID))
 			{
 				onResult(cacheManager.getResponse(cacheID), name, id, uid);
@@ -1533,6 +1604,10 @@ class MethodHelperVO implements IDisposable
 	public var result:Function;
 	public var fault:Function;
 	public var cacheRule:ICacheRule;
+	/**
+	 * If function have to be mock add here reference to mock generation function
+	 */
+	public var mockGenerationFunc:Function = null;
 
 	public function MethodHelperVO(name:String = null)
 	{

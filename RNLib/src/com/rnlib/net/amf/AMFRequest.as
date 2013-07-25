@@ -90,7 +90,7 @@ package com.rnlib.net.amf
 
 		internal var cacheID:Object;
 		internal var cacheStorageTime:int;
-		internal var cachePolicy:String = CacheRuleConstants.POLICY_NEVER;
+		internal var cacheTrigger:String = CacheRuleConstants.POLICY_NEVER;
 
 		/**
 		 * Update cache property
