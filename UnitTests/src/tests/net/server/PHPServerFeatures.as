@@ -23,9 +23,9 @@
  */
 package tests.net.server
 {
-	import com.rnlib.net.amf.connections.AMFNetConnection;
-	import com.rnlib.net.amf.connections.AMFULConnection;
-	import com.rnlib.net.amf.connections.IAMFConnection;
+	import rnlib.net.amf.connections.AMFNetConnection;
+	import rnlib.net.amf.connections.AMFULConnection;
+	import rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.events.Event;
 

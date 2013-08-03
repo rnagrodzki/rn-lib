@@ -23,11 +23,11 @@
  */
 package tests.net.remoteamfservice
 {
-	import com.rnlib.net.RequestConcurrency;
-	import com.rnlib.net.amf.AMFEvent;
-	import com.rnlib.net.plugins.FileReferencePlugin;
-	import com.rnlib.net.plugins.FileReferencePluginVO;
-	import com.rnlib.net.plugins.NetPluginFactory;
+	import rnlib.net.RequestConcurrency;
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.plugins.FileReferencePlugin;
+	import rnlib.net.plugins.FileReferencePluginVO;
+	import rnlib.net.plugins.NetPluginFactory;
 
 	import flexunit.framework.Assert;
 

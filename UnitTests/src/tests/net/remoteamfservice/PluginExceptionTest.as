@@ -3,11 +3,11 @@
  */
 package tests.net.remoteamfservice
 {
-	import com.rnlib.net.amf.AMFEvent;
-	import com.rnlib.net.plugins.INetPlugin;
-	import com.rnlib.net.plugins.INetPluginVO;
-	import com.rnlib.net.plugins.NetPluginEvent;
-	import com.rnlib.net.plugins.NetPluginFactory;
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.plugins.INetPlugin;
+	import rnlib.net.plugins.INetPluginVO;
+	import rnlib.net.plugins.NetPluginEvent;
+	import rnlib.net.plugins.NetPluginFactory;
 
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;

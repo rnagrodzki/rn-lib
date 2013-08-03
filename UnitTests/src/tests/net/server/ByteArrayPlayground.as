@@ -25,8 +25,8 @@ package tests.net.server
 {
 	import avmplus.getQualifiedClassName;
 
-	import com.rnlib.net.amf.connections.AMFULConnection;
-	import com.rnlib.net.amf.connections.IAMFConnection;
+	import rnlib.net.amf.connections.AMFULConnection;
+	import rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.net.ObjectEncoding;
 

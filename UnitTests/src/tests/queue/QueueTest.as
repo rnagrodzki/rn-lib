@@ -23,7 +23,7 @@
  */
 package tests.queue
 {
-	import com.rnlib.queue.PriorityQueue;
+	import rnlib.queue.PriorityQueue;
 
 	import org.flexunit.Assert;
 	import org.hamcrest.assertThat;

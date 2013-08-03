@@ -23,7 +23,7 @@
  */
 package tests.utils
 {
-	import com.rnlib.utils.XMLUtil;
+	import rnlib.utils.XMLUtil;
 
 	import tests.utils.xmlHelpers.Helper1;
 	import tests.utils.xmlHelpers.Helper2;

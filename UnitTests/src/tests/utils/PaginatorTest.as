@@ -23,7 +23,7 @@
  */
 package tests.utils
 {
-	import com.rnlib.utils.Paginator;
+	import rnlib.utils.Paginator;
 
 	import flash.events.Event;
 

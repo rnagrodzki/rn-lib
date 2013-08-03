@@ -23,8 +23,8 @@
  */
 package tests.net.remoteamfservice
 {
-	import com.rnlib.net.amf.AMFEvent;
-	import com.rnlib.net.amf.AMFRequest;
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.amf.AMFRequest;
 
 	import mockolate.ingredients.answers.MethodInvokingAnswer;
 	import mockolate.mock;

@@ -23,7 +23,7 @@
  */
 package tests.net.server
 {
-	import com.rnlib.net.amf.connections.AMFNetConnection;
+	import rnlib.net.amf.connections.AMFNetConnection;
 
 	public class ByteArrayPlaygroundNC extends ByteArrayPlayground
 	{

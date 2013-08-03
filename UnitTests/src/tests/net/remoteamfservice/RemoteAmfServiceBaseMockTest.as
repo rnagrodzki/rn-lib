@@ -23,9 +23,9 @@
  */
 package tests.net.remoteamfservice
 {
-	import com.rnlib.net.amf.AMFEvent;
-	import com.rnlib.net.amf.RemoteAmfService;
-	import com.rnlib.net.amf.connections.IAMFConnection;
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.amf.RemoteAmfService;
+	import rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.events.IEventDispatcher;
 

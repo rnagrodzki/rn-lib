@@ -3,8 +3,8 @@
  */
 package tests.net.remoteamfservice.plugins.vo
 {
-	import com.rnlib.net.plugins.INetMultipartPlugin;
-	import com.rnlib.net.plugins.INetPluginVO;
+	import rnlib.net.plugins.INetMultipartPlugin;
+	import rnlib.net.plugins.INetPluginVO;
 
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;

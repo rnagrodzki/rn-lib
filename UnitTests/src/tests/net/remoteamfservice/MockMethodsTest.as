@@ -3,8 +3,8 @@
  */
 package tests.net.remoteamfservice
 {
-	import com.rnlib.net.amf.AMFEvent;
-	import com.rnlib.net.amf.RemoteAmfService;
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.amf.RemoteAmfService;
 
 	import flash.utils.getTimer;
 

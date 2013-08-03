@@ -23,8 +23,8 @@
  */
 package tests.net.server
 {
-	import com.rnlib.net.amf.connections.AMFULConnection;
-	import com.rnlib.net.amf.connections.IAMFConnection;
+	import rnlib.net.amf.connections.AMFULConnection;
+	import rnlib.net.amf.connections.IAMFConnection;
 
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;

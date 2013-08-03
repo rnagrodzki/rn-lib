@@ -3,7 +3,7 @@
  */
 package tests.utils
 {
-	import com.rnlib.utils.ED;
+	import rnlib.utils.ED;
 
 	import flash.display.Sprite;
 	import flash.events.Event;

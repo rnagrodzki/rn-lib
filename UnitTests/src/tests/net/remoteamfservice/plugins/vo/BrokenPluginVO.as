@@ -23,7 +23,7 @@
  */
 package tests.net.remoteamfservice.plugins.vo
 {
-	import com.rnlib.net.plugins.INetPluginVO;
+	import rnlib.net.plugins.INetPluginVO;
 
 	public class BrokenPluginVO implements INetPluginVO
 	{

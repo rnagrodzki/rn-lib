@@ -23,9 +23,9 @@
  */
 package tests.net.remoteamfservice.plugins
 {
-	import com.rnlib.net.plugins.INetPlugin;
-	import com.rnlib.net.plugins.INetPluginFactory;
-	import com.rnlib.net.plugins.INetPluginVO;
+	import rnlib.net.plugins.INetPlugin;
+	import rnlib.net.plugins.INetPluginFactory;
+	import rnlib.net.plugins.INetPluginVO;
 
 	public class TestPluginFactory implements INetPluginFactory
 	{

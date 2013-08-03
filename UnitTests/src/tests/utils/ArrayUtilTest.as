@@ -23,7 +23,7 @@
  */
 package tests.utils
 {
-	import com.rnlib.utils.ArrayUtil;
+	import rnlib.utils.ArrayUtil;
 
 	import org.flexunit.Assert;
 

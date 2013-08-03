@@ -23,9 +23,9 @@
  */
 package tests.net
 {
-	import com.rnlib.net.amf.ReflexiveClient;
-	import com.rnlib.net.amf.connections.AMFNetConnection;
-	import com.rnlib.net.amf.AMFEvent;
+	import rnlib.net.amf.ReflexiveClient;
+	import rnlib.net.amf.connections.AMFNetConnection;
+	import rnlib.net.amf.AMFEvent;
 
 	import flash.events.Event;
 	import flash.net.NetConnection;
