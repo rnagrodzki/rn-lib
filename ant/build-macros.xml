@@ -7,7 +7,7 @@
                 <filelist dir="../">
                     <file name="ExternalLibs/ant/build.xml" />
                     <file name="RNLib/ant/build.xml" />
-                    <file name="Examples/ant/build.xml" />
+                    <!--<file name="Examples/ant/build.xml" />-->
                     <file name="UnitTests/ant/build.xml" />
                 </filelist>
                 <targets />

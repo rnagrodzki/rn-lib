@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
+ * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,9 +19,6 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
 
-/**
- * @author Rafal Nagrodzki (e-mail: rafal@nagrodzki.net)
- */
 package rnlib.utils
 {
 	import mx.core.IFactory;

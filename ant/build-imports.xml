@@ -1,10 +1,16 @@
 <!-- build-imports.xml: this file pulls in any definitions needed
     for this directory and its descendants. -->
 <project name="project.imports">
-    <property file="build-user.properties" />
 
+    <property file="build-user.properties" />
     <property name="asdoc.result.dir" location="${project.main.dir}/asdoc" />
 
-    <import file="tools/build-common-properties.xml" />
-    <import file="tools/build-common-tasks.xml" />
+
+    <path id="ext.swc">
+        <fileset dir="${project.main.dir}/bin/" includes="*.swc"/>
+        <fileset dir="${project.main.dir}/ExternalLibs/libs/" includes="*.swc"/>
+    </path>
+
+
+    <import file="tools/build-common-imports.xml" />
 </project>

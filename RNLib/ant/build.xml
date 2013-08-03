@@ -21,22 +21,23 @@
 
 <project name="rn.lib">
 
-    <property name="project.main.dir" location="../../" />
-    <property file="../../ant/build-user.properties" />
-    <property name="project.name" value="RNLib" />
-    <import file="../../ant/build-imports.xml" />
+    <property name="project.main.dir" location="../../"/>
+    <property file="../../ant/build-user.properties"/>
+    <property name="project.name" value="RNLib"/>
+    <import file="../../ant/build-imports.xml"/>
+    <import file="../../ant/build-macros.xml"/>
 
 
-    <path id="rn.lib.src.dir.id" path="../src" description="Path id to source folder" />
+    <path id="rn.lib.src.dir.id" path="../src" description="Path id to source folder"/>
     <pathconvert property="rn.lib.src.dir"
-                 refid="rn.lib.src.dir.id" dirsep="/" />
+                 refid="rn.lib.src.dir.id" dirsep="/"/>
 
-
-    <target name="build" >
-        <echo message="Run build target ${project.name}" />
+    <target name="build">
+        <echo message="Run build target ${project.name}"/>
         <compc dest="${project.main.dir}/bin/rn-lib.swc"
-               lib.path.id="rn.lib.src.dir.id"
-               src.dir="${rn.lib.src.dir}" />
+               lib.path.id="ext.swc"
+               src.dir="${rn.lib.src.dir}"
+               config="${air.config}"/>
     </target>
 
 
@@ -45,11 +46,12 @@
 
 
     <target name="asdoc">
-        <echo message="Generating ASDoc" />
+        <echo message="Generating ASDoc"/>
         <asdoc src.dir="${rn.lib.src.dir}"
                as.path="${rn.lib.src.dir}"
-               lib.path.id="rn.lib.src.dir.id"
-               dest.dir="${asdoc.result.dir}" />
+               lib.path.id="ext.swc"
+               dest.dir="${asdoc.result.dir}"
+               config="${air.config}"/>
     </target>
 
 </project>

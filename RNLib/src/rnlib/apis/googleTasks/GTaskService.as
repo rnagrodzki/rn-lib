@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
+ * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ package rnlib.apis.googleTasks
 
 		/**
 		 * List all tasks connected with specified list
-		 * @param listId If not specified <code>@default</code> is pass
+		 * @param listId If not specified <code>default</code> is pass
 		 *
 		 * @url https://developers.google.com/google-apps/tasks/v1/reference/
 		 */
