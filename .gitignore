@@ -3,3 +3,4 @@
 out
 asdoc
 bin
+/ant/build-user.properties
