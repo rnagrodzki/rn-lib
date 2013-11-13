@@ -21,14 +21,52 @@
 
 package rnlib.net.amf
 {
+	/**
+	 * Class for strict typing fault messages receiving from server.
+	 *
+	 * <p>Please notice that message will be rewrite only in fault handler.
+	 * VO is unavailable for errors like connection status 404 or 500 and so on.</p>
+	 *
+	 * @see rnlib.net.amf.RemoteAmfService
+	 */
 	public class AMFErrorVO
 	{
+		/**
+		 * Code of error if available.
+		 */
 		public var code:String;
+		/**
+		 * Description of error if available.
+		 */
 		public var description:String;
+		/**
+		 * Stack trace of error if available.
+		 */
 		public var details:Object;
+		/**
+		 * Level of message. Default should be <code>error</code>.
+		 */
 		public var level:String;
+		/**
+		 * Type of messages.
+		 */
 		public var type:String;
 
+		/**
+		 * Check if it's error object
+		 * @param obj
+		 * @return
+		 */
+		public static function isFault(obj:Object):Boolean
+		{
+			return obj.hasOwnProperty("level") && obj.level == "error";
+		}
+
+		/**
+		 * Rewrite object received from server on strict typed error.
+		 * @param obj
+		 * @return
+		 */
 		public static function rewrite(obj:Object):AMFErrorVO
 		{
 			if (!obj) return null;
@@ -54,11 +92,18 @@ package rnlib.net.amf
 			return vo;
 		}
 
+		/**
+		 * @private
+		 */
 		public function toLocaleString():Object
 		{
 			return super.toString();
 		}
 
+		/**
+		 * Override method for better tracing of errors.
+		 * @return
+		 */
 		public function toString():String
 		{
 			var msg:String = "[AMFErrorVO]"

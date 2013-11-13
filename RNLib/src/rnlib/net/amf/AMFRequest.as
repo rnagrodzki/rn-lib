@@ -23,20 +23,40 @@ package rnlib.net.amf
 	import rnlib.interfaces.IDisposable;
 	import rnlib.net.cache.rules.CacheRuleConstants;
 
+	/**
+	 * Object is creating after every remote method call.
+	 * <p>After receive reference to this object it's possible add extra params on result, fault, change priority set cache and so on.</p>
+	 *
+	 * @see rnlib.net.amf.RemoteAmfService
+	 */
 	public class AMFRequest implements IDisposable
 	{
+		/**
+		 * @private
+		 */
 		protected var _uid:int;
 
+		/**
+		 * @private
+		 * @param id
+		 */
 		public function AMFRequest(id:int)
 		{
 			_uid = id;
 		}
 
+		/**
+		 * Return unique identifier of request.
+		 * <p>The identifier is uniqe between all instances of RemoteAMFService.</p>
+		 */
 		public function get uid():int
 		{
 			return _uid;
 		}
 
+		/**
+		 * @private
+		 */
 		internal var extraResult:Array;
 
 		/**
@@ -50,6 +70,9 @@ package rnlib.net.amf
 			return this;
 		}
 
+		/**
+		 * @private
+		 */
 		internal var extraFault:Array;
 
 		/**
@@ -75,6 +98,9 @@ package rnlib.net.amf
 			return this;
 		}
 
+		/**
+		 * @private
+		 */
 		internal var requestSend:Boolean = false;
 
 		/**
@@ -85,11 +111,26 @@ package rnlib.net.amf
 			return requestSend;
 		}
 
+		/**
+		 * @private
+		 */
 		internal var _priority:int = 1;
+		/**
+		 * @private
+		 */
 		internal var updateQueue:Function;
 
+		/**
+		 * @private
+		 */
 		internal var cacheID:Object;
+		/**
+		 * @private
+		 */
 		internal var cacheStorageTime:int;
+		/**
+		 * @private
+		 */
 		internal var cacheTrigger:String = CacheRuleConstants.POLICY_NEVER;
 
 		/**
@@ -128,6 +169,9 @@ package rnlib.net.amf
 		//              <------ IDisposable ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @inheritDoc
+		 */
 		public function dispose():void
 		{
 			extraResult = null;

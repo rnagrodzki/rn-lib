@@ -40,6 +40,11 @@ package rnlib.net.amf.connections
 	[Event(name="reconnect", type="rnlib.net.amf.AMFEvent")]
 	[Event(name="header", type="rnlib.net.amf.AMFEvent")]
 
+	/**
+	 * Implementation of <code>IAMFConnection</code> based on <code>flash.net.NetConnection</code>.
+	 * <p>Gives all advantages and disadvantages of netConnection. Lack of upload and download progress
+	 * with problems of recognize lose connection but with real live transmission of data.</p>
+	 */
 	public class AMFNetConnection extends EventDispatcher implements IAMFConnection, IDisposable
 	{
 		private var _nc:NetConnection;

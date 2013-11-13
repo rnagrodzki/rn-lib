@@ -24,7 +24,11 @@ package rnlib.net.amf
 	import rnlib.queue.IQueue;
 
 	/**
+	 * @private
+	 *
 	 * Helper for data storage calls of remote methods
+	 *
+	 * @see rnlib.net.amf.RemoteAmfService
 	 */
 	public class MethodVO implements IDisposable
 	{

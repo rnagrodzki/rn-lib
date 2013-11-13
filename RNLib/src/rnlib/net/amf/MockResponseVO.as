@@ -21,6 +21,11 @@
 
 package rnlib.net.amf
 {
+	/**
+	 * Class created just in time for mock method of RemoteAMFService.
+	 *
+	 * @see rnlib.net.amf.RemoteAmfService
+	 */
 	public class MockResponseVO
 	{
 		/**
@@ -34,15 +39,15 @@ package rnlib.net.amf
 		public var success:Boolean;
 
 		/**
-		 * Array of arguments to pass as result.
+		 * Argument to pass as result.
 		 */
-		public var responseArgs:Array;
+		public var response:Object;
 
-		public function MockResponseVO(success:Boolean = true, interval:uint = 0, responseArgs:Array = null)
+		public function MockResponseVO(success:Boolean = true, interval:uint = 0, response:Object = null)
 		{
 			this.interval = interval;
 			this.success = success;
-			this.responseArgs = responseArgs;
+			this.response = response;
 		}
 
 	}

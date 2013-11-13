@@ -24,11 +24,12 @@ package rnlib.net.plugins
 
 	public class FileReferencePluginVO implements INetPluginVO
 	{
-		public function FileReferencePluginVO()
+		public function FileReferencePluginVO(fileReference:FileReference = null)
 		{
+			this.fileReference = fileReference;
 		}
 
-		public var fr:FileReference;
+		public var fileReference:FileReference;
 
 		private var _args:Array;
 

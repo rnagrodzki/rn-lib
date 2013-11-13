@@ -23,6 +23,7 @@ package rnlib.net.amf.processor
 	import rnlib.interfaces.IDisposable;
 
 	/**
+	 * @private
 	 * An AMFPacket represents a single AMF request made over an HTTP or
 	 * HTTPS connection. An AMFPacket can have multiple AMFHeaders followed by a
 	 * batch of multiple AMFMessages.

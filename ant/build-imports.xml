@@ -2,15 +2,26 @@
     for this directory and its descendants. -->
 <project name="project.imports">
 
-    <property file="build-user.properties" />
-    <property name="asdoc.result.dir" location="${project.main.dir}/asdoc" />
+    <fail message="Property project.main.dir wasn't set">
+        <condition>
+            <not>
+                <isset property="project.main.dir"/>
+            </not>
+        </condition>
+    </fail>
 
+    <pathconvert property="root.dir" dirsep="/">
+        <path location="${project.main.dir}"/>
+    </pathconvert>
 
-    <path id="ext.swc">
-        <fileset dir="${project.main.dir}/bin/" includes="*.swc"/>
-        <fileset dir="${project.main.dir}/ExternalLibs/libs/" includes="*.swc"/>
-    </path>
+    <echo message="root.dir: ${root.dir}"/>
 
+    <property name="main.ant.dir" location="${root.dir}/ant"/>
+    <property file="${main.ant.dir}/build-user.properties"/>
+    <property name="asdoc.result.dir" location="${root.dir}/asdoc"/>
+    <property name="bin.result.dir" location="${root.dir}/bin"/>
 
-    <import file="tools/build-common-imports.xml" />
+    <import file="tools/build-common-properties.xml"/>
+    <import file="tools/build-common-tasks.xml"/>
+    <import file="build-macros.xml"/>
 </project>

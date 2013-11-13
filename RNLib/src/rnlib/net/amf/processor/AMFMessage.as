@@ -25,6 +25,7 @@ package rnlib.net.amf.processor
 	import rnlib.interfaces.IDisposable;
 
 	/**
+	 * @private
 	 * An AMF packet level message. Request messages and response messages have the
 	 * same general structure.
 	 *

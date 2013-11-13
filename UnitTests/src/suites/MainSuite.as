@@ -35,14 +35,14 @@ package suites
 	[RunWith("org.flexunit.runners.Suite")]
 	public class MainSuite
 	{
-//		public var queue:QueueTest;
-//		public var arrayUtil:ArrayUtilTest;
-//		public var paginator:PaginatorTest;
-//		public var xmlUtil:XMLUtilTest;
-//		public var extendedNetConnection:AMFNetConnectionTest;
+		public var queue:QueueTest;
+		public var arrayUtil:ArrayUtilTest;
+		public var paginator:PaginatorTest;
+		public var xmlUtil:XMLUtilTest;
+		public var extendedNetConnection:AMFNetConnectionTest;
 		public var remoteAmfService:RemoteAmfServiceSuite;
-//		public var reflexiveClient:ReflexiveClientTest;
+		public var reflexiveClient:ReflexiveClientTest;
 //		public var amfServer:AmfServerSuite;
-		public var edTest:EDTest;
+//		public var edTest:EDTest;
 	}
 }

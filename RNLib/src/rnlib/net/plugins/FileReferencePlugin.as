@@ -43,10 +43,10 @@ package rnlib.net.plugins
 		{
 			_vo = vo as FileReferencePluginVO;
 
-			if (!_vo.fr.data)
+			if (!_vo.fileReference.data)
 			{
-				_vo.fr.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
-				_vo.fr.load();
+				_vo.fileReference.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
+				_vo.fileReference.load();
 			}
 			else
 			{
@@ -56,7 +56,7 @@ package rnlib.net.plugins
 
 		private function onComplete(e:Event):void
 		{
-			_vo.args.unshift(_vo.fr.data);
+			_vo.args.unshift(_vo.fileReference.data);
 			dispatchEvent(new NetPluginEvent(NetPluginEvent.COMPLETE));
 		}
 

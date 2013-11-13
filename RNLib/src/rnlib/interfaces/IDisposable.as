@@ -20,9 +20,14 @@
  **************************************************************************************************/
 package rnlib.interfaces
 {
-	// rnlib.interfaces.IDisposable
+	/**
+	 * Interface for supporting dispose objects.
+	 */
 	public interface IDisposable
 	{
+		/**
+		 * Dispose object making accessible it for Garbage Collector.
+		 */
 		function dispose():void;
 	}
 }

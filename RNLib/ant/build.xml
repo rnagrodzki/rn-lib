@@ -19,38 +19,65 @@
   * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   ***********************************************************************************************-->
 
-<project name="rn.lib">
+<project name="rn.lib" default="build-all">
 
     <property name="project.main.dir" location="../../"/>
-    <property file="../../ant/build-user.properties"/>
     <property name="project.name" value="RNLib"/>
     <import file="../../ant/build-imports.xml"/>
-    <import file="../../ant/build-macros.xml"/>
 
+    <pathconvert property="rn.lib.src.dir" dirsep="/">
+        <path location="${root.dir}/RNLib/src" />
+    </pathconvert>
 
-    <path id="rn.lib.src.dir.id" path="../src" description="Path id to source folder"/>
-    <pathconvert property="rn.lib.src.dir"
-                 refid="rn.lib.src.dir.id" dirsep="/"/>
+    <pathconvert property="rn.lib.examples.dir" dirsep="/">
+        <path location="${root.dir}/RNLib/asdoc-examples" />
+    </pathconvert>
 
     <target name="build">
         <echo message="Run build target ${project.name}"/>
-        <compc dest="${project.main.dir}/bin/rn-lib.swc"
+
+        <update-swcs-list main.dir="${root.dir}" />
+
+        <compc dest="${bin.result.dir}/rn-lib.swc"
                lib.path.id="ext.swc"
                src.dir="${rn.lib.src.dir}"
                config="${air.config}"/>
     </target>
 
+    <!-- build library and all dependencies -->
+    <target name="build-all">
+        <echo message="Run build target ${project.name}"/>
+        <compc dest="${bin.result.dir}/rn-lib.swc"
+               lib.path.id="ext.swc"
+               src.dir="${rn.lib.src.dir}"
+               config="${air.config}"/>
+    </target>
 
-    <target name="clear">
+    <target name="clear" depends="clear.asdoc, clear.rn.lib">
+    </target>
+
+    <target name="clear.rn.lib">
+        <echo  message="Clear bin directory" />
+        <delete dir="${bin.result.dir}" quiet="true" />
+    </target>
+
+    <target name="clear.asdoc">
+        <echo  message="Clear asdoc directory" />
+        <delete dir="${asdoc.result.dir}" quiet="true" />
     </target>
 
 
-    <target name="asdoc">
+    <target name="asdoc" depends="clear.asdoc">
         <echo message="Generating ASDoc"/>
+
+
+        <update-swcs-list main.dir="${root.dir}" />
+
         <asdoc src.dir="${rn.lib.src.dir}"
                as.path="${rn.lib.src.dir}"
                lib.path.id="ext.swc"
                dest.dir="${asdoc.result.dir}"
+               options="-examples-path ${rn.lib.examples.dir} -window-title 'RNLib API' -main-title 'RNLib API Documentation' -footer 'Author: Rafał Nagrodzki. Source files available on https://github.com/rnagrodzki/rn-lib'"
                config="${air.config}"/>
     </target>
 

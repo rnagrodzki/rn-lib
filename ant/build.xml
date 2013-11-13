@@ -1,13 +1,8 @@
 <project name="Main" default="build-all">
     <!-- Project specific overrides -->
-    <property name="root.dir" location="../"/>
+    <property name="project.main.dir" location="../"/>
 
-    <!-- Shared properties -->
-    <property file="build-user.properties" />
-
-    <!-- Common properties and targets -->
     <import file="build-imports.xml" />
-    <import file="build-macros.xml" />
 
     <!-- Project specific targets -->
     <target name="build-all" depends="build,asdocs" description="Build all targets" />

@@ -3,26 +3,19 @@
  */
 package tests.net.remoteamfservice
 {
-	import rnlib.net.amf.AMFEvent;
-	import rnlib.net.plugins.INetPlugin;
-	import rnlib.net.plugins.INetPluginVO;
-	import rnlib.net.plugins.NetPluginEvent;
-	import rnlib.net.plugins.NetPluginFactory;
-
-	import flash.events.EventDispatcher;
-	import flash.events.IEventDispatcher;
-
 	import flexunit.framework.Assert;
 
 	import mockolate.ingredients.answers.MethodInvokingAnswer;
 	import mockolate.mock;
-	import mockolate.stub;
-
-	import mx.core.ClassFactory;
 
 	import org.flexunit.async.Async;
 	import org.hamcrest.object.instanceOf;
 	import org.morefluent.integrations.flexunit4.after;
+
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.plugins.INetPluginVO;
+	import rnlib.net.plugins.NetPluginEvent;
+	import rnlib.net.plugins.NetPluginFactory;
 
 	import tests.net.remoteamfservice.plugins.*;
 	import tests.net.remoteamfservice.plugins.vo.MultipartBrokenPlugin;

@@ -20,6 +20,9 @@
  **************************************************************************************************/
 package rnlib.net.amf
 {
+	/**
+	 * @private
+	 */
 	public class ClientVO
 	{
 		public function ClientVO(name:String = null, arguments:* = null)

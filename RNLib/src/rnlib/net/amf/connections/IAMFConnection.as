@@ -22,7 +22,12 @@ package rnlib.net.amf.connections
 {
 	import flash.events.IEventDispatcher;
 
-	public interface IAMFConnection extends IEventDispatcher
+	import rnlib.interfaces.IDisposable;
+
+	/**
+	 * Interface for api consistency between all connection implementations.
+	 */
+	public interface IAMFConnection extends IEventDispatcher, IDisposable
 	{
 		//---------------------------------------------------------------
 		//              <------ CONNECTION ------>
@@ -35,13 +40,6 @@ package rnlib.net.amf.connections
 		function get connected():Boolean;
 
 		function call(command:String, result:Function = null, fault:Function = null, ...args):void;
-
-		/**
-		 * Dispose connection
-		 *
-		 * @see rnlib.interfaces.IDisposable
-		 */
-		function dispose():void;
 
 		//---------------------------------------------------------------
 		//              <------ RECONNECT REPEAT COUNT ------>

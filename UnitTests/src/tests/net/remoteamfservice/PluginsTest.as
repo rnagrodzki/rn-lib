@@ -23,6 +23,7 @@
  */
 package tests.net.remoteamfservice
 {
+	import rnlib.net.amf.AMFErrorVO;
 	import rnlib.net.amf.AMFEvent;
 	import rnlib.net.plugins.INetPlugin;
 	import rnlib.net.plugins.INetPluginVO;
@@ -104,7 +105,7 @@ package tests.net.remoteamfservice
 			mock(plugin).method("init")
 					.args(instanceOf(INetPluginVO))
 					.dispatches(new NetPluginEvent(NetPluginEvent.CANCEL, _passOnFault), 10);
-			mock(plugin).getter("args").returns([_passOnResult]);
+			mock(plugin).getter("args").returns([_passOnFault]);
 
 			_calledRemoteMethod = service.service + ".testPlugin";
 			service.pluginsFactories = [new TestPluginFactory(plugin, TestPluginVO)];

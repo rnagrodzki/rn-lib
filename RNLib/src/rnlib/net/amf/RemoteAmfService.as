@@ -78,8 +78,22 @@ package rnlib.net.amf
 
 	use namespace flash_proxy;
 
+	/**
+	 * Class is replacement for RemoteService in Flex and huge extension for NetConnection in flash.
+	 *
+	 * @includeExample service/RegisteringRemoteMethods.as
+	 * @includeExample service/AdvancedUsage.as
+	 *
+	 * @see rnlib.net.amf.AMFRequest
+	 */
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport, IDisposable
 	{
+		/**
+		 * Determine if requests in queue should execute
+		 * after received fault from pending request.
+		 */
+		public var continueAfterFault:Boolean = false;
+
 		/**
 		 * @private
 		 */
@@ -119,6 +133,9 @@ package rnlib.net.amf
 		 */
 		public var proceedAfterError:Boolean = true;
 
+		/**
+		 * @private
+		 */
 		public function RemoteAmfService()
 		{
 			defaultMethods();
@@ -144,6 +161,18 @@ package rnlib.net.amf
 		//              <------ CONNECTION ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Allow user to set own implementation of <code>IAMFConnection</code>.
+		 * <p>This giving advantages of pre process data received from server before reach
+		 * to all mechanic this class.</p>
+		 * <p>In theory is possible exchange amf connection with any type of connection
+		 * including xml-socket and json. Be aware that I never tried this :)</p>
+		 *
+		 * @default rnlib.net.amf.connections.AMFULConnection
+		 *
+		 * @see rnlib.net.amf.connections.AMFULConnection
+		 * @see rnlib.net.amf.connections.AMFNetConnection
+		 */
 		public function get connection():IAMFConnection
 		{
 			return _nc;
@@ -177,6 +206,9 @@ package rnlib.net.amf
 			}
 		}
 
+		/**
+		 * @private
+		 */
 		protected function disconnect():void
 		{
 			if (_nc)
@@ -187,8 +219,15 @@ package rnlib.net.amf
 		//              <------ SILENT IGNORE ERRORS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		private var _silentIgnoreErrors:Boolean = false;
 
+		/**
+		 * Setup if errors like <code>404</code>, <code>500</code> and others retrieved
+		 * from server should be captured and silently ignored.
+		 */
 		public function get silentIgnoreErrors():Boolean
 		{
 			return _silentIgnoreErrors;
@@ -201,6 +240,9 @@ package rnlib.net.amf
 			else removeErrorEvents();
 		}
 
+		/**
+		 * @private
+		 */
 		protected function registerErrorEvents():void
 		{
 			addEventListener(IOErrorEvent.IO_ERROR, onIOError);
@@ -208,6 +250,9 @@ package rnlib.net.amf
 			addEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
 		}
 
+		/**
+		 * @private
+		 */
 		protected function removeErrorEvents():void
 		{
 			removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
@@ -215,18 +260,23 @@ package rnlib.net.amf
 			removeEventListener(HTTPStatusEvent.HTTP_STATUS, onStatus);
 		}
 
-		protected function onIOError(ev:IOErrorEvent):void
-		{
-		}
+		/**
+		 * @private
+		 * @param ev
+		 */
+		protected function onIOError(ev:IOErrorEvent):void {}
 
-		protected function onSecurityError(ev:SecurityErrorEvent):void
-		{
-		}
+		/**
+		 * @private
+		 * @param ev
+		 */
+		protected function onSecurityError(ev:SecurityErrorEvent):void {}
 
-		protected function onStatus(e:HTTPStatusEvent):void
-		{
-
-		}
+		/**
+		 * @private
+		 * @param e
+		 */
+		protected function onStatus(e:HTTPStatusEvent):void {}
 
 		//---------------------------------------------------------------
 		//              	<------ CURSORS ------>
@@ -237,6 +287,9 @@ package rnlib.net.amf
 		 */
 		protected var _showBusyCursor:Boolean = true;
 
+		/**
+		 * Indicates whether operation should show the busy cursor while it is executing.
+		 */
 		public function get showBusyCursor():Boolean
 		{
 			return _showBusyCursor;
@@ -256,6 +309,11 @@ package rnlib.net.amf
 		 */
 		protected static var _currentCursorID:int = -1;
 
+		/**
+		 * @private
+		 *
+		 * @see #removeCursor()
+		 */
 		protected function showCursor():void
 		{
 			if (_currentCursorID != -1) removeCursor();
@@ -272,8 +330,12 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
+		 *
 		 * Method implemented because standard CursorManager.removeBusyCursor()
 		 * doesn't work.
+		 *
+		 * @see #showCursor()
 		 */
 		protected function removeCursor():void
 		{
@@ -287,8 +349,14 @@ package rnlib.net.amf
 		//              <------ CACHE MANAGER ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		protected var _cacheManager:IResponseCacheManager;
 
+		/**
+		 * Custom implementation of cache manager.
+		 */
 		public function get cacheManager():IResponseCacheManager
 		{
 			return _cacheManager;
@@ -303,6 +371,9 @@ package rnlib.net.amf
 		//              <------ DEVELOPER INTERFACE METHODS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		private function defaultMethods():void
 		{
 			_defaultMethods = [
@@ -492,9 +563,13 @@ package rnlib.net.amf
 		/**
 		 * Pause execute requests in queue. Please notice that method take effect
 		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>
+		 * or <code>RequestConcurrency.MULTIPLE</code>
 		 *
 		 * @see #concurrency
+		 * @see #queue
+		 * @see #resume()
 		 * @see rnlib.net.RequestConcurrency#QUEUE
+		 * @see rnlib.net.RequestConcurrency#MULTIPLE
 		 */
 		public function pause():void
 		{
@@ -503,12 +578,15 @@ package rnlib.net.amf
 
 		/**
 		 * Resume execute requests in queue. Please notice that method take effect
-		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>.
+		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>
+		 * or <code>RequestConcurrency.MULTIPLE</code>.
 		 * If in queue are any requests after call this method they will be execute.
 		 *
 		 * @see #concurrency
 		 * @see #queue
+		 * @see #pause()
 		 * @see rnlib.net.RequestConcurrency#QUEUE
+		 * @see rnlib.net.RequestConcurrency#MULTIPLE
 		 */
 		public function resume():void
 		{
@@ -526,6 +604,12 @@ package rnlib.net.amf
 		 * Declare service for remote calls. If not set all calls
 		 * of remote method will be interpret as calling global
 		 * remote methods and not method of remote service.
+		 *
+		 * @example
+		 * <listing version="3.0">
+		 * var ras : RemoteAmfService = new RemoteAmfService();
+		 * ras.service = "MyRemoteService";
+		 * </listing>
 		 */
 		public function get service():String
 		{
@@ -547,7 +631,12 @@ package rnlib.net.amf
 
 		/**
 		 * AMF endpoint.
-		 * @example endpoint = "http://myhost.com/amf"
+		 *
+		 * @example
+		 * <listing version="3.0">
+		 * var ras : RemoteAmfService = new RemoteAmfService();
+		 * ras.endpoint = "http://example.com/gateway";
+		 * </listing>
 		 */
 		public function get endpoint():String
 		{
@@ -575,7 +664,8 @@ package rnlib.net.amf
 		protected var _result:Function;
 
 		/**
-		 * Global result handler for all invoke remote methods
+		 * Global result handler for all invoke remote methods.
+		 * <p>If wasn't setup custom handler for result this one will be called.</p>
 		 */
 		public function get result():Function
 		{
@@ -593,7 +683,8 @@ package rnlib.net.amf
 		protected var _fault:Function;
 
 		/**
-		 * Global fault handler for all invoke remote methods
+		 * Global fault handler for all invoke remote methods.
+		 * <p>If wasn't setup custom handler for fault this one will be called.</p>
 		 */
 		public function get fault():Function
 		{
@@ -609,6 +700,9 @@ package rnlib.net.amf
 		//              <------ AMF HEADERS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		private var _amfHeaders:Array; // Array of AMFHeader
 
 		/**
@@ -660,7 +754,7 @@ package rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
-		 * Set credentials
+		 * Set credentials for all amf requests. It's system of security build into amf.
 		 * @param user user name
 		 * @param password password
 		 */
@@ -675,6 +769,8 @@ package rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
+		 * @private
+		 *
 		 * Method which check if is registered Plugin for given PluginVO
 		 * @param rest
 		 * @return <code>-1</code> if not found PluginVO, <code>1</code> if founded PluginVO
@@ -708,6 +804,8 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
+		 *
 		 * Method responsible for transparent call remote methods
 		 * @param name
 		 * @param rest
@@ -813,11 +911,17 @@ package rnlib.net.amf
 
 		/**
 		 * @private
+		 * Execute methods or added them to queue if is more connections than <code>maxConnections</code>
+		 *
 		 * @param vo
 		 */
 		protected function concurrencyQueue(vo:MethodVO):void
 		{
-			if (_isPendingRequest || _isPaused)
+			if (_isPaused)
+				_queue.push(vo);
+			if (_maxConnections && _activeConnections >= _maxConnections)
+				_queue.push(vo);
+			else if (_isPendingRequest)
 				_queue.push(vo);
 			else
 				callAsyncRemoteMethod(vo);
@@ -825,6 +929,8 @@ package rnlib.net.amf
 
 		/**
 		 * @private
+		 * Stop silently previous request if is any pending and call new one.
+		 *
 		 * @param vo
 		 */
 		protected function concurrencyLast(vo:MethodVO):void
@@ -835,6 +941,8 @@ package rnlib.net.amf
 
 		/**
 		 * @private
+		 * Stop previous request calling fault if was anyone and call new one.
+		 *
 		 * @param vo
 		 */
 		protected function concurrencySingle(vo:MethodVO):void
@@ -849,7 +957,7 @@ package rnlib.net.amf
 		 */
 		protected function concurrencyMultiple(vo:MethodVO):void
 		{
-			if (_maxConnections && _activeConnections >= _maxConnections)
+			if (_maxConnections && _activeConnections >= _maxConnections || _isPaused)
 			{
 				_queue.push(vo);
 				return;
@@ -862,10 +970,24 @@ package rnlib.net.amf
 		//              <------ MAX CONNECTIONS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		protected var _activeConnections:uint;
 
+		/**
+		 * @private
+		 */
 		private var _maxConnections:uint = 0;
 
+		/**
+		 * Determine how many connections can run at same time.
+		 * <p>This setting is used only for queue and multiple concurrency.</p>
+		 *
+		 * @see #concurrency
+		 * @see rnlib.net.RequestConcurrency#QUEUE
+		 * @see rnlib.net.RequestConcurrency#MULTIPLE
+		 */
 		public function get maxConnections():uint
 		{
 			return _maxConnections;
@@ -887,6 +1009,7 @@ package rnlib.net.amf
 		protected var _asyncCallerID:Dictionary = new Dictionary();
 
 		/**
+		 * @private
 		 * Make truly asynchronous calling remote method
 		 * @param vo
 		 */
@@ -898,6 +1021,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Handler for asynchronous call remote method cleaning up all mess.
 		 * Method never should be call directly by developer.
 		 * @param vo
@@ -918,6 +1042,7 @@ package rnlib.net.amf
 		public var separator:String = ".";
 
 		/**
+		 * @private
 		 * Invoke register remote method
 		 * @param vo
 		 * @param plugin
@@ -967,6 +1092,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Method responsible for check request if is mocked.
 		 * @param vo
 		 * @param userArgs
@@ -985,7 +1111,10 @@ package rnlib.net.amf
 			 * Value object created by mock generate function.
 			 * Contains all necessary values to call response method.
 			 */
-			var mockVO:MockResponseVO = h.mockGenerationFunc.apply(null, userArgs);
+			var mockVO:MockResponseVO = h.mockGenerationFunc.apply(null, userArgs) as MockResponseVO;
+
+			if(!mockVO)
+				throw new ArgumentError("Mock method must return result as MockResponseVO object");
 
 			if (mockVO.interval == 0)
 				executeMockImpl(vo, mockVO);
@@ -996,6 +1125,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Call response handlers with passed data.
 		 * @param vo
 		 * @param mock
@@ -1003,12 +1133,13 @@ package rnlib.net.amf
 		protected function executeMockImpl(vo:ResultMediatorVO, mock:MockResponseVO):void
 		{
 			if (mock.success)
-				onResult(mock.responseArgs, vo.name, vo.id, vo.uid);
+				onResult(mock.response, vo.name, vo.id, vo.uid);
 			else
-				onFault(mock.responseArgs, vo.name, vo.id, vo.uid);
+				onFault(mock.response, vo.name, vo.id, vo.uid);
 		}
 
 		/**
+		 * @private
 		 * Encapsulate rewriting MethodVO object on ResultMediatorVO
 		 * and registering new instance in _requests Dictionary
 		 *
@@ -1035,6 +1166,7 @@ package rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
+		 * @private
 		 * End of lifecycle single method call notifying about fault
 		 * @param vo
 		 * @param data
@@ -1048,6 +1180,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Global handler for IMultipartPlugins
 		 * @param plugin
 		 * @param r Object with result
@@ -1079,6 +1212,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Global handler for IMultipartPlugins
 		 * @param plugin
 		 * @param f Object with fault information
@@ -1116,6 +1250,7 @@ package rnlib.net.amf
 		protected var _plugins:Dictionary = new Dictionary();
 
 		/**
+		 * @private
 		 * Plugin can execute asynchronously methods so we wait until dispatch event
 		 * that is ready to go
 		 * @param vo
@@ -1155,6 +1290,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Encapsulate disposing plugin
 		 * @param plugin INetPlugin to dispose
 		 */
@@ -1174,6 +1310,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Encapsulate register plugin handlers
 		 * @param plugin
 		 */
@@ -1194,6 +1331,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Encapsulate remove plugin handlers
 		 * @param plugin
 		 */
@@ -1214,10 +1352,11 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * If plugin cancel operation is forced call fault handler
 		 * @param e
 		 */
-		private function onPluginCancel(e:NetPluginEvent):void
+		protected function onPluginCancel(e:NetPluginEvent):void
 		{
 			var plugin:INetPlugin = e.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
@@ -1230,10 +1369,11 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * We will proceed only on ready/complete event
 		 * @param e
 		 */
-		private function onPluginComplete(e:NetPluginEvent):void
+		protected function onPluginComplete(e:NetPluginEvent):void
 		{
 			var plugin:INetPlugin = e.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
@@ -1254,6 +1394,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * MultipartPlugin is ready to share arguments for remote method
 		 * @param e
 		 */
@@ -1278,6 +1419,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * MultipartPlugin finish successfully his work
 		 * @param e
 		 */
@@ -1298,6 +1440,7 @@ package rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
+		 * @private
 		 * Global internal result handler
 		 * @param result Response from server
 		 * @param name Name remote method
@@ -1337,8 +1480,10 @@ package rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
-			vo.request.dispose();
-			vo.dispose();
+			if(vo && vo.request)
+				vo.request.dispose();
+			if(vo)
+				vo.dispose();
 			_activeConnections -= 1;
 
 			if (_queue && _queue.length > 0 && !_isPaused)
@@ -1349,12 +1494,7 @@ package rnlib.net.amf
 		}
 
 		/**
-		 * Determine if requests in queue should execute
-		 * after received fault from pending request
-		 */
-		public var continueAfterFault:Boolean = false;
-
-		/**
+		 * @private
 		 * Global internal fault handler
 		 * @param fault Response from server
 		 * @param name Name remote method
@@ -1378,7 +1518,7 @@ package rnlib.net.amf
 				return;
 			}
 
-			var res:Array = [AMFErrorVO.rewrite(fault)];
+			var res:Array = AMFErrorVO.isFault(fault) ? [AMFErrorVO.rewrite(fault)] : [fault];
 			if (vo.request.extraFault)
 			{
 				res = res.concat(vo.request.extraFault);
@@ -1411,8 +1551,9 @@ package rnlib.net.amf
 		//---------------------------------------------------------------
 
 		/**
+		 * @private
 		 * Ignore all pending requests
-		 * @param callFault
+		 * @param callFault Determine if have to call fault handler after cancel request.
 		 */
 		protected function ignoreAllPendingRequests(callFault:Boolean = true):void
 		{
@@ -1441,26 +1582,41 @@ package rnlib.net.amf
 		//       <------ IMPLEMENT EVENT DISPATCHER METHODS ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * @private
+		 */
 		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
 		{
 			_dispatcher.addEventListener.apply(null, arguments);
 		}
 
+		/**
+		 * @private
+		 */
 		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void
 		{
 			_dispatcher.removeEventListener.apply(null, arguments);
 		}
 
+		/**
+		 * @private
+		 */
 		public function dispatchEvent(event:Event):Boolean
 		{
 			return _dispatcher.dispatchEvent(event);
 		}
 
+		/**
+		 * @private
+		 */
 		public function hasEventListener(type:String):Boolean
 		{
 			return _dispatcher.hasEventListener(type);
 		}
 
+		/**
+		 * @private
+		 */
 		public function willTrigger(type:String):Boolean
 		{
 			return _dispatcher.willTrigger(type);
@@ -1477,7 +1633,7 @@ package rnlib.net.amf
 		protected var _pluginsFactories:Array;
 
 		/**
-		 * Collection of plugins associated with this object
+		 * Collection of plugins associated with this object.
 		 */
 		public function get pluginsFactories():Array
 		{
@@ -1493,12 +1649,20 @@ package rnlib.net.amf
 				_pluginsFactories = null;
 		}
 
+		/**
+		 * @private
+		 * @param item
+		 * @param index
+		 * @param array
+		 * @return
+		 */
 		private static function filterPlugins(item:*, index:int, array:Array):Boolean
 		{
 			return item is INetPluginFactory;
 		}
 
 		/**
+		 * @private
 		 * Check if passed ValueObject is supported by any registered INetPlugin
 		 * @param vo
 		 * @return
@@ -1514,6 +1678,7 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
 		 * Find matching plugin to passed ValueObject
 		 * @param vo
 		 * @return
@@ -1532,6 +1697,11 @@ package rnlib.net.amf
 		//              <------ TO STRING ------>
 		//---------------------------------------------------------------
 
+		/**
+		 * Overrated default method in purpose pass detailed information
+		 * about state and main settings of component.
+		 * @return Detailed description
+		 */
 		public function toString():String
 		{
 			var methods:String = "";
@@ -1539,15 +1709,18 @@ package rnlib.net.amf
 				methods += "\n\t\t" + name;
 
 			var str:String = "[RemoteAmfService]"
-					+ "\n\t* endpoint:\t" + (_endpoint || "--not set--")
-					+ "\n\t* service:\t" + (_service || "--not set--")
-					+ "\n\t* concurrency:\t" + (_concurrency || "--not set--")
-					+ "\n\t* register plugins:\t" + (_pluginsFactories || "[]")
-					+ "\n\t* registered methods:" + methods
-			;
+							+ "\n\t* endpoint:\t" + (_endpoint || "--not set--")
+							+ "\n\t* service:\t" + (_service || "--not set--")
+							+ "\n\t* concurrency:\t" + (_concurrency || "--not set--")
+							+ "\n\t* register plugins:\t" + (_pluginsFactories || "[]")
+							+ "\n\t* registered methods:" + methods
+					;
 			return str;
 		}
 
+		/**
+		 * @private
+		 */
 		public function toLocaleString():Object
 		{
 			return toString();

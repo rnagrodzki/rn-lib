@@ -15,4 +15,14 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="update-swcs-list">
+        <attribute name="main.dir" />
+        <sequential>
+            <path id="ext.swc">
+                <fileset dir="@{main.dir}/bin/" includes="*.swc"/>
+                <fileset dir="@{main.dir}/ExternalLibs/libs/" includes="*.swc"/>
+            </path>
+        </sequential>
+    </macrodef>
+
 </project>

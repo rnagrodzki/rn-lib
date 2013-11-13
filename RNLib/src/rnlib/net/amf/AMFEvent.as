@@ -22,6 +22,11 @@ package rnlib.net.amf
 {
 	import flash.events.Event;
 
+	/**
+	 * Event dispatching by <code>RemoteAMFService.</code>
+	 *
+	 * @see rnlib.net.amf.RemoteAmfService
+	 */
 	public class AMFEvent extends Event
 	{
 		public static const RECONNECT:String = "reconnect";
@@ -30,7 +35,7 @@ package rnlib.net.amf
 		public static const PARSE_ERROR:String = "parseError";
 
 		/**
-		 * Service received header from response from server
+		 * Service received header from server
 		 */
 		public static const HEADER:String = "header";
 
@@ -40,17 +45,20 @@ package rnlib.net.amf
 		public static const RESULT:String = "result";
 
 		/**
-		 * Service received response from server
+		 * Service received fault from server
 		 */
 		public static const FAULT:String = "fault";
 
 		/**
-		 * Unique identifier of remote call
+		 * Unique identifier of remote call.
+		 * <p>If not set has default value.</p>
+		 *
+		 * @default -1
 		 */
 		public var uid:int = -1;
 
 		/**
-		 * Data pass to event
+		 * Data passed to event.
 		 */
 		public var data:Object;
 
@@ -61,6 +69,10 @@ package rnlib.net.amf
 			this.data = data;
 		}
 
+		/**
+		 * Clone event.
+		 * @return
+		 */
 		override public function clone():Event
 		{
 			return new AMFEvent(type, uid, data, bubbles, cancelable);

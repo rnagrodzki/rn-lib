@@ -34,11 +34,11 @@ package suites
 	[RunWith("org.flexunit.runners.Suite")]
 	public class RemoteAmfServiceSuite
 	{
-//		public var base:RemoteAmfServiceTest;
-//		public var unpredictableUsages:UnpredictableUsageCases;
-//		public var plugins:PluginsTest;
+		public var base:RemoteAmfServiceTest;
+		public var unpredictableUsages:UnpredictableUsageCases;
+		public var plugins:PluginsTest;
 //		public var pluginException:PluginExceptionTest;
-//		public var request:AMFRequestTest;
+		public var request:AMFRequestTest;
 		public var mock:MockMethodsTest;
 	}
 }

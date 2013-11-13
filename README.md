@@ -9,6 +9,6 @@
 Source distributed under MIT License.
 Please read LICENSE file.
 
-## Documentation
+## Documentation & Examples
 
-[RNLib asdoc](http://labs.nagrodzki.net/rnlib)
+[RNLib asdoc](http://labs.nagrodzki.net/rnlib) include examples for specific classes.

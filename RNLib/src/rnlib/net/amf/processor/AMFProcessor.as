@@ -23,6 +23,10 @@ package rnlib.net.amf.processor
 	import flash.net.ObjectEncoding;
 	import flash.utils.ByteArray;
 
+	/**
+	 * @private
+	 * All kind of magic to read/write data.
+	 */
 	public class AMFProcessor
 	{
 		private static const UNKNOWN_CONTENT_LENGTH:int = -1;

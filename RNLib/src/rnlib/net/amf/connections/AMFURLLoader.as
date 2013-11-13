@@ -41,6 +41,9 @@ package rnlib.net.amf.connections
 	import flash.net.URLRequestMethod;
 	import flash.utils.ByteArray;
 
+	/**
+	 * @private
+	 */
 	internal class AMFURLLoader extends EventDispatcher implements IDisposable
 	{
 		private var _loader:URLLoader = new URLLoader();

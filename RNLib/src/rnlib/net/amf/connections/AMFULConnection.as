@@ -32,6 +32,12 @@ package rnlib.net.amf.connections
 
 	import mx.core.ClassFactory;
 
+	/**
+	 * Implementation of <code>IAMFConnection</code> based on <code>flash.net.URLLoader</code>.
+	 * <p>This implementation is replacement for connection based on <code>flash.net.NetConnection</code>.
+	 * The connection gives more flexibility with catching errors and extend connection with download progress.</p>
+	 * <p></p>
+	 */
 	public class AMFULConnection extends EventDispatcher implements IAMFConnection, IDisposable
 	{
 		protected var _factory:ClassFactory;

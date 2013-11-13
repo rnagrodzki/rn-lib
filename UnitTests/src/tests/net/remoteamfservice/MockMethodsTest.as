@@ -4,6 +4,7 @@
 package tests.net.remoteamfservice
 {
 	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.amf.MockResponseVO;
 	import rnlib.net.amf.RemoteAmfService;
 
 	import flash.utils.getTimer;
@@ -28,11 +29,11 @@ package tests.net.remoteamfservice
 		public function afterTest():void
 		{
 			trace("afterTest", getTimer());
-//			service.dispose();
-//			service = null;
+			service.dispose();
+			service = null;
 		}
 
-		/*[Test(async)]
+		[Test(async)]
 		public function basicTest():void
 		{
 			trace("basicTest", getTimer());
@@ -42,8 +43,8 @@ package tests.net.remoteamfservice
 			Async.failOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
 			Async.handleEvent(this, service, AMFEvent.RESULT, finalAssertionOnResult, TIMEOUT);
 
-			service.test_mock();
-		}*/
+			service.test_mock("test");
+		}
 
 		[Test(async)]
 		public function basicTest2():void
@@ -63,10 +64,13 @@ package tests.net.remoteamfservice
 			trace("finalAssertionOnResult", getTimer());
 		}
 
-		protected function prepareBasicMockData(data:String):Array
+		protected function prepareBasicMockData(data:String):MockResponseVO
 		{
 			trace("prepareBasicMockData", getTimer());
-			return [true, 500, "passed txt"];
+			Assert.assertEquals("test", data);
+			var vo:MockResponseVO = new MockResponseVO(true, 500, "passed txt");
+
+			return vo;
 		}
 
 		protected function basicTestResult(data:Object):void

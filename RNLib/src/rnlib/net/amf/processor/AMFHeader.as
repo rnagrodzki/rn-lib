@@ -23,6 +23,7 @@ package rnlib.net.amf.processor
 	import rnlib.interfaces.IDisposable;
 
 	/**
+	 * @private
 	 * An AMF packet level header. Request and response headers have an identical
 	 * structure.
 	 *
