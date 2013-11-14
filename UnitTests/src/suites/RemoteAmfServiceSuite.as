@@ -27,6 +27,7 @@ package suites
 	import tests.net.remoteamfservice.MockMethodsTest;
 	import tests.net.remoteamfservice.PluginsTest;
 	import tests.net.remoteamfservice.RemoteAmfServiceTest;
+	import tests.net.remoteamfservice.ServiceProxyImplTest;
 	import tests.net.remoteamfservice.UnpredictableUsageCases;
 	import tests.net.remoteamfservice.PluginExceptionTest;
 
@@ -35,6 +36,7 @@ package suites
 	public class RemoteAmfServiceSuite
 	{
 		public var base:RemoteAmfServiceTest;
+		public var proxy:ServiceProxyImplTest;
 		public var unpredictableUsages:UnpredictableUsageCases;
 		public var plugins:PluginsTest;
 //		public var pluginException:PluginExceptionTest;

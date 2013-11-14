@@ -124,6 +124,12 @@ package rnlib.net.amf
 		 */
 		protected var _requests:Dictionary = new Dictionary();
 
+		/**
+		 * @private
+		 * Attribute to keep all dynamic attributes pass to instance
+		 */
+		protected var _dynamicProperties:Object = {};
+
 		private var _reqCount:int = 0;
 
 		private static var _CALL_UID:int = 0;
@@ -875,8 +881,7 @@ package rnlib.net.amf
 		 */
 		override flash_proxy function setProperty(name:*, value:*):void
 		{
-			if (hasOwnProperty(name))
-				super.flash_proxy::setProperty(name, value);
+			_dynamicProperties[name] = value;
 		}
 
 		/**
@@ -886,10 +891,23 @@ package rnlib.net.amf
 		 */
 		override flash_proxy function getProperty(name:*):*
 		{
-			if (hasOwnProperty(name))
-				return super.flash_proxy::getProperty(name);
+			if(_dynamicProperties[name])
+				return _dynamicProperties[name];
+			else if(_remoteMethods[name])
+				return prepareDynamicFunctionForRemoteMethod(name);
+		}
 
-			return undefined;
+		/**
+		 * @private
+		 * @param name
+		 * @return
+		 */
+		protected function prepareDynamicFunctionForRemoteMethod(name:String):*
+		{
+			var f:Function = function (...rest):AMFRequest {
+				return callProperty.apply(this, [name].concat(rest));
+			};
+			return f;
 		}
 
 		/**
@@ -901,8 +919,52 @@ package rnlib.net.amf
 		{
 			if (_defaultMethods.lastIndexOf(name) >= 0)
 				return true;
+			else if(_dynamicProperties[name])
+				return true;
 
 			return Boolean(_remoteMethods[name]);
+		}
+
+		/**
+		 * @private
+		 * @param name
+		 * @return
+		 */
+		override flash_proxy function deleteProperty(name:*):Boolean
+		{
+			if(_dynamicProperties[name])
+				return delete _dynamicProperties[name];
+			return false;
+		}
+
+		/**
+		 * @private
+		 * @param index
+		 * @return
+		 */
+		override flash_proxy function nextValue(index:int):*
+		{
+			return _dynamicProperties.nextValue(index);
+		}
+
+		/**
+		 * @private
+		 * @param index
+		 * @return
+		 */
+		override flash_proxy function nextName(index:int):String
+		{
+			return _dynamicProperties.nextName(index);
+		}
+
+		/**
+		 * @private
+		 * @param index
+		 * @return
+		 */
+		override flash_proxy function nextNameIndex(index:int):int
+		{
+			return _dynamicProperties.nextNameIndex(index);
 		}
 
 		//---------------------------------------------------------------
@@ -911,8 +973,9 @@ package rnlib.net.amf
 
 		/**
 		 * @private
-		 * Execute methods or added them to queue if is more connections than <code>maxConnections</code>
-		 *
+		 * Execute methods or added them to queue if is more connections than <code>maxConnections</code>.
+		 * Please notice that concurrency set to <code>multiple</code> with set up <code>maxConnections</code>
+		 * is working that same way as queue concurrency with maxConnections.
 		 * @param vo
 		 */
 		protected function concurrencyQueue(vo:MethodVO):void
@@ -1747,6 +1810,11 @@ package rnlib.net.amf
 				_remoteMethods[vo.name] = null;
 				delete _remoteMethods[vo.name];
 				vo.dispose();
+			}
+
+			for each (var key:* in _dynamicProperties)
+			{
+				delete _dynamicProperties[key];
 			}
 
 			for each (var factory:INetPluginFactory in _pluginsFactories)
