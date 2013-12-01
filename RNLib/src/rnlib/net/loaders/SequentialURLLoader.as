@@ -21,8 +21,8 @@
 package rnlib.net.loaders
 {
 	import rnlib.interfaces.IDisposable;
-	import rnlib.queue.IQueue;
-	import rnlib.queue.PriorityQueue;
+	import rnlib.collections.IDataCollection;
+	import rnlib.collections.PriorityQueue;
 
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -37,7 +37,7 @@ package rnlib.net.loaders
 
 	public class SequentialURLLoader extends EventDispatcher implements IDisposable
 	{
-		protected var _queue:IQueue;
+		protected var _queue:IDataCollection;
 		protected var _urlLoader:URLLoader;
 		protected var _request:URLRequest;
 
@@ -57,7 +57,7 @@ package rnlib.net.loaders
 		}
 
 		/**
-		 * Add new url or URLRequest object to queue of requests
+		 * Add new url or URLRequest object to collections of requests
 		 * @param item
 		 */
 		protected function addRequest(item:Object):void
@@ -71,7 +71,7 @@ package rnlib.net.loaders
 		}
 
 		/**
-		 * Start loading requests in queue
+		 * Start loading requests in collections
 		 */
 		public function load():void
 		{
@@ -136,7 +136,7 @@ package rnlib.net.loaders
 		}
 
 		/**
-		 * If set to <code>true</code> if error receive jump to next request in queue
+		 * If set to <code>true</code> if error receive jump to next request in collections
 		 * and continue execute other requests. Default value is <code>false</code>.
 		 */
 		public var proceedAfterError:Boolean = false;

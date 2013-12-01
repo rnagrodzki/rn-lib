@@ -148,7 +148,7 @@ package rnlib.net.amf
 
 		/**
 		 * Set specific priority of request.
-		 * <p>Change can be affected only before added to request queue.
+		 * <p>Change can be affected only before added to request collections.
 		 * It means that in next frame change can't be made.</p>
 		 * @param priority
 		 * @return

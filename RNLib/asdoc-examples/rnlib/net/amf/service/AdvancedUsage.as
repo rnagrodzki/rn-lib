@@ -14,7 +14,7 @@ import rnlib.net.plugins.FileReferencePluginVO;
 import rnlib.net.plugins.NetPluginFactory;
 
 /**
- * @exampleText Advanced usage of RemoteAMFService. In this example we will login user, upload files in queue on server and logout after finish.
+ * @exampleText Advanced usage of RemoteAMFService. In this example we will login user, upload files in collections on server and logout after finish.
  */
 public class AdvancedUsage extends Sprite
 {

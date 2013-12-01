@@ -21,17 +21,16 @@
  *  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package tests.queue
+package tests.collections
 {
-	import rnlib.queue.PriorityQueue;
-
 	import org.flexunit.Assert;
 	import org.hamcrest.assertThat;
-	import org.hamcrest.collection.array;
+
+	import rnlib.collections.PriorityQueue;
 
 	public class QueueTest
 	{
-		[Test(description="Basic test queue without priority range", order="1")]
+		[Test(description="Basic test collections without priority range", order="1")]
 		public function inputSameAsOutput():void
 		{
 			var source:Array = [1, 2, 3, 4];
@@ -62,10 +61,10 @@ package tests.queue
 			Assert.assertEquals(pq.length, 4);
 			pq.dispose();
 			Assert.assertEquals(pq.length, 0);
-			Assert.assertStrictlyEquals(pq.getItem(),undefined);
+			Assert.assertStrictlyEquals(pq.getItem(), undefined);
 		}
 
-		[Test(description="Basic test queue with priority range", order="3")]
+		[Test(description="Basic test collections with priority range", order="3")]
 		public function testPriority():void
 		{
 			var pq:PriorityQueue = new PriorityQueue();
@@ -77,16 +76,18 @@ package tests.queue
 			pq.pushWithPriority("6_10", 10);
 			pq.pushWithPriority("7_-1", -1);
 
-			var result:Array = [];
-			while (pq.length > 0)
-			{
-				result[result.length] = pq.getItem();
-			}
+			Assert.assertEquals("5_10", pq.getItem());
+			Assert.assertEquals("6_10", pq.getItem());
+			Assert.assertEquals("1_2", pq.getItem());
+			Assert.assertEquals("2_2", pq.getItem());
+			Assert.assertEquals("3_1", pq.getItem());
+			Assert.assertEquals("4_1", pq.getItem());
+			Assert.assertEquals("7_-1", pq.getItem());
+
 			pq.dispose();
-			assertThat(array("7_-1", "3_1", "4_1", "1_2", "2_2", "5_10", "6_10"), result);
 		}
 
-		[Test(description="Test dynamic sorting while adding and remowing items from queue", order="4")]
+		[Test(description="Test dynamic sorting while adding and remowing items from collections", order="4")]
 		public function advancedTestDynamicPriority():void
 		{
 			var pq:PriorityQueue = new PriorityQueue();

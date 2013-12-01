@@ -19,9 +19,9 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
 
-package rnlib.queue
+package rnlib.collections
 {
-	public class QueueItemVO
+	public class DataCollectionItemVO
 	{
 		public var item:*;
 		public var priority:int = 1;

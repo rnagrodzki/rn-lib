@@ -18,32 +18,32 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.queue
+package rnlib.collections
 {
-	public interface IQueue
+	public interface IDataCollection
 	{
 		/**
-		 * Dispose queue
+		 * Dispose collections
 		 *
 		 * @see rnlib.interfaces.IDisposable
 		 */
 		function dispose():void;
 
 		/**
-		 * Add items into queue with default priority
+		 * Add items into collections with default priority
 		 * @param rest
 		 */
 		function push(...rest):void;
 
 		/**
-		 * Push item into queue with priority.
+		 * Push item into collection with priority.
 		 * @param item    Item to pushed
-		 * @param priority    The priority level of the item in queue. The priority is designated by a signed
+		 * @param priority    The priority level of the item in collections. The priority is designated by a signed
 		 *         32-bit integer. The higher the number, the higher the priority. All items with priority n are
 		 *         returned before item of priority n-1. If two or more items share the same priority,
 		 *         they are returned in the order in which they were added. The default priority is 0.
 		 */
-		function pushWithPriority(item:*, priority:int = 1):QueueItemVO;
+		function pushWithPriority(item:*, priority:int = 1):DataCollectionItemVO;
 
 		/**
 		 * Update item priority
@@ -54,35 +54,35 @@ package rnlib.queue
 		function updateItemPriority(item:*, priority:int):Boolean;
 
 		/**
-		 * Get next item in queue and remove it from queue
+		 * Get next item in collections and remove it from collections
 		 */
 		function getItem():*;
 
 		/**
-		 * Removes item from the queue
+		 * Removes item from the collections
 		 * @param item
 		 */
 		function removeItem(item:*):void;
 
 		/**
-		 * Get length of queue
+		 * Get length of collections
 		 */
 		function get length():uint;
 
 		/**
-		 * Clone queue object
-		 * @return Cloned queue
+		 * Clone collections object
+		 * @return Cloned collections
 		 */
-		function clone():IQueue;
+		function clone():IDataCollection;
 
 		/**
-		 * Sort elements in queue.
+		 * Sort elements in collections.
 		 * <p>Sort method is executed only if is needed.</p>
 		 */
 		function sort():void;
 
 		/**
-		 * Returns source of the queue
+		 * Returns source of the collections
 		 */
 		function get source():Array;
 	}
