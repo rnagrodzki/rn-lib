@@ -44,9 +44,9 @@ package rnlib.net
 		public static const LAST:String = "last";
 
 		/**
-		 * All requests are added to queue and will invoke one after another
+		 * All requests are added to collections and will invoke one after another
 		 * immediately after receiving response from server. This is the default.
 		 */
-		public static const QUEUE : String = "queue";
+		public static const QUEUE : String = "collections";
 	}
 }

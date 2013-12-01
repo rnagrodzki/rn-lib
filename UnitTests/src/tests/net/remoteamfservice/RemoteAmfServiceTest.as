@@ -47,7 +47,7 @@ package tests.net.remoteamfservice
 			Assert.assertNotNull(service.connection);
 			Assert.assertNull(service.service);
 			Assert.assertNull(service.endpoint);
-			Assert.assertNotNull(service.queue);
+			Assert.assertNotNull(service.dataCollection);
 			Assert.assertEquals(service.concurrency, RequestConcurrency.QUEUE);
 			Assert.assertTrue(service.showBusyCursor);
 			Assert.assertNull(service.result);

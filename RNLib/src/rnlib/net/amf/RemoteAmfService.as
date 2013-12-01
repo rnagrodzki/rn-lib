@@ -49,8 +49,8 @@ package rnlib.net.amf
 	import rnlib.net.plugins.INetPluginFactory;
 	import rnlib.net.plugins.INetPluginVO;
 	import rnlib.net.plugins.NetPluginEvent;
-	import rnlib.queue.IQueue;
-	import rnlib.queue.PriorityQueue;
+	import rnlib.collections.IDataCollection;
+	import rnlib.collections.PriorityQueue;
 
 	[Event(name="netStatus", type="flash.events.NetStatusEvent")]
 	[Event(name="ioError", type="flash.events.IOErrorEvent")]
@@ -89,7 +89,7 @@ package rnlib.net.amf
 	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport, IDisposable
 	{
 		/**
-		 * Determine if requests in queue should execute
+		 * Determine if requests in collections should execute
 		 * after received fault from pending request.
 		 */
 		public var continueAfterFault:Boolean = false;
@@ -135,7 +135,7 @@ package rnlib.net.amf
 		private static var _CALL_UID:int = 0;
 
 		/**
-		 * Determine execute all request in queue after error occurs.
+		 * Determine execute all request in collections after error occurs.
 		 */
 		public var proceedAfterError:Boolean = true;
 
@@ -400,9 +400,9 @@ package rnlib.net.amf
 
 		/**
 		 * Value that indicates how to handle multiple calls to the same service. The default
-		 * value is queue. The following values are permitted:
+		 * value is collections. The following values are permitted:
 		 * <ul>
-		 * <li>queue - All requests are queued and called sequentially one after the other. This is the default.</li>
+		 * <li>collections - All requests are queued and called sequentially one after the other. This is the default.</li>
 		 * <li>multiple - Existing requests are not cancelled, and the developer is
 		 * responsible for ensuring the consistency of returned data by carefully
 		 * managing the event stream.</li>
@@ -423,8 +423,8 @@ package rnlib.net.amf
 
 		public function set concurrency(value:String):void
 		{
-			if (value == RequestConcurrency.QUEUE && !_queue)
-				_queue = new PriorityQueue();
+			if (value == RequestConcurrency.QUEUE && !_dataCollection)
+				_dataCollection = new PriorityQueue();
 
 			_concurrency = value;
 		}
@@ -436,21 +436,21 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 */
-		private var _queue:IQueue = new PriorityQueue();
+		private var _dataCollection:IDataCollection = new PriorityQueue();
 
 		/**
-		 * Property to change default queue class
+		 * Property to change default collections class
 		 */
-		public function get queue():IQueue
+		public function get dataCollection():IDataCollection
 		{
-			return _queue;
+			return _dataCollection;
 		}
 
-		public function set queue(value:IQueue):void
+		public function set dataCollection(value:IDataCollection):void
 		{
 			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
 
-			_queue = value;
+			_dataCollection = value;
 		}
 
 		//---------------------------------------------------------------
@@ -567,12 +567,12 @@ package rnlib.net.amf
 		protected var _isPaused:Boolean = false;
 
 		/**
-		 * Pause execute requests in queue. Please notice that method take effect
+		 * Pause execute requests in collections. Please notice that method take effect
 		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>
 		 * or <code>RequestConcurrency.MULTIPLE</code>
 		 *
 		 * @see #concurrency
-		 * @see #queue
+		 * @see #collections
 		 * @see #resume()
 		 * @see rnlib.net.RequestConcurrency#QUEUE
 		 * @see rnlib.net.RequestConcurrency#MULTIPLE
@@ -583,13 +583,13 @@ package rnlib.net.amf
 		}
 
 		/**
-		 * Resume execute requests in queue. Please notice that method take effect
+		 * Resume execute requests in collections. Please notice that method take effect
 		 * only then concurrency is set to <code>RequestConcurrency.QUEUE</code>
 		 * or <code>RequestConcurrency.MULTIPLE</code>.
-		 * If in queue are any requests after call this method they will be execute.
+		 * If in collections are any requests after call this method they will be execute.
 		 *
 		 * @see #concurrency
-		 * @see #queue
+		 * @see #collections
 		 * @see #pause()
 		 * @see rnlib.net.RequestConcurrency#QUEUE
 		 * @see rnlib.net.RequestConcurrency#MULTIPLE
@@ -598,8 +598,8 @@ package rnlib.net.amf
 		{
 			_isPaused = false;
 
-			if (!_isPendingRequest && queue && queue.length > 0)
-				callRemoteMethod(_queue.getItem());
+			if (!_isPendingRequest && dataCollection && dataCollection.length > 0)
+				callRemoteMethod(_dataCollection.getItem());
 		}
 
 		//---------------------------------------------------------------
@@ -836,7 +836,7 @@ package rnlib.net.amf
 				vo.args = pluginVO ? pluginVO : rest;
 				vo.result = mvo.result;
 				vo.fault = mvo.fault;
-				vo.queue = _queue;
+				vo.queue = _dataCollection;
 
 				var request:AMFRequest = new AMFRequest(vo.uid);
 				vo.request = request;
@@ -973,19 +973,19 @@ package rnlib.net.amf
 
 		/**
 		 * @private
-		 * Execute methods or added them to queue if is more connections than <code>maxConnections</code>.
+		 * Execute methods or added them to collections if is more connections than <code>maxConnections</code>.
 		 * Please notice that concurrency set to <code>multiple</code> with set up <code>maxConnections</code>
-		 * is working that same way as queue concurrency with maxConnections.
+		 * is working that same way as collections concurrency with maxConnections.
 		 * @param vo
 		 */
 		protected function concurrencyQueue(vo:MethodVO):void
 		{
 			if (_isPaused)
-				_queue.push(vo);
+				_dataCollection.push(vo);
 			if (_maxConnections && _activeConnections >= _maxConnections)
-				_queue.push(vo);
+				_dataCollection.push(vo);
 			else if (_isPendingRequest)
-				_queue.push(vo);
+				_dataCollection.push(vo);
 			else
 				callAsyncRemoteMethod(vo);
 		}
@@ -1022,7 +1022,7 @@ package rnlib.net.amf
 		{
 			if (_maxConnections && _activeConnections >= _maxConnections || _isPaused)
 			{
-				_queue.push(vo);
+				_dataCollection.push(vo);
 				return;
 			}
 
@@ -1045,7 +1045,7 @@ package rnlib.net.amf
 
 		/**
 		 * Determine how many connections can run at same time.
-		 * <p>This setting is used only for queue and multiple concurrency.</p>
+		 * <p>This setting is used only for collections and multiple concurrency.</p>
 		 *
 		 * @see #concurrency
 		 * @see rnlib.net.RequestConcurrency#QUEUE
@@ -1549,10 +1549,10 @@ package rnlib.net.amf
 				vo.dispose();
 			_activeConnections -= 1;
 
-			if (_queue && _queue.length > 0 && !_isPaused)
+			if (_dataCollection && _dataCollection.length > 0 && !_isPaused)
 			{
 				_activeConnections += 1;
-				callRemoteMethod(_queue.getItem());
+				callRemoteMethod(_dataCollection.getItem());
 			}
 		}
 
@@ -1602,10 +1602,10 @@ package rnlib.net.amf
 			vo.dispose();
 			_activeConnections -= 1;
 
-			if (_queue && _queue.length > 0 && !_isPaused && continueAfterFault)
+			if (_dataCollection && _dataCollection.length > 0 && !_isPaused && continueAfterFault)
 			{
 				_activeConnections += 1;
-				callRemoteMethod(_queue.getItem());
+				callRemoteMethod(_dataCollection.getItem());
 			}
 		}
 
@@ -1823,9 +1823,9 @@ package rnlib.net.amf
 			}
 			_pluginsFactories = null;
 
-			if (_queue)
+			if (_dataCollection)
 			{
-				_queue.dispose();
+				_dataCollection.dispose();
 			}
 
 			_isPendingRequest = false;

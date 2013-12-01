@@ -23,9 +23,10 @@
  */
 package suites
 {
+	import tests.collections.StackTest;
 	import tests.net.AMFNetConnectionTest;
 	import tests.net.ReflexiveClientTest;
-	import tests.queue.QueueTest;
+	import tests.collections.QueueTest;
 	import tests.utils.ArrayUtilTest;
 	import tests.utils.EDTest;
 	import tests.utils.PaginatorTest;
@@ -36,6 +37,7 @@ package suites
 	public class MainSuite
 	{
 		public var queue:QueueTest;
+		public var stack:StackTest;
 		public var arrayUtil:ArrayUtilTest;
 		public var paginator:PaginatorTest;
 		public var xmlUtil:XMLUtilTest;

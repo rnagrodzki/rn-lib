@@ -18,85 +18,61 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.amf
+package rnlib.collections
 {
 	import rnlib.interfaces.IDisposable;
-	import rnlib.collections.IDataCollection;
 
-	/**
-	 * @private
-	 *
-	 * Helper for data storage calls of remote methods
-	 *
-	 * @see rnlib.net.amf.RemoteAmfService
-	 */
-	public class MethodVO implements IDisposable
+	public class PriorityQueue extends AbstractDataCollection implements IQueue, IDataCollection, IDisposable
 	{
 		/**
-		 * Unique identifier for any remote call
+		 * Constructor
+		 * @param source Array witch will be added to collections
+		 * @param priority Priority to all added items from source
 		 */
-		public var uid:int;
-
-		/**
-		 * Name of remote methods to call
-		 */
-		public var name:String;
-
-		/**
-		 * Callback to invoke after receive
-		 * response from server
-		 */
-		public var result:Function;
-
-		/**
-		 * Callback to invoke after receive
-		 * response from server
-		 */
-		public var fault:Function;
-
-		/**
-		 * Arguments to pass to remote method
-		 */
-		public var args:Object;
-
-		/**
-		 * Request object
-		 */
-		public var request:AMFRequest;
-
-		/**
-		 * Queue
-		 */
-		public var queue:IDataCollection;
-
-		public function dispose():void
+		public function PriorityQueue(source:Array = null, priority:int = 1)
 		{
-			name = null;
-			result = null;
-			fault = null;
-			args = null;
-			request = null; // don't dispose this
-			queue = null;
+			super(source, priority);
 		}
 
-		public function clone():MethodVO
+		override public function pushWithPriority(item:*, priority:int = 1):DataCollectionItemVO
 		{
-			var vo:MethodVO=new MethodVO();
-			vo.args = args;
-			vo.name = name;
-			vo.result = result;
-			vo.fault = fault;
-			vo.uid = uid;
-			vo.request = request;
-			vo.queue = queue;
+			var vo:DataCollectionItemVO = super.pushWithPriority(item, priority);
+
+			var len:uint = _source.length;
+			if (!_requireSort)
+			{
+				_requireSort = (len && _source[len - 1].priority < priority);
+			}
+
+			_source[len] = vo;
 			return vo;
 		}
 
-		public function updateQueue(priority:int):void
+		override public function getItem():*
 		{
-			if(!queue) return;
+			if (_source.length == 0)
+				return undefined;
 
-			queue.updateItemPriority(this, priority);
+			sort();
+			var vo:DataCollectionItemVO = DataCollectionItemVO(_source.shift());
+
+			return vo.item;
+		}
+
+		override public function sort():void
+		{
+			if (_requireSort)
+			{
+				_source.sortOn(["priority", 'count'], [Array.DESCENDING | Array.NUMERIC, Array.NUMERIC]);
+				_requireSort = false;
+			}
+		}
+
+
+		override public function clone():IDataCollection
+		{
+			super.clone();
+			return new PriorityQueue(_source.concat(null));
 		}
 	}
 }
