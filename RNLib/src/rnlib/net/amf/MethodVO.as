@@ -20,8 +20,8 @@
  **************************************************************************************************/
 package rnlib.net.amf
 {
+	import rnlib.collections.IQueue;
 	import rnlib.interfaces.IDisposable;
-	import rnlib.collections.IDataCollection;
 
 	/**
 	 * @private
@@ -36,38 +36,40 @@ package rnlib.net.amf
 		 * Unique identifier for any remote call
 		 */
 		public var uid:int;
-
 		/**
 		 * Name of remote methods to call
 		 */
 		public var name:String;
-
 		/**
 		 * Callback to invoke after receive
 		 * response from server
 		 */
 		public var result:Function;
-
 		/**
 		 * Callback to invoke after receive
 		 * response from server
 		 */
 		public var fault:Function;
-
 		/**
 		 * Arguments to pass to remote method
 		 */
 		public var args:Object;
-
 		/**
 		 * Request object
 		 */
 		public var request:AMFRequest;
-
 		/**
 		 * Queue
 		 */
-		public var queue:IDataCollection;
+		public var queue:IQueue;
+
+		public var cancelRequest:Function;
+
+		public function cancel():void
+		{
+			if (cancelRequest != null)
+				cancelRequest(this);
+		}
 
 		public function dispose():void
 		{
@@ -77,11 +79,12 @@ package rnlib.net.amf
 			args = null;
 			request = null; // don't dispose this
 			queue = null;
+			cancelRequest = null;
 		}
 
 		public function clone():MethodVO
 		{
-			var vo:MethodVO=new MethodVO();
+			var vo:MethodVO = new MethodVO();
 			vo.args = args;
 			vo.name = name;
 			vo.result = result;
@@ -94,7 +97,7 @@ package rnlib.net.amf
 
 		public function updateQueue(priority:int):void
 		{
-			if(!queue) return;
+			if (!queue) return;
 
 			queue.updateItemPriority(this, priority);
 		}

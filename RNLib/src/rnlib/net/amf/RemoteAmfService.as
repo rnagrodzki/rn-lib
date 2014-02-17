@@ -36,6 +36,8 @@ package rnlib.net.amf
 	import mx.managers.CursorManager;
 	import mx.rpc.mxml.IMXMLSupport;
 
+	import rnlib.collections.IQueue;
+	import rnlib.collections.PriorityQueue;
 	import rnlib.interfaces.IDisposable;
 	import rnlib.net.*;
 	import rnlib.net.amf.connections.AMFULConnection;
@@ -49,8 +51,6 @@ package rnlib.net.amf
 	import rnlib.net.plugins.INetPluginFactory;
 	import rnlib.net.plugins.INetPluginVO;
 	import rnlib.net.plugins.NetPluginEvent;
-	import rnlib.collections.IDataCollection;
-	import rnlib.collections.PriorityQueue;
 
 	[Event(name="netStatus", type="flash.events.NetStatusEvent")]
 	[Event(name="ioError", type="flash.events.IOErrorEvent")]
@@ -270,19 +270,22 @@ package rnlib.net.amf
 		 * @private
 		 * @param ev
 		 */
-		protected function onIOError(ev:IOErrorEvent):void {}
+		protected function onIOError(ev:IOErrorEvent):void
+		{}
 
 		/**
 		 * @private
 		 * @param ev
 		 */
-		protected function onSecurityError(ev:SecurityErrorEvent):void {}
+		protected function onSecurityError(ev:SecurityErrorEvent):void
+		{}
 
 		/**
 		 * @private
 		 * @param e
 		 */
-		protected function onStatus(e:HTTPStatusEvent):void {}
+		protected function onStatus(e:HTTPStatusEvent):void
+		{}
 
 		//---------------------------------------------------------------
 		//              	<------ CURSORS ------>
@@ -304,8 +307,11 @@ package rnlib.net.amf
 		public function set showBusyCursor(value:Boolean):void
 		{
 			try
-			{ if (_showBusyCursor && !value) CursorManager.removeBusyCursor();} catch (e:Error)
-			{ }
+			{
+				if (_showBusyCursor && !value) CursorManager.removeBusyCursor();
+			} catch (e:Error)
+			{
+			}
 
 			_showBusyCursor = value;
 		}
@@ -331,7 +337,8 @@ package rnlib.net.amf
 					CursorManager.setBusyCursor();
 					_currentCursorID = CursorManager.currentCursorID;
 				} catch (e:Error)
-				{ }
+				{
+				}
 			}
 		}
 
@@ -346,8 +353,11 @@ package rnlib.net.amf
 		protected function removeCursor():void
 		{
 			try
-			{ if (_showBusyCursor) CursorManager.removeCursor(_currentCursorID);} catch (e:Error)
-			{ }
+			{
+				if (_showBusyCursor) CursorManager.removeCursor(_currentCursorID);
+			} catch (e:Error)
+			{
+			}
 			_currentCursorID = -1;
 		}
 
@@ -423,8 +433,8 @@ package rnlib.net.amf
 
 		public function set concurrency(value:String):void
 		{
-			if (value == RequestConcurrency.QUEUE && !_dataCollection)
-				_dataCollection = new PriorityQueue();
+			if (value == RequestConcurrency.QUEUE && !_queue)
+				_queue = new PriorityQueue();
 
 			_concurrency = value;
 		}
@@ -436,21 +446,21 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 */
-		private var _dataCollection:IDataCollection = new PriorityQueue();
+		private var _queue:IQueue = new PriorityQueue();
 
 		/**
 		 * Property to change default collections class
 		 */
-		public function get dataCollection():IDataCollection
+		public function get queue():IQueue
 		{
-			return _dataCollection;
+			return _queue;
 		}
 
-		public function set dataCollection(value:IDataCollection):void
+		public function set queue(value:IQueue):void
 		{
 			ignoreAllPendingRequests(_concurrency != RequestConcurrency.LAST);
 
-			_dataCollection = value;
+			_queue = value;
 		}
 
 		//---------------------------------------------------------------
@@ -481,7 +491,8 @@ package rnlib.net.amf
 		 *
 		 * @see #removeMethod()
 		 */
-		public function addMethod(name:String, result:Function = null, fault:Function = null, cacheRule:ICacheRule = null):void
+		public function addMethod(name:String, result:Function = null, fault:Function = null,
+								  cacheRule:ICacheRule = null):void
 		{
 			var vo:MethodHelperVO = _remoteMethods[name];
 
@@ -598,8 +609,8 @@ package rnlib.net.amf
 		{
 			_isPaused = false;
 
-			if (!_isPendingRequest && dataCollection && dataCollection.length > 0)
-				callRemoteMethod(_dataCollection.getItem());
+			if (!_isPendingRequest && queue && queue.length > 0)
+				callRemoteMethod(_queue.getItem());
 		}
 
 		//---------------------------------------------------------------
@@ -836,10 +847,12 @@ package rnlib.net.amf
 				vo.args = pluginVO ? pluginVO : rest;
 				vo.result = mvo.result;
 				vo.fault = mvo.fault;
-				vo.queue = _dataCollection;
+				vo.queue = _queue;
+				vo.cancelRequest = cancelRequest;
 
 				var request:AMFRequest = new AMFRequest(vo.uid);
 				vo.request = request;
+				request.cancelFunc = vo.cancel;
 				request.updateQueue = vo.updateQueue;
 				if (mvo.cacheRule)
 				{
@@ -891,9 +904,9 @@ package rnlib.net.amf
 		 */
 		override flash_proxy function getProperty(name:*):*
 		{
-			if(_dynamicProperties[name])
+			if (_dynamicProperties[name])
 				return _dynamicProperties[name];
-			else if(_remoteMethods[name])
+			else if (_remoteMethods[name])
 				return prepareDynamicFunctionForRemoteMethod(name);
 		}
 
@@ -904,7 +917,8 @@ package rnlib.net.amf
 		 */
 		protected function prepareDynamicFunctionForRemoteMethod(name:String):*
 		{
-			var f:Function = function (...rest):AMFRequest {
+			var f:Function = function (...rest):AMFRequest
+			{
 				return callProperty.apply(this, [name].concat(rest));
 			};
 			return f;
@@ -919,7 +933,7 @@ package rnlib.net.amf
 		{
 			if (_defaultMethods.lastIndexOf(name) >= 0)
 				return true;
-			else if(_dynamicProperties[name])
+			else if (_dynamicProperties[name])
 				return true;
 
 			return Boolean(_remoteMethods[name]);
@@ -932,7 +946,7 @@ package rnlib.net.amf
 		 */
 		override flash_proxy function deleteProperty(name:*):Boolean
 		{
-			if(_dynamicProperties[name])
+			if (_dynamicProperties[name])
 				return delete _dynamicProperties[name];
 			return false;
 		}
@@ -973,19 +987,16 @@ package rnlib.net.amf
 
 		/**
 		 * @private
-		 * Execute methods or added them to collections if is more connections than <code>maxConnections</code>.
-		 * Please notice that concurrency set to <code>multiple</code> with set up <code>maxConnections</code>
-		 * is working that same way as collections concurrency with maxConnections.
+		 * Call all requests in queue
+		 *
 		 * @param vo
 		 */
 		protected function concurrencyQueue(vo:MethodVO):void
 		{
 			if (_isPaused)
-				_dataCollection.push(vo);
-			if (_maxConnections && _activeConnections >= _maxConnections)
-				_dataCollection.push(vo);
+				_queue.push(vo);
 			else if (_isPendingRequest)
-				_dataCollection.push(vo);
+				_queue.push(vo);
 			else
 				callAsyncRemoteMethod(vo);
 		}
@@ -1022,7 +1033,7 @@ package rnlib.net.amf
 		{
 			if (_maxConnections && _activeConnections >= _maxConnections || _isPaused)
 			{
-				_dataCollection.push(vo);
+				_queue.push(vo);
 				return;
 			}
 
@@ -1112,6 +1123,16 @@ package rnlib.net.amf
 		 */
 		protected function callRemoteMethod(vo:MethodVO, plugin:INetPlugin = null):void
 		{
+			if (vo.request.isCanceled)
+			{
+				var faultVO:AMFErrorVO = new AMFErrorVO();
+				faultVO.level = "error";
+				faultVO.code = "Canceled by user";
+				faultVO.description = "Canceled by user";
+				callFinalFault(vo, faultVO);
+				return;
+			}
+
 			_isPendingRequest = true;
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			var cacheID:Object = vo.request.cacheID;
@@ -1176,7 +1197,7 @@ package rnlib.net.amf
 			 */
 			var mockVO:MockResponseVO = h.mockGenerationFunc.apply(null, userArgs) as MockResponseVO;
 
-			if(!mockVO)
+			if (!mockVO)
 				throw new ArgumentError("Mock method must return result as MockResponseVO object");
 
 			if (mockVO.interval == 0)
@@ -1251,7 +1272,9 @@ package rnlib.net.amf
 		protected function onPluginResult(plugin:INetMultipartPlugin, r:Object):void
 		{
 			try
-			{ plugin.onResult(r);}
+			{
+				plugin.onResult(r);
+			}
 			catch (e:Error)
 			{
 				disposePlugin(plugin);
@@ -1264,7 +1287,9 @@ package rnlib.net.amf
 			if (vo2)
 			{
 				try
-				{ plugin.next();}
+				{
+					plugin.next();
+				}
 				catch (e:Error)
 				{
 					disposePlugin(plugin);
@@ -1283,7 +1308,9 @@ package rnlib.net.amf
 		protected function onPluginFault(plugin:INetMultipartPlugin, f:Object):void
 		{
 			try
-			{ plugin.onFault(f);}
+			{
+				plugin.onFault(f);
+			}
 			catch (e:Error)
 			{
 				disposePlugin(plugin);
@@ -1296,7 +1323,9 @@ package rnlib.net.amf
 			if (vo2)
 			{
 				try
-				{ plugin.next();}
+				{
+					plugin.next();
+				}
 				catch (e:Error)
 				{
 					disposePlugin(plugin);
@@ -1335,7 +1364,6 @@ package rnlib.net.amf
 			{
 				plugin.init(pluginVO);
 				dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_INITIALIZED, plugin));
-
 			}
 			catch (e:Error)
 			{
@@ -1366,8 +1394,11 @@ package rnlib.net.amf
 
 			dispatchEvent(new NetPluginEvent(NetPluginEvent.PREPARE_TO_DISPOSE, plugin));
 			try
-			{ plugin.dispose();} catch (e:Error)
-			{ }
+			{
+				plugin.dispose();
+			} catch (e:Error)
+			{
+			}
 
 			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
 		}
@@ -1442,7 +1473,9 @@ package rnlib.net.amf
 			var vo:MethodVO = _plugins[plugin];
 
 			try
-			{ vo.args = plugin.args;}
+			{
+				vo.args = plugin.args;
+			}
 			catch (e:Error)
 			{
 				disposePlugin(plugin);
@@ -1468,7 +1501,9 @@ package rnlib.net.amf
 			vo = vo.clone();
 
 			try
-			{ vo.args = plugin.args;}
+			{
+				vo.args = plugin.args;
+			}
 			catch (e:Error)
 			{
 				disposePlugin(plugin);
@@ -1496,6 +1531,47 @@ package rnlib.net.amf
 			vo.dispose();
 
 			onResult(e.data, rm.name, rm.id, rm.uid);
+		}
+
+		//---------------------------------------------------------------
+		//              <------ CANCEL REQUEST ------>
+		//---------------------------------------------------------------
+
+		protected function cancelRequest(vo:MethodVO):void
+		{
+			var requestCanceled:Boolean = false;
+
+			if (_queue)
+			{
+				//remove request from queue if it's there present
+				var len:int = _queue.length;
+				_queue.removeItem(vo);
+				requestCanceled = len > _queue.length;
+			}
+
+			if (!requestCanceled)
+			{
+				//force cancel operation for plugins
+				for (var key:Object in _plugins)
+				{
+					if (_plugins[key] === vo)
+					{
+						var plugin:INetPlugin = _plugins[key];
+						disposePlugin(plugin);
+						requestCanceled = true;
+						break;
+					}
+				}
+			}
+
+			if (requestCanceled)
+			{
+				var faultVO:AMFErrorVO = new AMFErrorVO();
+				faultVO.level = "error";
+				faultVO.code = "Canceled by user";
+				faultVO.description = "Canceled by user";
+				callFinalFault(vo, faultVO);
+			}
 		}
 
 		//---------------------------------------------------------------
@@ -1543,16 +1619,16 @@ package rnlib.net.amf
 
 			_requests[id] = null;
 			delete _requests[id];
-			if(vo && vo.request)
+			if (vo && vo.request)
 				vo.request.dispose();
-			if(vo)
+			if (vo)
 				vo.dispose();
 			_activeConnections -= 1;
 
-			if (_dataCollection && _dataCollection.length > 0 && !_isPaused)
+			if (_queue && _queue.length > 0 && !_isPaused)
 			{
 				_activeConnections += 1;
-				callRemoteMethod(_dataCollection.getItem());
+				callRemoteMethod(_queue.getItem());
 			}
 		}
 
@@ -1602,10 +1678,10 @@ package rnlib.net.amf
 			vo.dispose();
 			_activeConnections -= 1;
 
-			if (_dataCollection && _dataCollection.length > 0 && !_isPaused && continueAfterFault)
+			if (_queue && _queue.length > 0 && !_isPaused && continueAfterFault)
 			{
 				_activeConnections += 1;
-				callRemoteMethod(_dataCollection.getItem());
+				callRemoteMethod(_queue.getItem());
 			}
 		}
 
@@ -1648,7 +1724,8 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 */
-		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0,
+										 useWeakReference:Boolean = false):void
 		{
 			_dispatcher.addEventListener.apply(null, arguments);
 		}
@@ -1823,9 +1900,9 @@ package rnlib.net.amf
 			}
 			_pluginsFactories = null;
 
-			if (_dataCollection)
+			if (_queue)
 			{
-				_dataCollection.dispose();
+				_queue.dispose();
 			}
 
 			_isPendingRequest = false;

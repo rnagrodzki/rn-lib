@@ -34,7 +34,33 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 */
-		protected var _uid:int;
+		internal var extraResult:Array;
+		/**
+		 * @private
+		 */
+		internal var extraFault:Array;
+		/**
+		 * @private
+		 */
+		internal var requestSend:Boolean = false;
+		/**
+		 * @private
+		 */
+		internal var updateQueue:Function;
+		/**
+		 * @private
+		 */
+		internal var cacheID:Object;
+		/**
+		 * @private
+		 */
+		internal var cacheStorageTime:int;
+		/**
+		 * @private
+		 */
+		internal var cacheTrigger:String = CacheRuleConstants.POLICY_NEVER;
+		internal var cancelFunc:Function;
+		private var _cancel:Boolean = false;
 
 		/**
 		 * @private
@@ -46,6 +72,11 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * @private
+		 */
+		protected var _uid:int;
+
+		/**
 		 * Return unique identifier of request.
 		 * <p>The identifier is uniqe between all instances of RemoteAMFService.</p>
 		 */
@@ -55,9 +86,22 @@ package rnlib.net.amf
 		}
 
 		/**
+		 * Is method already executed
+		 */
+		public function get called():Boolean
+		{
+			return requestSend;
+		}
+
+		/**
 		 * @private
 		 */
-		internal var extraResult:Array;
+		internal var _priority:int = 1;
+
+		public function get priority():int
+		{
+			return _priority;
+		}
 
 		/**
 		 * Pass additional params on server response
@@ -69,11 +113,6 @@ package rnlib.net.amf
 			extraResult = rest;
 			return this;
 		}
-
-		/**
-		 * @private
-		 */
-		internal var extraFault:Array;
 
 		/**
 		 * Pass additional params on server response
@@ -97,41 +136,6 @@ package rnlib.net.amf
 			extraFault = rest;
 			return this;
 		}
-
-		/**
-		 * @private
-		 */
-		internal var requestSend:Boolean = false;
-
-		/**
-		 * Is method already executed
-		 */
-		public function get called():Boolean
-		{
-			return requestSend;
-		}
-
-		/**
-		 * @private
-		 */
-		internal var _priority:int = 1;
-		/**
-		 * @private
-		 */
-		internal var updateQueue:Function;
-
-		/**
-		 * @private
-		 */
-		internal var cacheID:Object;
-		/**
-		 * @private
-		 */
-		internal var cacheStorageTime:int;
-		/**
-		 * @private
-		 */
-		internal var cacheTrigger:String = CacheRuleConstants.POLICY_NEVER;
 
 		/**
 		 * Update cache property
@@ -160,9 +164,19 @@ package rnlib.net.amf
 			return this;
 		}
 
-		public function get priority():int
+		/**
+		 * Close operation
+		 */
+		public function cancel():void
 		{
-			return _priority;
+			_cancel = true;
+			if(cancelFunc != null)
+				cancelFunc();
+		}
+
+		public function get isCanceled():Boolean
+		{
+			return _cancel;
 		}
 
 		//---------------------------------------------------------------

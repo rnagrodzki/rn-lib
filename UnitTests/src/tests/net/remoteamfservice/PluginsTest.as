@@ -101,7 +101,7 @@ package tests.net.remoteamfservice
 			Async.failOnEvent(this, service, AMFEvent.RESULT, TIMEOUT);
 			Async.proceedOnEvent(this, service, AMFEvent.FAULT, TIMEOUT);
 
-			_passOnFault = "Cancel by user";
+			_passOnFault = "Ignore by user";
 			mock(plugin).method("init")
 					.args(instanceOf(INetPluginVO))
 					.dispatches(new NetPluginEvent(NetPluginEvent.CANCEL, _passOnFault), 10);
