@@ -1552,12 +1552,11 @@ package rnlib.net.amf
 			if (!requestCanceled)
 			{
 				//force cancel operation for plugins
-				for (var key:Object in _plugins)
+				for (var plugin:Object in _plugins)
 				{
-					if (_plugins[key] === vo)
+					if (_plugins[plugin] === vo)
 					{
-						var plugin:INetPlugin = _plugins[key];
-						disposePlugin(plugin);
+						disposePlugin(plugin as INetPlugin);
 						requestCanceled = true;
 						break;
 					}
