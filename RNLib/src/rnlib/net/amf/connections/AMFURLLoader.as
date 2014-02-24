@@ -278,6 +278,7 @@ package rnlib.net.amf.connections
 				_fault(data);
 				if (_redispatcher)
 					_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.PARSE_ERROR, 1, data));
+				dispose();
 				return;
 			}
 
