@@ -275,9 +275,9 @@ package rnlib.net.amf.connections
 				var response:AMFPacket = AMFProcessor.decodeResponse(data);
 			} catch (e:Error)
 			{
-				_fault(data);
 				if (_redispatcher)
 					_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.PARSE_ERROR, 1, data));
+				_fault(data);
 				dispose();
 				return;
 			}
