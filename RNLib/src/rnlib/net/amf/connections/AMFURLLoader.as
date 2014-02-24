@@ -20,13 +20,6 @@
  **************************************************************************************************/
 package rnlib.net.amf.connections
 {
-	import rnlib.interfaces.IDisposable;
-	import rnlib.net.amf.AMFEvent;
-	import rnlib.net.amf.processor.AMFHeader;
-	import rnlib.net.amf.processor.AMFMessage;
-	import rnlib.net.amf.processor.AMFPacket;
-	import rnlib.net.amf.processor.AMFProcessor;
-
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.HTTPStatusEvent;
@@ -40,6 +33,13 @@ package rnlib.net.amf.connections
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.utils.ByteArray;
+
+	import rnlib.interfaces.IDisposable;
+	import rnlib.net.amf.AMFEvent;
+	import rnlib.net.amf.processor.AMFHeader;
+	import rnlib.net.amf.processor.AMFMessage;
+	import rnlib.net.amf.processor.AMFPacket;
+	import rnlib.net.amf.processor.AMFProcessor;
 
 	/**
 	 * @private
@@ -270,7 +270,16 @@ package rnlib.net.amf.connections
 		private function onComplete(ev:Event):void
 		{
 			var data:ByteArray = _loader.data as ByteArray;
-			var response:AMFPacket = AMFProcessor.decodeResponse(data);
+			try
+			{
+				var response:AMFPacket = AMFProcessor.decodeResponse(data);
+			} catch (e:Error)
+			{
+				_fault(data);
+				if (_redispatcher)
+					_redispatcher.dispatchEvent(new AMFEvent(AMFEvent.PARSE_ERROR, 1, data));
+				return;
+			}
 
 			for each (var header:AMFHeader in response.headers)
 			{
@@ -313,9 +322,7 @@ package rnlib.net.amf.connections
 			dispatchEvent(ev);
 
 			if (_redispatcher)
-			{
 				_redispatcher.dispatchEvent(ev);
-			}
 
 			dispose();
 		}
@@ -323,13 +330,17 @@ package rnlib.net.amf.connections
 		private function onProgress(event:ProgressEvent):void
 		{
 			if (_redispatcher)
-			{ _redispatcher.dispatchEvent(event);}
+			{
+				_redispatcher.dispatchEvent(event);
+			}
 		}
 
 		private function onSecurity(event:SecurityErrorEvent):void
 		{
 			if (_redispatcher)
-			{ _redispatcher.dispatchEvent(event);}
+			{
+				_redispatcher.dispatchEvent(event);
+			}
 
 			dispose();
 		}
@@ -337,7 +348,9 @@ package rnlib.net.amf.connections
 		private function onIOError(event:IOErrorEvent):void
 		{
 			if (_redispatcher)
-			{ _redispatcher.dispatchEvent(event);}
+			{
+				_redispatcher.dispatchEvent(event);
+			}
 
 			dispose();
 		}
@@ -345,7 +358,9 @@ package rnlib.net.amf.connections
 		private function onHTTPStatus(event:HTTPStatusEvent):void
 		{
 			if (_redispatcher)
-			{ _redispatcher.dispatchEvent(event);}
+			{
+				_redispatcher.dispatchEvent(event);
+			}
 		}
 	}
 }
