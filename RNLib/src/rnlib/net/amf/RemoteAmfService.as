@@ -95,6 +95,11 @@ package rnlib.net.amf
 		public var continueAfterFault:Boolean = false;
 
 		/**
+		 * Timeout in miliseconds
+		 */
+		public var timeout:uint = 60000;
+
+		/**
 		 * @private
 		 */
 		protected var _nc:IAMFConnection;
@@ -145,7 +150,7 @@ package rnlib.net.amf
 		public function RemoteAmfService()
 		{
 			defaultMethods();
-			init();
+			__init();
 		}
 
 		/**
@@ -156,7 +161,7 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 */
-		protected function init():void
+		protected function __init():void
 		{
 			_dispatcher = new EventDispatcher(this);
 			silentIgnoreErrors = true;
@@ -1171,6 +1176,7 @@ package rnlib.net.amf
 
 			rm.request.requestSend = true;
 			_nc.call.apply(_nc, args.concat(vo.args));
+			rm.start(timeout);
 
 			showCursor();
 		}
@@ -1912,6 +1918,9 @@ package rnlib.net.amf
 	}
 }
 
+import flash.events.TimerEvent;
+import flash.utils.Timer;
+
 import rnlib.interfaces.IDisposable;
 import rnlib.net.amf.AMFRequest;
 import rnlib.net.cache.rules.ICacheRule;
@@ -1956,18 +1965,30 @@ class ResultMediatorVO implements IDisposable
 	public var name:String;
 	public var plugin:INetPlugin;
 	public var request:AMFRequest;
+	public var timer:Timer = new Timer(60000, 1);
 
 	public var resultHandler:Function;
 	public var internalResultHandler:Function;
 
+	public function start(delay:uint = 60000):void
+	{
+		if (timer.delay != delay)
+			timer.delay = delay;
+		timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTime);
+		timer.start();
+	}
+
 	public function result(r:Object):void
 	{
+		timer.stop();
+
 		if (plugin is INetMultipartPlugin)
 		{
 			internalResultHandler(plugin, r);
 		}
 		else
 			internalResultHandler(r, name, id, uid);
+
 		dispose();
 	}
 
@@ -1976,12 +1997,15 @@ class ResultMediatorVO implements IDisposable
 
 	public function fault(f:Object):void
 	{
+		timer.stop();
+
 		if (plugin is INetMultipartPlugin)
 		{
 			internalFaultHandler(plugin, f);
 		}
 		else
 			internalFaultHandler(f, name, id, uid);
+
 		dispose();
 	}
 
@@ -1995,5 +2019,13 @@ class ResultMediatorVO implements IDisposable
 		resultHandler = null;
 		plugin = null;
 		request = null;
+		if (timer)
+			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, onTime);
+		timer = null;
+	}
+
+	protected function onTime(ev:TimerEvent):void
+	{
+		fault("Connection timeout");
 	}
 }
