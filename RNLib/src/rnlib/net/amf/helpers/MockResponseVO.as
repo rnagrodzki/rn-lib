@@ -19,8 +19,9 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
 
-package rnlib.net.amf
+package rnlib.net.amf.helpers
 {
+	import rnlib.net.amf.*;
 	/**
 	 * Class created just in time for mock method of RemoteAMFService.
 	 *

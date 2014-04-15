@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
+ * Copyright (c) 2014. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,57 +18,26 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.amf
+
+package rnlib.net.amf.helpers
 {
-	import rnlib.collections.IQueue;
 	import rnlib.interfaces.IDisposable;
+	import rnlib.net.cache.rules.ICacheRule;
 
-	/**
-	 * @private
-	 *
-	 * Helper for data storage calls of remote methods
-	 *
-	 * @see rnlib.net.amf.RemoteAmfService
-	 */
-	public class MethodVO implements IDisposable
+	public class MethodHelperVO implements IDisposable
 	{
-		/**
-		 * Unique identifier for any remote call
-		 */
-		public var uid:int;
-		/**
-		 * Name of remote methods to call
-		 */
 		public var name:String;
-		/**
-		 * Callback to invoke after receive
-		 * response from server
-		 */
 		public var result:Function;
-		/**
-		 * Callback to invoke after receive
-		 * response from server
-		 */
 		public var fault:Function;
+		public var cacheRule:ICacheRule;
 		/**
-		 * Arguments to pass to remote method
+		 * If function have to be mock add here reference to mock generation function
 		 */
-		public var args:Object;
-		/**
-		 * Request object
-		 */
-		public var request:AMFRequest;
-		/**
-		 * Queue
-		 */
-		public var queue:IQueue;
+		public var mockGenerationFunc:Function = null;
 
-		public var cancelRequest:Function;
-
-		public function cancel():void
+		public function MethodHelperVO(name:String = null)
 		{
-			if (cancelRequest != null)
-				cancelRequest(this);
+			this.name = name;
 		}
 
 		public function dispose():void
@@ -76,30 +45,7 @@ package rnlib.net.amf
 			name = null;
 			result = null;
 			fault = null;
-			args = null;
-			request = null; // don't dispose this
-			queue = null;
-			cancelRequest = null;
-		}
-
-		public function clone():MethodVO
-		{
-			var vo:MethodVO = new MethodVO();
-			vo.args = args;
-			vo.name = name;
-			vo.result = result;
-			vo.fault = fault;
-			vo.uid = uid;
-			vo.request = request;
-			vo.queue = queue;
-			return vo;
-		}
-
-		public function updateQueue(priority:int):void
-		{
-			if (!queue) return;
-
-			queue.updateItemPriority(this, priority);
+			cacheRule = null;
 		}
 	}
 }

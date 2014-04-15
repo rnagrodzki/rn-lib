@@ -42,6 +42,10 @@ package rnlib.net.amf
 	import rnlib.net.*;
 	import rnlib.net.amf.connections.AMFULConnection;
 	import rnlib.net.amf.connections.IAMFConnection;
+	import rnlib.net.amf.helpers.MethodHelperVO;
+	import rnlib.net.amf.helpers.MethodVO;
+	import rnlib.net.amf.helpers.MockResponseVO;
+	import rnlib.net.amf.helpers.ResultMediatorVO;
 	import rnlib.net.amf.processor.AMFHeader;
 	import rnlib.net.cache.IResponseCacheManager;
 	import rnlib.net.cache.rules.CacheRuleConstants;
@@ -1915,117 +1919,5 @@ package rnlib.net.amf
 			_requests = new Dictionary();
 			_plugins = new Dictionary();
 		}
-	}
-}
-
-import flash.events.TimerEvent;
-import flash.utils.Timer;
-
-import rnlib.interfaces.IDisposable;
-import rnlib.net.amf.AMFRequest;
-import rnlib.net.cache.rules.ICacheRule;
-import rnlib.net.plugins.INetMultipartPlugin;
-import rnlib.net.plugins.INetPlugin;
-
-/**
- * @private
- */
-class MethodHelperVO implements IDisposable
-{
-	public var name:String;
-	public var result:Function;
-	public var fault:Function;
-	public var cacheRule:ICacheRule;
-	/**
-	 * If function have to be mock add here reference to mock generation function
-	 */
-	public var mockGenerationFunc:Function = null;
-
-	public function MethodHelperVO(name:String = null)
-	{
-		this.name = name;
-	}
-
-	public function dispose():void
-	{
-		name = null;
-		result = null;
-		fault = null;
-		cacheRule = null;
-	}
-}
-
-/**
- * @private
- */
-class ResultMediatorVO implements IDisposable
-{
-	public var uid:int;
-	public var id:int;
-	public var name:String;
-	public var plugin:INetPlugin;
-	public var request:AMFRequest;
-	public var timer:Timer = new Timer(60000, 1);
-
-	public var resultHandler:Function;
-	public var internalResultHandler:Function;
-
-	public function start(delay:uint = 60000):void
-	{
-		if (timer.delay != delay)
-			timer.delay = delay;
-		timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTime);
-		timer.start();
-	}
-
-	public function result(r:Object):void
-	{
-		timer.stop();
-
-		if (plugin is INetMultipartPlugin)
-		{
-			internalResultHandler(plugin, r);
-		}
-		else
-			internalResultHandler(r, name, id, uid);
-
-		dispose();
-	}
-
-	public var faultHandler:Function;
-	public var internalFaultHandler:Function;
-
-	public function fault(f:Object):void
-	{
-		timer.stop();
-
-		if (plugin is INetMultipartPlugin)
-		{
-			internalFaultHandler(plugin, f);
-		}
-		else
-			internalFaultHandler(f, name, id, uid);
-
-		dispose();
-	}
-
-	public function dispose():void
-	{
-		id = 0;
-		name = null;
-		internalFaultHandler = null;
-		internalResultHandler = null;
-		faultHandler = null;
-		resultHandler = null;
-		plugin = null;
-		request = null;
-		if (timer)
-			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, onTime);
-		timer = null;
-	}
-
-	protected function onTime(ev:TimerEvent):void
-	{
-		fault("Connection timeout");
 	}
 }

@@ -52,6 +52,12 @@ package rnlib.net.amf
 		 */
 		public var type:String;
 
+		public function AMFErrorVO(description:String = null)
+		{
+			level = "error";
+			this.description = description;
+		}
+
 		/**
 		 * Check if it's error object
 		 * @param obj

@@ -4,7 +4,7 @@
 package tests.net.remoteamfservice
 {
 	import rnlib.net.amf.AMFEvent;
-	import rnlib.net.amf.MockResponseVO;
+	import rnlib.net.amf.helpers.MockResponseVO;
 	import rnlib.net.amf.RemoteAmfService;
 
 	import flash.utils.getTimer;
