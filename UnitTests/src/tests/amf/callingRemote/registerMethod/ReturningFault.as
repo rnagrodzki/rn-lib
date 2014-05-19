@@ -14,6 +14,7 @@ package tests.amf.callingRemote.registerMethod
 	import rnlib.net.amf.RemoteAmfService;
 
 	import tests.AbstractTest;
+	import tests.amf.mocks.ConnectionMock;
 
 	[TestCase(order="2")]
 	public class ReturningFault extends AbstractTest

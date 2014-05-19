@@ -43,9 +43,9 @@ package old.tests.net.remoteamfservice
 	import org.hamcrest.object.instanceOf;
 	import org.morefluent.integrations.flexunit4.after;
 
-	import old.tests.net.remoteamfservice.plugins.TestPluginFactory;
+	import tests.amf.mocks.TestPluginFactory;
 	import old.tests.net.remoteamfservice.plugins.vo.BrokenPluginVO;
-	import old.tests.net.remoteamfservice.plugins.vo.TestPluginVO;
+	import tests.amf.mocks.TestPluginVO;
 
 	public class PluginsTest extends RemoteAmfServiceBaseMockTest
 	{

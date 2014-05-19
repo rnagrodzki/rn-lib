@@ -3,7 +3,6 @@
  */
 package tests.amf.callingRemote.registerMethod
 {
-	import tests.amf.*;
 	import org.morefluent.integrations.flexunit4.after;
 	import org.morefluent.integrations.flexunit4.observing;
 	import org.morefluent.integrations.flexunit4.poll;
@@ -14,6 +13,7 @@ package tests.amf.callingRemote.registerMethod
 	import rnlib.net.amf.RemoteAmfService;
 
 	import tests.AbstractTest;
+	import tests.amf.mocks.ConnectionMock;
 
 	[TestCase(order="1")]
 	public class ReturningResult extends AbstractTest

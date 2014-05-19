@@ -20,7 +20,7 @@ package old.tests.net.remoteamfservice
 
 	import tests.net.remoteamfservice.plugins.*;
 	import old.tests.net.remoteamfservice.plugins.vo.MultipartBrokenPlugin;
-	import old.tests.net.remoteamfservice.plugins.vo.TestPluginVO;
+	import tests.amf.mocks.TestPluginVO;
 
 	public class PluginExceptionTest extends RemoteAmfServiceBaseMockTest
 	{

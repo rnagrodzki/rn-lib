@@ -1,7 +1,7 @@
 /**
  * @author Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
  */
-package tests.amf
+package tests.amf.mocks
 {
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
