@@ -1,8 +1,9 @@
 /**
  * @author Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
  */
-package tests.amf
+package tests.amf.callingRemote.registerMethod
 {
+	import tests.amf.*;
 	import org.morefluent.integrations.flexunit4.after;
 	import org.morefluent.integrations.flexunit4.observing;
 	import org.morefluent.integrations.flexunit4.poll;
@@ -14,7 +15,8 @@ package tests.amf
 
 	import tests.AbstractTest;
 
-	public class CallingRegisteredRemoteMethodReturnsResult extends AbstractTest
+	[TestCase(order="1")]
+	public class ReturningResult extends AbstractTest
 	{
 		public const METHOD_NAME:String = "myMethod";
 
