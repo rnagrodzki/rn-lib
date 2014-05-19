@@ -33,16 +33,6 @@ package rnlib.net.plugins
 	public interface INetMultipartPlugin extends INetPlugin
 	{
 		/**
-		 * Method calling sequential in loop of requests on server after
-		 * first init call until plugin finish his work and inform
-		 * about it dispatched <code>NetPluginEvent.COMPLETE</code>
-		 * or error occur and plugin dispatch <code>NetPluginEvent.CANCEL</code>.
-		 *
-		 * @see rnlib.net.plugins.NetPluginEvent
-		 */
-		function next():void;
-
-		/**
 		 * Callback to pass result from server
 		 * @param result
 		 */

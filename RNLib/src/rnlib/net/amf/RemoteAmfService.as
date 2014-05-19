@@ -89,8 +89,7 @@ package rnlib.net.amf
 	 * @includeExample service/AdvancedUsage.as
 	 *
 	 * @see rnlib.net.amf.AMFRequest
-	 */
-	public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport, IDisposable
+	 */ public dynamic class RemoteAmfService extends Proxy implements IEventDispatcher, IMXMLSupport, IDisposable
 	{
 		/**
 		 * Determine if requests in collections should execute
@@ -251,8 +250,7 @@ package rnlib.net.amf
 		public function set silentIgnoreErrors(value:Boolean):void
 		{
 			_silentIgnoreErrors = value;
-			if (value) registerErrorEvents();
-			else removeErrorEvents();
+			if (value) registerErrorEvents(); else removeErrorEvents();
 		}
 
 		/**
@@ -402,9 +400,7 @@ package rnlib.net.amf
 		private function defaultMethods():void
 		{
 			_defaultMethods = [
-				"toString",
-				"toLocaleString",
-				"valueOf"
+				"toString", "toLocaleString", "valueOf"
 			];
 		}
 
@@ -885,12 +881,10 @@ package rnlib.net.amf
 						break;
 				}
 				return request;
-			}
-			else if (hasProp)
+			} else if (hasProp)
 			{
 				return super.callProperty.apply(null, [name].concat(rest));
-			}
-			else
+			} else
 			{
 				throw new Error("First add " + name + " to remote methods by addMethod function");
 			}
@@ -914,8 +908,7 @@ package rnlib.net.amf
 		override flash_proxy function getProperty(name:*):*
 		{
 			if (_dynamicProperties[name])
-				return _dynamicProperties[name];
-			else if (_remoteMethods[name])
+				return _dynamicProperties[name]; else if (_remoteMethods[name])
 				return prepareDynamicFunctionForRemoteMethod(name);
 		}
 
@@ -930,7 +923,7 @@ package rnlib.net.amf
 			{
 				return callProperty.apply(this, [name].concat(rest));
 			};
-			return f;
+			return f as Function;
 		}
 
 		/**
@@ -941,8 +934,7 @@ package rnlib.net.amf
 		override flash_proxy function hasProperty(name:*):Boolean
 		{
 			if (_defaultMethods.lastIndexOf(name) >= 0)
-				return true;
-			else if (_dynamicProperties[name])
+				return true; else if (_dynamicProperties[name])
 				return true;
 
 			return Boolean(_remoteMethods[name]);
@@ -1003,10 +995,8 @@ package rnlib.net.amf
 		protected function concurrencyQueue(vo:MethodVO):void
 		{
 			if (_isPaused)
-				_queue.push(vo);
-			else if (_isPendingRequest)
-				_queue.push(vo);
-			else
+				_queue.push(vo); else if (_isPendingRequest)
+				_queue.push(vo); else
 				callAsyncRemoteMethod(vo);
 		}
 
@@ -1148,9 +1138,7 @@ package rnlib.net.amf
 
 			if (checkAndExecuteIfMock(rm, vo.args as Array)) return;
 
-			if (cacheManager &&
-					vo.request.cacheTrigger == CacheRuleConstants.POLICY_BEFORE_REQUEST &&
-					cacheID && cacheManager.isCached(cacheID))
+			if (cacheManager && vo.request.cacheTrigger == CacheRuleConstants.POLICY_BEFORE_REQUEST && cacheID && cacheManager.isCached(cacheID))
 			{
 				rm = prepareResultMediator(vo);
 				onResult(cacheManager.getResponse(cacheID), rm.name, rm.id, rm.uid);
@@ -1168,8 +1156,7 @@ package rnlib.net.amf
 				rm.plugin = plugin;
 				rm.internalFaultHandler = onPluginFault;
 				rm.internalResultHandler = onPluginResult;
-			}
-			else
+			} else
 			{
 				rm.internalFaultHandler = onFault;
 				rm.internalResultHandler = onResult;
@@ -1211,8 +1198,7 @@ package rnlib.net.amf
 				throw new ArgumentError("Mock method must return result as MockResponseVO object");
 
 			if (mockVO.interval == 0)
-				executeMockImpl(vo, mockVO);
-			else
+				executeMockImpl(vo, mockVO); else
 				setTimeout(executeMockImpl, mockVO.interval, vo, mockVO);
 
 			return true;
@@ -1227,8 +1213,7 @@ package rnlib.net.amf
 		protected function executeMockImpl(vo:ResultMediatorVO, mock:MockResponseVO):void
 		{
 			if (mock.success)
-				onResult(mock.response, vo.name, vo.id, vo.uid);
-			else
+				onResult(mock.response, vo.name, vo.id, vo.uid); else
 				onFault(mock.response, vo.name, vo.id, vo.uid);
 		}
 
@@ -1242,6 +1227,9 @@ package rnlib.net.amf
 		 */
 		protected function prepareResultMediator(vo:MethodVO):ResultMediatorVO
 		{
+			if(vo.isDisposed)
+				throw new ArgumentError("ResultMediatorVO can not be created based on disposed MethodVO");
+
 			var rm:ResultMediatorVO = new ResultMediatorVO();
 			rm.uid = vo.uid;
 			rm.id = _reqCount++;
@@ -1267,6 +1255,10 @@ package rnlib.net.amf
 		 */
 		protected function callFinalFault(vo:MethodVO, data:Object = null):void
 		{
+			// if any error handler already disposed MethodVO we can not call fault handler
+			if(vo.isDisposed)
+				return;
+
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
 
@@ -1281,31 +1273,14 @@ package rnlib.net.amf
 		 */
 		protected function onPluginResult(plugin:INetMultipartPlugin, r:Object):void
 		{
+			var vo:MethodVO = _plugins[plugin];
 			try
 			{
 				plugin.onResult(r);
-			}
-			catch (e:Error)
+			} catch (e:Error)
 			{
 				disposePlugin(plugin);
-				var vo1:MethodVO = _plugins[plugin];
-				if (vo1) callFinalFault(vo1, e);
-			}
-
-			// check if plugin wasn't disposed
-			var vo2:MethodVO = _plugins[plugin];
-			if (vo2)
-			{
-				try
-				{
-					plugin.next();
-				}
-				catch (e:Error)
-				{
-					disposePlugin(plugin);
-					var vo3:MethodVO = _plugins[plugin];
-					if (vo3) callFinalFault(vo3, e);
-				}
+				if (vo) callFinalFault(vo, e);
 			}
 		}
 
@@ -1317,37 +1292,22 @@ package rnlib.net.amf
 		 */
 		protected function onPluginFault(plugin:INetMultipartPlugin, f:Object):void
 		{
+			var vo:MethodVO = _plugins[plugin];
 			try
 			{
 				plugin.onFault(f);
-			}
-			catch (e:Error)
+			} catch (e:Error)
 			{
 				disposePlugin(plugin);
-				var vo1:MethodVO = _plugins[plugin];
-				if (vo1) callFinalFault(vo1, e);
-			}
-
-			// check if plugin wasn't disposed
-			var vo2:MethodVO = _plugins[plugin];
-			if (vo2)
-			{
-				try
-				{
-					plugin.next();
-				}
-				catch (e:Error)
-				{
-					disposePlugin(plugin);
-					var vo3:MethodVO = _plugins[plugin];
-					if (vo3) callFinalFault(vo3, e);
-				}
+				callFinalFault(vo, e);
 			}
 		}
 
 		/**
 		 * @private
-		 * Dictionary of IPlugins
+		 * Dictionary
+		 * key - reference of INetPlugin
+		 * value - reference of MethodVO
 		 */
 		protected var _plugins:Dictionary = new Dictionary();
 
@@ -1374,16 +1334,10 @@ package rnlib.net.amf
 			{
 				plugin.init(pluginVO);
 				dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_INITIALIZED, plugin));
-			}
-			catch (e:Error)
+			} catch (e:Error)
 			{
-				var vo1:MethodVO = _plugins[plugin];
 				disposePlugin(plugin);
-				if (vo1)
-				{
-					callFinalFault(vo1, e);
-					vo1.dispose();
-				}
+				callFinalFault(vo, e);
 			}
 
 			pluginVO = null;
@@ -1397,6 +1351,9 @@ package rnlib.net.amf
 		 */
 		protected function disposePlugin(plugin:INetPlugin):void
 		{
+			if(!_plugins[plugin])
+				return;
+
 			_plugins[plugin] = null;
 			delete _plugins[plugin];
 
@@ -1409,7 +1366,6 @@ package rnlib.net.amf
 			} catch (e:Error)
 			{
 			}
-
 			dispatchEvent(new NetPluginEvent(NetPluginEvent.PLUGIN_DISPOSED, plugin));
 		}
 
@@ -1426,8 +1382,7 @@ package rnlib.net.amf
 			{
 				plugin.addEventListener(NetPluginEvent.READY, onMultipartPluginReady, false, 0, true);
 				plugin.addEventListener(NetPluginEvent.COMPLETE, onMultipartPluginComplete, false, 0, true);
-			}
-			else
+			} else
 			{
 				plugin.addEventListener(NetPluginEvent.READY, onPluginComplete, false, 0, true);
 				plugin.addEventListener(NetPluginEvent.COMPLETE, onPluginComplete, false, 0, true);
@@ -1447,8 +1402,7 @@ package rnlib.net.amf
 			{
 				plugin.removeEventListener(NetPluginEvent.READY, onMultipartPluginReady, false);
 				plugin.removeEventListener(NetPluginEvent.COMPLETE, onMultipartPluginComplete, false);
-			}
-			else
+			} else
 			{
 				plugin.removeEventListener(NetPluginEvent.READY, onPluginComplete, false);
 				plugin.removeEventListener(NetPluginEvent.COMPLETE, onPluginComplete, false);
@@ -1481,8 +1435,7 @@ package rnlib.net.amf
 			try
 			{
 				vo.args = plugin.args;
-			}
-			catch (e:Error)
+			} catch (e:Error)
 			{
 				disposePlugin(plugin);
 				callFinalFault(vo, e);
@@ -1508,12 +1461,10 @@ package rnlib.net.amf
 			try
 			{
 				vo.args = plugin.args;
-			}
-			catch (e:Error)
+			} catch (e:Error)
 			{
 				disposePlugin(plugin);
 				callFinalFault(vo, e);
-				vo.dispose();
 				return;
 			}
 
@@ -1601,8 +1552,8 @@ package rnlib.net.amf
 			if (cacheManager && cacheID)
 			{
 				if (vo.request.cacheTrigger == CacheRuleConstants.POLICY_AFTER_REQUEST && !cacheManager.isCached(cacheID))
-					cacheManager.setResponse(cacheID, result);
-				else if (vo.request.cacheTrigger == CacheRuleConstants.POLICY_BEFORE_REQUEST)
+					cacheManager.setResponse(cacheID,
+							result); else if (vo.request.cacheTrigger == CacheRuleConstants.POLICY_BEFORE_REQUEST)
 					cacheManager.setResponse(cacheID, result);
 			}
 
@@ -1613,8 +1564,7 @@ package rnlib.net.amf
 			}
 
 			if (vo.resultHandler != null)
-				vo.resultHandler.apply(null, res);
-			else if (this.result != null)
+				vo.resultHandler.apply(null, res); else if (this.result != null)
 				this.apply(null, res);
 
 			dispatchEvent(new AMFEvent(AMFEvent.RESULT, uid, res.length == 1 ? res.shift() : res));
@@ -1652,10 +1602,7 @@ package rnlib.net.amf
 
 			// cache fallback
 			var cacheID:Object = vo.request.cacheID;
-			if (cacheManager &&
-					cacheID &&
-					vo.request.cacheTrigger == CacheRuleConstants.POLICY_AFTER_REQUEST &&
-					cacheManager.isCached(cacheID))
+			if (cacheManager && cacheID && vo.request.cacheTrigger == CacheRuleConstants.POLICY_AFTER_REQUEST && cacheManager.isCached(cacheID))
 			{
 				onResult(cacheManager.getResponse(cacheID), name, id, uid);
 				return;
@@ -1668,8 +1615,7 @@ package rnlib.net.amf
 			}
 
 			if (vo.faultHandler != null)
-				vo.faultHandler.apply(null, res);
-			else if (this.fault != null)
+				vo.faultHandler.apply(null, res); else if (this.fault != null)
 				this.fault.apply(null, res);
 
 			dispatchEvent(new AMFEvent(AMFEvent.FAULT, uid, res.length == 1 ? res.shift() : res));
@@ -1773,8 +1719,7 @@ package rnlib.net.amf
 		[ArrayElementType("rnlib.net.plugins.INetPluginFactory")]
 		/**
 		 * @private
-		 */
-		protected var _pluginsFactories:Array;
+		 */ protected var _pluginsFactories:Array;
 
 		/**
 		 * Collection of plugins associated with this object.
@@ -1788,8 +1733,7 @@ package rnlib.net.amf
 		public function set pluginsFactories(value:Array):void
 		{
 			if (value)
-				_pluginsFactories = value.filter(filterPlugins);
-			else
+				_pluginsFactories = value.filter(filterPlugins); else
 				_pluginsFactories = null;
 		}
 
@@ -1852,13 +1796,7 @@ package rnlib.net.amf
 			for (var name:String in _remoteMethods)
 				methods += "\n\t\t" + name;
 
-			var str:String = "[RemoteAmfService]"
-							+ "\n\t* endpoint:\t" + (_endpoint || "--not set--")
-							+ "\n\t* service:\t" + (_service || "--not set--")
-							+ "\n\t* concurrency:\t" + (_concurrency || "--not set--")
-							+ "\n\t* register plugins:\t" + (_pluginsFactories || "[]")
-							+ "\n\t* registered methods:" + methods
-					;
+			var str:String = "[RemoteAmfService]" + "\n\t* endpoint:\t" + (_endpoint || "--not set--") + "\n\t* service:\t" + (_service || "--not set--") + "\n\t* concurrency:\t" + (_concurrency || "--not set--") + "\n\t* register plugins:\t" + (_pluginsFactories || "[]") + "\n\t* registered methods:" + methods;
 			return str;
 		}
 

@@ -33,6 +33,7 @@ package rnlib.net.amf.helpers
 	 */
 	public class MethodVO implements IDisposable
 	{
+		public var isDisposed:Boolean;
 		/**
 		 * Unique identifier for any remote call
 		 */
@@ -81,6 +82,7 @@ package rnlib.net.amf.helpers
 			request = null; // don't dispose this
 			queue = null;
 			cancelRequest = null;
+			isDisposed = true;
 		}
 
 		public function clone():MethodVO

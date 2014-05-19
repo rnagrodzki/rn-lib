@@ -23,16 +23,18 @@
  */
 package tests.amf.mocks
 {
+	import mx.core.IFactory;
+
 	import rnlib.net.plugins.INetPlugin;
 	import rnlib.net.plugins.INetPluginFactory;
 	import rnlib.net.plugins.INetPluginVO;
 
 	public class TestPluginFactory implements INetPluginFactory
 	{
-		protected var _plugin:INetPlugin;
+		protected var _plugin:IFactory;
 		protected var _vo:Class;
 
-		public function TestPluginFactory(plugin:INetPlugin, vo:Class)
+		public function TestPluginFactory(plugin:IFactory, vo:Class)
 		{
 			_plugin = plugin;
 			_vo = vo;
@@ -40,7 +42,7 @@ package tests.amf.mocks
 
 		public function newInstance():INetPlugin
 		{
-			return _plugin;
+			return _plugin.newInstance();
 		}
 
 		public function isSupportVO(vo:INetPluginVO):Boolean

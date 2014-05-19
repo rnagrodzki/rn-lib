@@ -24,8 +24,13 @@ package rnlib.net.amf.helpers
 		public var resultHandler:Function;
 		public var internalResultHandler:Function;
 
+		public var isDisposed:Boolean;
+
 		public function start(delay:uint = 60000):void
 		{
+			if(isDisposed)
+				return;
+
 			if (timer.delay != delay)
 				timer.delay = delay;
 			timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTime);
@@ -34,6 +39,9 @@ package rnlib.net.amf.helpers
 
 		public function result(r:Object):void
 		{
+			if(isDisposed)
+				return;
+
 			timer.stop();
 
 			if (plugin is INetMultipartPlugin)
@@ -51,6 +59,9 @@ package rnlib.net.amf.helpers
 
 		public function fault(f:Object):void
 		{
+			if(isDisposed)
+				return;
+
 			timer.stop();
 
 			if (plugin is INetMultipartPlugin)
@@ -65,6 +76,9 @@ package rnlib.net.amf.helpers
 
 		public function dispose():void
 		{
+			if(isDisposed)
+				return;
+
 			id = 0;
 			name = null;
 			internalFaultHandler = null;
@@ -74,12 +88,19 @@ package rnlib.net.amf.helpers
 			plugin = null;
 			request = null;
 			if (timer)
+			{
 				timer.removeEventListener(TimerEvent.TIMER_COMPLETE, onTime);
+				timer.stop();
+			}
 			timer = null;
+			isDisposed = true;
 		}
 
 		protected function onTime(ev:TimerEvent):void
 		{
+			if(isDisposed)
+				return;
+
 			fault(new AMFErrorVO("Connection timeout"));
 		}
 	}
