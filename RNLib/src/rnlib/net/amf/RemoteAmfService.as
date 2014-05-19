@@ -1458,28 +1458,24 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 * If plugin cancel operation is forced call fault handler
-		 * @param e
+		 * @param event
 		 */
-		protected function onPluginCancel(e:NetPluginEvent):void
+		protected function onPluginCancel(event:NetPluginEvent):void
 		{
-			var plugin:INetPlugin = e.target as INetPlugin;
+			var plugin:INetPlugin = event.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			disposePlugin(plugin);
-
-			var rm:ResultMediatorVO = prepareResultMediator(vo);
-			vo.dispose();
-
-			onFault(e.data, rm.name, rm.id, rm.uid);
+			callFinalFault(vo, event.data);
 		}
 
 		/**
 		 * @private
 		 * We will proceed only on ready/complete event
-		 * @param e
+		 * @param event
 		 */
-		protected function onPluginComplete(e:NetPluginEvent):void
+		protected function onPluginComplete(event:NetPluginEvent):void
 		{
-			var plugin:INetPlugin = e.target as INetPlugin;
+			var plugin:INetPlugin = event.target as INetPlugin;
 			var vo:MethodVO = _plugins[plugin];
 
 			try
@@ -1490,7 +1486,6 @@ package rnlib.net.amf
 			{
 				disposePlugin(plugin);
 				callFinalFault(vo, e);
-				vo.dispose();
 				return;
 			}
 
@@ -1502,11 +1497,11 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 * MultipartPlugin is ready to share arguments for remote method
-		 * @param e
+		 * @param event
 		 */
-		protected function onMultipartPluginReady(e:NetPluginEvent):void
+		protected function onMultipartPluginReady(event:NetPluginEvent):void
 		{
-			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
+			var plugin:INetMultipartPlugin = event.target as INetMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			vo = vo.clone();
 
@@ -1529,18 +1524,18 @@ package rnlib.net.amf
 		/**
 		 * @private
 		 * MultipartPlugin finish successfully his work
-		 * @param e
+		 * @param event
 		 */
-		protected function onMultipartPluginComplete(e:NetPluginEvent):void
+		protected function onMultipartPluginComplete(event:NetPluginEvent):void
 		{
-			var plugin:INetMultipartPlugin = e.target as INetMultipartPlugin;
+			var plugin:INetMultipartPlugin = event.target as INetMultipartPlugin;
 			var vo:MethodVO = _plugins[plugin];
 			disposePlugin(plugin);
 
 			var rm:ResultMediatorVO = prepareResultMediator(vo);
 			vo.dispose();
 
-			onResult(e.data, rm.name, rm.id, rm.uid);
+			onResult(event.data, rm.name, rm.id, rm.uid);
 		}
 
 		//---------------------------------------------------------------
