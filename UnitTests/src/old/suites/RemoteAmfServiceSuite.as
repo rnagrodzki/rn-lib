@@ -21,38 +21,26 @@
  *  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package suites
+package old.suites
 {
-	import old.tests.collections.StackTest;
-	import old.tests.net.AMFNetConnectionTest;
-	import old.tests.net.ReflexiveClientTest;
-	import old.tests.collections.QueueTest;
-	import old.tests.utils.ArrayUtilTest;
-	import old.tests.utils.EDTest;
-	import old.tests.utils.PaginatorTest;
-	import old.tests.utils.XMLUtilTest;
-
-	import tests.amf.CallingRegisteredRemoteMethodReturnsFault;
-
-	import tests.amf.CallingRegisteredRemoteMethodReturnsResult;
+	import old.tests.net.remoteamfservice.AMFRequestTest;
+	import old.tests.net.remoteamfservice.MockMethodsTest;
+	import old.tests.net.remoteamfservice.PluginsTest;
+	import old.tests.net.remoteamfservice.RemoteAmfServiceTest;
+	import old.tests.net.remoteamfservice.ServiceProxyImplTest;
+	import old.tests.net.remoteamfservice.UnpredictableUsageCases;
+	import old.tests.net.remoteamfservice.PluginExceptionTest;
 
 	[Suite]
 	[RunWith("org.flexunit.runners.Suite")]
-	public class MainSuite
+	public class RemoteAmfServiceSuite
 	{
-		public var callingRegisteredRemoteMethodReturnsResult:CallingRegisteredRemoteMethodReturnsResult;
-		public var callingRegisteredRemoteMethodReturnsFault:CallingRegisteredRemoteMethodReturnsFault;
-
-
-//		public var queue:QueueTest;
-//		public var stack:StackTest;
-//		public var arrayUtil:ArrayUtilTest;
-//		public var paginator:PaginatorTest;
-//		public var xmlUtil:XMLUtilTest;
-//		public var extendedNetConnection:AMFNetConnectionTest;
-//		public var remoteAmfService:RemoteAmfServiceSuite;
-//		public var reflexiveClient:ReflexiveClientTest;
-//		public var amfServer:AmfServerSuite;
-//		public var edTest:EDTest;
+		public var base:RemoteAmfServiceTest;
+		public var proxy:ServiceProxyImplTest;
+		public var unpredictableUsages:UnpredictableUsageCases;
+		public var plugins:PluginsTest;
+//		public var pluginException:PluginExceptionTest;
+		public var request:AMFRequestTest;
+		public var mock:MockMethodsTest;
 	}
 }

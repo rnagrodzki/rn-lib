@@ -21,38 +21,27 @@
  *  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package suites
+package old.tests.utils
 {
-	import old.tests.collections.StackTest;
-	import old.tests.net.AMFNetConnectionTest;
-	import old.tests.net.ReflexiveClientTest;
-	import old.tests.collections.QueueTest;
-	import old.tests.utils.ArrayUtilTest;
-	import old.tests.utils.EDTest;
-	import old.tests.utils.PaginatorTest;
-	import old.tests.utils.XMLUtilTest;
+	import rnlib.utils.XMLUtil;
 
-	import tests.amf.CallingRegisteredRemoteMethodReturnsFault;
+	import old.tests.utils.xmlHelpers.Helper1;
+	import old.tests.utils.xmlHelpers.Helper2;
+	import old.tests.utils.xmlHelpers.others.Helper3;
+	import old.tests.utils.xmlHelpers.others.Helper4;
 
-	import tests.amf.CallingRegisteredRemoteMethodReturnsResult;
-
-	[Suite]
-	[RunWith("org.flexunit.runners.Suite")]
-	public class MainSuite
+	public class XMLUtilTest
 	{
-		public var callingRegisteredRemoteMethodReturnsResult:CallingRegisteredRemoteMethodReturnsResult;
-		public var callingRegisteredRemoteMethodReturnsFault:CallingRegisteredRemoteMethodReturnsFault;
-
-
-//		public var queue:QueueTest;
-//		public var stack:StackTest;
-//		public var arrayUtil:ArrayUtilTest;
-//		public var paginator:PaginatorTest;
-//		public var xmlUtil:XMLUtilTest;
-//		public var extendedNetConnection:AMFNetConnectionTest;
-//		public var remoteAmfService:RemoteAmfServiceSuite;
-//		public var reflexiveClient:ReflexiveClientTest;
-//		public var amfServer:AmfServerSuite;
-//		public var edTest:EDTest;
+		[Test(description="Generate XML from list of classes", order="1")]
+		public function generateXMLFromClasses():void
+		{
+			var a:Array = [
+					Helper1,
+					Helper2,
+					Helper3,
+					Helper4
+			];
+			var xml:XML = XMLUtil.generatePackagesXML(a);
+		}
 	}
 }

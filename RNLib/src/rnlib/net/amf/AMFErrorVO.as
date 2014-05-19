@@ -65,7 +65,7 @@ package rnlib.net.amf
 		 */
 		public static function isFault(obj:Object):Boolean
 		{
-			return obj.hasOwnProperty("level") && obj.level == "error";
+			return obj && obj.hasOwnProperty("level") && obj.level == "error";
 		}
 
 		/**

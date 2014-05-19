@@ -21,38 +21,37 @@
  *  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package suites
+package old.tests.net.remoteamfservice.plugins
 {
-	import old.tests.collections.StackTest;
-	import old.tests.net.AMFNetConnectionTest;
-	import old.tests.net.ReflexiveClientTest;
-	import old.tests.collections.QueueTest;
-	import old.tests.utils.ArrayUtilTest;
-	import old.tests.utils.EDTest;
-	import old.tests.utils.PaginatorTest;
-	import old.tests.utils.XMLUtilTest;
+	import rnlib.net.plugins.INetPlugin;
+	import rnlib.net.plugins.INetPluginFactory;
+	import rnlib.net.plugins.INetPluginVO;
 
-	import tests.amf.CallingRegisteredRemoteMethodReturnsFault;
-
-	import tests.amf.CallingRegisteredRemoteMethodReturnsResult;
-
-	[Suite]
-	[RunWith("org.flexunit.runners.Suite")]
-	public class MainSuite
+	public class TestPluginFactory implements INetPluginFactory
 	{
-		public var callingRegisteredRemoteMethodReturnsResult:CallingRegisteredRemoteMethodReturnsResult;
-		public var callingRegisteredRemoteMethodReturnsFault:CallingRegisteredRemoteMethodReturnsFault;
+		protected var _plugin:INetPlugin;
+		protected var _vo:Class;
 
+		public function TestPluginFactory(plugin:INetPlugin, vo:Class)
+		{
+			_plugin = plugin;
+			_vo = vo;
+		}
 
-//		public var queue:QueueTest;
-//		public var stack:StackTest;
-//		public var arrayUtil:ArrayUtilTest;
-//		public var paginator:PaginatorTest;
-//		public var xmlUtil:XMLUtilTest;
-//		public var extendedNetConnection:AMFNetConnectionTest;
-//		public var remoteAmfService:RemoteAmfServiceSuite;
-//		public var reflexiveClient:ReflexiveClientTest;
-//		public var amfServer:AmfServerSuite;
-//		public var edTest:EDTest;
+		public function newInstance():INetPlugin
+		{
+			return _plugin;
+		}
+
+		public function isSupportVO(vo:INetPluginVO):Boolean
+		{
+			return vo is _vo;
+		}
+
+		public function dispose():void
+		{
+			_plugin = null;
+			_vo = null;
+		}
 	}
 }
