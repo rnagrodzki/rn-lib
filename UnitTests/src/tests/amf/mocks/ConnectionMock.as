@@ -15,7 +15,17 @@ package tests.amf.mocks
 
 	public class ConnectionMock extends EventDispatcher implements IAMFConnection
 	{
+		/**
+		 * Data to pass with response. Resets after every call
+		 */
 		public var dataToPass:Object;
+		/**
+		 * Resets after every call
+		 * -1 not set
+		 * 0 force fault
+		 * 1 force result
+		 */
+		public var forceResponseStatus:int = -1;
 
 		private var _connected:Boolean = false;
 		private var _redispatcher:IEventDispatcher;
@@ -23,11 +33,11 @@ package tests.amf.mocks
 		private var _objectEncoding:uint;
 		private var objectEncodingSet:Boolean = false;
 
-		private var _callSuccess:Boolean;
+		public var _callResult:Boolean;
 
-		public function ConnectionMock(callSuccess:Boolean = true)
+		public function ConnectionMock(callResult:Boolean = true)
 		{
-			_callSuccess = callSuccess;
+			_callResult = callResult;
 		}
 
 		private static var _defaultObjectEncoding:uint = ObjectEncoding.AMF3;
@@ -64,7 +74,15 @@ package tests.amf.mocks
 
 		public function call(command:String, result:Function = null, fault:Function = null, ...args):void
 		{
-			setTimeout(_callSuccess ? result : fault, 10, dataToPass);
+			var callResult:Boolean = _callResult;
+			if(forceResponseStatus >= 0)
+			{
+				callResult = forceResponseStatus == 1;
+				forceResponseStatus = -1;
+			}
+
+			setTimeout(callResult ? result : fault, 10, dataToPass);
+			dataToPass = null;
 		}
 
 		public function get reconnectRepeatCount():uint

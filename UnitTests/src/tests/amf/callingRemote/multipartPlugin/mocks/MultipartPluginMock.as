@@ -22,7 +22,7 @@
 /**
  * @author Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
  */
-package tests.amf.callingRemote.registerMultipartPluginMethod
+package tests.amf.callingRemote.multipartPlugin.mocks
 {
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
@@ -30,46 +30,59 @@ package tests.amf.callingRemote.registerMultipartPluginMethod
 	import rnlib.net.plugins.INetMultipartPlugin;
 	import rnlib.net.plugins.INetPluginVO;
 
+	import tests.amf.mocks.ConnectionMock;
+
 	public class MultipartPluginMock extends EventDispatcher implements INetMultipartPlugin
 	{
-		[ArrayElementType("tests.amf.callingRemote.registerMultipartPluginMethod.MultipartPluginMockSequenceVO")]
+		[ArrayElementType("tests.amf.callingRemote.multipartPlugin.mocks.MultipartPluginMockSequenceVO")]
 		public var eventsSequence:Array;
+		public var connection:ConnectionMock;
 
-		public function MultipartPluginMock()
+		public function MultipartPluginMock(connection:ConnectionMock = null)
 		{
-
+			this.connection = connection;
 		}
 
 
-		public function nextFromSequence():void
+		public function nextFromSequence(result:Boolean):void
 		{
 			var vo:MultipartPluginMockSequenceVO = eventsSequence.shift();
+			if (vo.data)
+			{
+				if (vo.event)
+					vo.event.data = vo.data;
+				if (vo.faultEvent)
+					vo.faultEvent.data = vo.data;
+			}
 
-			if(vo.exception && vo.beforeEvent)
-				throw vo.exception;
+			if (vo.exceptionBeforeEvent)
+				throw vo.exceptionBeforeEvent;
 
-			dispatchEvent(vo.event);
+			if (connection && vo.responseStatus != -1)
+				connection.forceResponseStatus = vo.responseStatus;
 
-			if(vo.exception && !vo.beforeEvent)
-				throw vo.exception;
+			dispatchEvent(result ? vo.event : vo.faultEvent);
+
+			if (vo.exceptionAfterEvent)
+				throw vo.exceptionAfterEvent;
 		}
 
 		public function onResult(result:Object):void
 		{
-			nextFromSequence();
+			nextFromSequence(true);
 		}
 
 		public function onFault(fault:Object):void
 		{
-			nextFromSequence();
+			nextFromSequence(false);
 		}
 
 		public function init(vo:INetPluginVO):void
 		{
-			if(vo is MultipartPluginMockVO)
+			if (vo is MultipartPluginMockVO)
 				eventsSequence = MultipartPluginMockVO(vo).eventsSequence;
 
-			nextFromSequence();
+			nextFromSequence(true);
 		}
 
 		public function dispose():void

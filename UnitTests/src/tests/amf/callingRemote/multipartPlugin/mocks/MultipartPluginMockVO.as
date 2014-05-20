@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
+ * Copyright (c) 2014. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,64 +22,26 @@
 /**
  * @author Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
  */
-package old.tests.net.remoteamfservice
+package tests.amf.callingRemote.multipartPlugin.mocks
 {
-	import org.flexunit.Assert;
+	import tests.amf.callingRemote.multipartPlugin.*;
+	import rnlib.net.plugins.INetPluginVO;
 
-	import rnlib.net.amf.RemoteAmfService;
-
-	public class ServiceProxyImplTest
+	public class MultipartPluginMockVO implements INetPluginVO
 	{
+		[ArrayElementType("tests.amf.callingRemote.multipartPlugin.mocks.MultipartPluginMockSequenceVO")]
+		public var eventsSequence:Array;
 
-		public var service:RemoteAmfService;
+		private var _args:Array;
 
-		public static const TIMEOUT:int = 100;
-
-		[Before]
-		public function beforeTest():void
+		public function get args():Array
 		{
-			service = new RemoteAmfService();
+			return _args;
 		}
 
-		[After]
-		public function afterTest():void
+		public function set args(value:Array):void
 		{
-			service.dispose();
-			service = null;
-		}
-
-		[Test]
-		public function addPropertyTest():void
-		{
-			service.myTestProp = "test";
-			Assert.assertEquals("test", service.myTestProp);
-			Assert.assertEquals("test", service["myTest"+"Prop"]);
-		}
-
-		[Test]
-		public function deletePropertyTest():void
-		{
-			service.propToDelete = "test";
-			Assert.assertEquals("test", service.propToDelete);
-			Assert.assertTrue(delete service.propToDelete);
-			Assert.assertFalse(service.hasOwnProperty("propToDelete"));
-			Assert.assertNull(service.propToDelete);
-		}
-
-		[Test]
-		public function testForEach():void
-		{
-			service.myTestProp = "test";
-			service.myTestProp2 = "test";
-			service.myTest = "test";
-			var i:int = 0;
-
-			for each (var data:Object in service)
-			{
-				Assert.assertEquals("test",data);
-				i++;
-			}
-			Assert.assertEquals(3,i);
+			_args = value;
 		}
 	}
 }

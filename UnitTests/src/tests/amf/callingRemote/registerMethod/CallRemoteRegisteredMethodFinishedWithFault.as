@@ -3,6 +3,7 @@
  */
 package tests.amf.callingRemote.registerMethod
 {
+	import tests.amf.*;
 	import org.morefluent.integrations.flexunit4.after;
 	import org.morefluent.integrations.flexunit4.observing;
 	import org.morefluent.integrations.flexunit4.poll;
@@ -15,12 +16,12 @@ package tests.amf.callingRemote.registerMethod
 	import tests.AbstractTest;
 	import tests.amf.mocks.ConnectionMock;
 
-	[TestCase(order="1")]
-	public class ReturningResult extends AbstractTest
+	[TestCase(order="2")]
+	public class CallRemoteRegisteredMethodFinishedWithFault extends AbstractTest
 	{
 		public const METHOD_NAME:String = "myMethod";
 
-		public var calledSuccess:Boolean;
+		public var calledFault:Boolean;
 
 		protected var _service:RemoteAmfService;
 
@@ -35,8 +36,11 @@ package tests.amf.callingRemote.registerMethod
 		{
 			super.setupClass();
 
+			var conn:ConnectionMock = new ConnectionMock(false);
+			conn.dataToPass = {level: "error"};
+
 			_service = new RemoteAmfService();
-			_service.connection = new ConnectionMock();
+			_service.connection = conn;
 			_service.endpoint = "x";
 			_service.service = "MyService";
 		}
@@ -51,7 +55,7 @@ package tests.amf.callingRemote.registerMethod
 			super.tearDown();
 
 			_service.removeMethod(METHOD_NAME);
-			calledSuccess = false;
+			calledFault = false;
 		}
 
 		//---------------------------------------------------------------
@@ -61,34 +65,34 @@ package tests.amf.callingRemote.registerMethod
 		//---------------------------------------------------------------
 
 		[Test(order="1", async)]
-		public function raisesGlobalResultEvent():void
+		public function raisesGlobalFaultEvent():void
 		{
 			_service.addMethod(METHOD_NAME);
-			after(AMFEvent.RESULT, 100).on(_service).pass();
+			after(AMFEvent.FAULT, 100).on(_service).pass();
 
 			_service[METHOD_NAME]();
 		}
 
 		[Test(order="2", async)]
-		public function callResultHandler():void
+		public function callFaultHandler():void
 		{
-			_service.addMethod(METHOD_NAME, callSuccessHandler_resultHandler);
-			poll(100).assert(this, "calledSuccess").equals(true);
+			_service.addMethod(METHOD_NAME, null, callFaultHandler_faultHandler);
+			poll(100).assert(this, "calledFault").equals(true);
 
 			_service[METHOD_NAME]();
 		}
 
-		protected function callSuccessHandler_resultHandler(result:Object = null):void
+		protected function callFaultHandler_faultHandler(result:Object = null):void
 		{
-			calledSuccess = true;
+			calledFault = true;
 		}
 
 		[Test(order="3", async)]
-		public function raisesResultEventOnlyOnce():void
+		public function raisesFaultEventOnlyOnce():void
 		{
 			_service.addMethod(METHOD_NAME);
-			observing(AMFEvent.RESULT).on(_service);
-			poll(200).assert(_service).observed(AMFEvent.RESULT, times(1));
+			observing(AMFEvent.FAULT).on(_service);
+			poll(200).assert(_service).observed(AMFEvent.FAULT, times(1));
 
 			_service[METHOD_NAME]();
 		}
@@ -98,7 +102,7 @@ package tests.amf.callingRemote.registerMethod
 		{
 			_service.addMethod(METHOD_NAME);
 			var req:AMFRequest = _service[METHOD_NAME]();
-			after(AMFEvent.RESULT).on(_service).assert(req).notNullValue();
+			after(AMFEvent.FAULT).on(_service).assert(req).notNullValue();
 		}
 
 		[Test(order="5", async)]
@@ -106,7 +110,7 @@ package tests.amf.callingRemote.registerMethod
 		{
 			_service.addMethod(METHOD_NAME);
 			var req:AMFRequest = _service[METHOD_NAME]();
-			after(AMFEvent.RESULT).on(_service).assert(req, "called").equals(true);
+			after(AMFEvent.FAULT).on(_service).assert(req, "called").equals(true);
 		}
 	}
 }

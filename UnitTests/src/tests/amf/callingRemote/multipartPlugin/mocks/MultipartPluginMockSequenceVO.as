@@ -22,25 +22,19 @@
 /**
  * @author Rafał Nagrodzki (e-mail: rafal@nagrodzki.net)
  */
-package tests.amf.callingRemote.registerMultipartPluginMethod
+package tests.amf.callingRemote.multipartPlugin.mocks
 {
-	import rnlib.net.plugins.INetPluginVO;
+	import rnlib.net.plugins.NetPluginEvent;
 
-	public class MultipartPluginMockVO implements INetPluginVO
+	public class MultipartPluginMockSequenceVO
 	{
-		[ArrayElementType("tests.amf.callingRemote.registerMultipartPluginMethod.MultipartPluginMockSequenceVO")]
-		public var eventsSequence:Array;
+		public var event:NetPluginEvent;
+		public var faultEvent:NetPluginEvent;
+		public var exceptionBeforeEvent:Error;
+		public var exceptionAfterEvent:Error;
+		public var responseStatus:int = -1;
+		public var data:Object;
 
-		private var _args:Array;
-
-		public function get args():Array
-		{
-			return _args;
-		}
-
-		public function set args(value:Array):void
-		{
-			_args = value;
-		}
+		public function MultipartPluginMockSequenceVO()	{}
 	}
 }
