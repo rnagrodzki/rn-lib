@@ -44,12 +44,13 @@ package rnlib.net.plugins
 			var ba:ByteArray = new ByteArray();
 			_vo.fileReference.data.position = _filePos;
 			ba.readBytes(_vo.fileReference.data, _filePos,
-						 _filePos + CHUNK_SIZE > _vo.fileReference.data.length ? _vo.fileReference.data.length - _filePos : CHUNK_SIZE);
+						 _filePos + CHUNK_SIZE > _vo.fileReference.data.length ?
+								 _vo.fileReference.data.length - _filePos : CHUNK_SIZE);
 			_vo.args[0] = ba;
 			_filePos += CHUNK_SIZE;
 		}
 
-		public function next():void
+		protected function next():void
 		{
 			getNextFilePart();
 			dispatchEvent(new NetPluginEvent(NetPluginEvent.READY));
@@ -60,6 +61,8 @@ package rnlib.net.plugins
 			// if file was upload we send plugin complete event
 			if (_filePos >= _vo.fileReference.data.length)
 				dispatchEvent(new NetPluginEvent(NetPluginEvent.COMPLETE));
+			else
+				next();
 		}
 
 		public function onFault(fault:Object):void

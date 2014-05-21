@@ -23,28 +23,12 @@
  */
 package suites
 {
-	import tests.collections.StackTest;
-	import tests.net.AMFNetConnectionTest;
-	import tests.net.ReflexiveClientTest;
-	import tests.collections.QueueTest;
-	import tests.utils.ArrayUtilTest;
-	import tests.utils.EDTest;
-	import tests.utils.PaginatorTest;
-	import tests.utils.XMLUtilTest;
+	import tests.amf.callingRemote.CallingRemote;
 
 	[Suite]
 	[RunWith("org.flexunit.runners.Suite")]
 	public class MainSuite
 	{
-		public var queue:QueueTest;
-		public var stack:StackTest;
-		public var arrayUtil:ArrayUtilTest;
-		public var paginator:PaginatorTest;
-		public var xmlUtil:XMLUtilTest;
-		public var extendedNetConnection:AMFNetConnectionTest;
-		public var remoteAmfService:RemoteAmfServiceSuite;
-		public var reflexiveClient:ReflexiveClientTest;
-//		public var amfServer:AmfServerSuite;
-//		public var edTest:EDTest;
+		public var callingRemote:CallingRemote;
 	}
 }

@@ -7,7 +7,7 @@ import flash.net.registerClassAlias;
 
 import rnlib.net.RequestConcurrency;
 import rnlib.net.amf.AMFRequest;
-import rnlib.net.amf.MockResponseVO;
+import rnlib.net.amf.helpers.MockResponseVO;
 import rnlib.net.amf.RemoteAmfService;
 import rnlib.net.plugins.FileReferencePlugin;
 import rnlib.net.plugins.FileReferencePluginVO;
