@@ -3,10 +3,17 @@
  */
 package rnlib.collections
 {
+	import mx.core.ClassFactory;
+	import mx.core.IFactory;
+
 	import rnlib.interfaces.IDisposable;
 
 	public class AbstractDataCollection implements IDataCollection, IDisposable
 	{
+		public var sortFields:Array;
+		public var sortOptions:Array;
+		public var dataVOFactory:IFactory;
+
 		[ArrayElementType("rnlib.collections.DataCollectionItemVO")]
 		protected var _source:Array = [];
 
@@ -23,6 +30,7 @@ package rnlib.collections
 					pushWithPriority(item, priority);
 				}
 			}
+			dataVOFactory = new ClassFactory(DataCollectionItemVO);
 		}
 
 		public function dispose():void
@@ -59,7 +67,7 @@ package rnlib.collections
 				vo = item;
 			else
 			{
-				vo = new DataCollectionItemVO();
+				vo = dataVOFactory.newInstance();
 				vo.item = item;
 				vo.priority = priority;
 			}
@@ -96,7 +104,11 @@ package rnlib.collections
 		 */
 		public function sort():void
 		{
-			throw new Error("Abstract method");
+			if (_requireSort)
+			{
+				_source.sortOn(sortFields, sortOptions);
+				_requireSort = false;
+			}
 		}
 
 		/**
@@ -104,7 +116,12 @@ package rnlib.collections
 		 */
 		public function getItem():*
 		{
-			throw new Error("Abstract method");
+			if (_source.length == 0)
+				return undefined;
+
+			sort();
+			var vo:DataCollectionItemVO = DataCollectionItemVO(_source.shift());
+			return vo.item;
 		}
 
 		/**

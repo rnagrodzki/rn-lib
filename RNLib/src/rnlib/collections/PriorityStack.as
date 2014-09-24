@@ -10,6 +10,8 @@ package rnlib.collections
 		public function PriorityStack(source:Array = null, priority:int = 1)
 		{
 			super(source, priority);
+			sortFields = ["priority", "count"];
+			sortOptions = [Array.DESCENDING | Array.NUMERIC, Array.DESCENDING | Array.NUMERIC];
 		}
 
 		override public function pushWithPriority(item:*, priority:int = 1):DataCollectionItemVO
@@ -25,27 +27,6 @@ package rnlib.collections
 			_source.unshift(vo);
 			return vo;
 		}
-
-		override public function getItem():*
-		{
-			if (_source.length == 0)
-				return undefined;
-
-			sort();
-			var vo:DataCollectionItemVO = DataCollectionItemVO(_source.shift());
-
-			return vo.item;
-		}
-
-		override public function sort():void
-		{
-			if (_requireSort)
-			{
-				_source.sortOn(["priority", 'count'], [Array.DESCENDING | Array.NUMERIC, Array.DESCENDING | Array.NUMERIC]);
-				_requireSort = false;
-			}
-		}
-
 
 		override public function clone():IDataCollection
 		{
