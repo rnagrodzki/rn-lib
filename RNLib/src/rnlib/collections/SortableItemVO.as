@@ -21,7 +21,7 @@
 
 package rnlib.collections
 {
-	public class DataCollectionItemVO
+	public class SortableItemVO
 	{
 		public var item:*;
 		public var priority:int = 1;

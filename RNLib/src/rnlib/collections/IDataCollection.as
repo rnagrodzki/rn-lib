@@ -43,7 +43,7 @@ package rnlib.collections
 		 *         returned before item of priority n-1. If two or more items share the same priority,
 		 *         they are returned in the order in which they were added. The default priority is 0.
 		 */
-		function pushWithPriority(item:*, priority:int = 1):DataCollectionItemVO;
+		function pushWithPriority(item:*, priority:int = 1):SortableItemVO;
 
 		/**
 		 * Update item priority

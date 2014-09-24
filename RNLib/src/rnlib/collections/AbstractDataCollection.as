@@ -14,7 +14,7 @@ package rnlib.collections
 		public var sortOptions:Array;
 		public var dataVOFactory:IFactory;
 
-		[ArrayElementType("rnlib.collections.DataCollectionItemVO")]
+		[ArrayElementType("rnlib.collections.SortableItemVO")]
 		protected var _source:Array = [];
 
 		protected var _requireSort:Boolean = false;
@@ -30,7 +30,7 @@ package rnlib.collections
 					pushWithPriority(item, priority);
 				}
 			}
-			dataVOFactory = new ClassFactory(DataCollectionItemVO);
+			dataVOFactory = new ClassFactory(SortableItemVO);
 		}
 
 		public function dispose():void
@@ -60,10 +60,10 @@ package rnlib.collections
 		 *         returned before item of priority n-1. If two or more items share the same priority,
 		 *         they are returned in the order in which they were added. The default priority is 0.
 		 */
-		public function pushWithPriority(item:*, priority:int = 1):DataCollectionItemVO
+		public function pushWithPriority(item:*, priority:int = 1):SortableItemVO
 		{
-			var vo:DataCollectionItemVO;
-			if (item is DataCollectionItemVO)
+			var vo:SortableItemVO;
+			if (item is SortableItemVO)
 				vo = item;
 			else
 			{
@@ -84,7 +84,7 @@ package rnlib.collections
 		 */
 		public function updateItemPriority(item:*, priority:int):Boolean
 		{
-			for each (var itemVO:DataCollectionItemVO in _source)
+			for each (var itemVO:SortableItemVO in _source)
 			{
 				if (itemVO.item === item)
 				{
@@ -120,7 +120,7 @@ package rnlib.collections
 				return undefined;
 
 			sort();
-			var vo:DataCollectionItemVO = DataCollectionItemVO(_source.shift());
+			var vo:SortableItemVO = SortableItemVO(_source.shift());
 			return vo.item;
 		}
 
@@ -131,7 +131,7 @@ package rnlib.collections
 		{
 			for (var i:int = 0; i < _source.length; i++)
 			{
-				var vo:DataCollectionItemVO = _source[i] as DataCollectionItemVO;
+				var vo:SortableItemVO = _source[i] as SortableItemVO;
 				if (vo.item == item)
 				{
 					_source.splice(i, 1);

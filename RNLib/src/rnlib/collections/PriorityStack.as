@@ -14,9 +14,9 @@ package rnlib.collections
 			sortOptions = [Array.DESCENDING | Array.NUMERIC, Array.DESCENDING | Array.NUMERIC];
 		}
 
-		override public function pushWithPriority(item:*, priority:int = 1):DataCollectionItemVO
+		override public function pushWithPriority(item:*, priority:int = 1):SortableItemVO
 		{
-			var vo:DataCollectionItemVO = super.pushWithPriority(item, priority);
+			var vo:SortableItemVO = super.pushWithPriority(item, priority);
 
 			var len:uint = _source.length;
 			if (!_requireSort)
