@@ -18,60 +18,70 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.service
 {
-	import flash.events.Event;
+	import flash.events.IEventDispatcher;
+	import flash.utils.Proxy;
+	import flash.utils.flash_proxy;
+
+	import rnlib.interfaces.IDisposable;
+
+	use namespace flash_proxy;
 
 	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
+	 * Class supported recognize all unregistered
+	 * amf headers calls and of course these registered.
+	 * If NetConnection attempt to call specified method
+	 * event will be fired with header details.
 	 */
-	public class NetPluginEvent extends Event
+	public dynamic class ReflexiveClient extends Proxy implements IDisposable
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
-
-		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
-
-		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
-
-		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
-
-		public var data:Object;
-
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function ReflexiveClient()
 		{
-			super(type, bubbles, cancelable);
-			this.data = data;
 		}
 
-		override public function clone():Event
+		/**
+		 * Callback to react on receive headers
+		 */
+		public var callback:Function;
+
+		private var _dispatcher:IEventDispatcher;
+
+		/**
+		 * If is set class will also dispatch <code>AMFEvent.HEADER</code>
+		 * with passed arguments by server
+		 */
+		public function get dispatcher():IEventDispatcher
 		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
+			return _dispatcher;
+		}
+
+		public function set dispatcher(value:IEventDispatcher):void
+		{
+			_dispatcher = value;
+		}
+
+		override flash_proxy function callProperty(name:*, ...rest):*
+		{
+			var vo:ClientVO = new ClientVO(name, rest);
+
+			if (callback != null)
+				callback.apply(null, [vo]);
+
+			//todo: add uid support for event
+			if (_dispatcher)
+				_dispatcher.dispatchEvent(new ServiceEvent(ServiceEvent.HEADER, -1, vo));
+		}
+
+		override flash_proxy function hasProperty(name:*):Boolean
+		{
+			return true;
+		}
+
+		public function dispose():void
+		{
+			callback = null;
+			_dispatcher = null;
 		}
 	}
 }

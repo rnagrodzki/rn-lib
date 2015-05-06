@@ -18,60 +18,61 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.plugins.examples
 {
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 
-	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
-	 */
-	public class NetPluginEvent extends Event
+	import rnlib.interfaces.IDisposable;
+	import rnlib.net.plugins.*;
+
+	public class FileReferencePlugin extends EventDispatcher implements INetPlugin, IDisposable
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
+		protected var _vo:FileReferencePluginVO;
+		protected var _owner:INetPluginOwner;
 
-		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
-
-		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
-
-		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
-
-		public var data:Object;
-
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function FileReferencePlugin()
 		{
-			super(type, bubbles, cancelable);
-			this.data = data;
 		}
 
-		override public function clone():Event
+		/**
+		 * Method called by amf service before send request to server
+		 * @param owner
+		 * @param vo ValueObject passed by amf service witch is associated
+		 * with current request
+		 */
+		public function init(owner:INetPluginOwner, vo:INetPluginVO):void
 		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
+			_vo = vo as FileReferencePluginVO;
+			_owner = owner;
+
+			if (!_vo.fileReference.data)
+			{
+				_vo.fileReference.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
+				_vo.fileReference.load();
+			}
+			else
+			{
+				_owner.pluginRequest(this, new PluginRequestVO(_vo.fileReference.data));
+			}
+		}
+
+		private function onComplete(e:Event):void
+		{
+			_vo.args.unshift(_vo.fileReference.data);
+			_owner.pluginRequest(this, new PluginRequestVO(_vo.fileReference.data));
+		}
+
+		public function onResult(result:Object):void {_owner.pluginRisesComplete(this, result);}
+
+		public function onFault(fault:Object):void {_owner.pluginRisesFault(this, fault);}
+
+		/**
+		 * Disposing plugin
+		 */
+		public function dispose():void
+		{
+			_vo = null;
 		}
 	}
 }

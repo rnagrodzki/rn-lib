@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
+ * Copyright (c) 2015. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,36 +20,12 @@
  **************************************************************************************************/
 package rnlib.net.plugins
 {
-	public interface INetPlugin
+	public interface INetPluginOwner
 	{
-		/**
-		 * Method called by RemoteAmfService o start
-		 * plugin lifecycle.
-		 * @param owner
-		 * @param vo Param transfer from args remote method.
-		 *
-		 * @see rnlib.net.plugins.NetPluginEvent
-		 */
-		function init(owner:INetPluginOwner, vo:INetPluginVO):void;
+		function pluginRequest(caller:INetPlugin, request:PluginRequestVO):void
 
-		/**
-		 * Method calling by RemoteAmfService on end of life
-		 * plugin.
-		 *
-		 * @see rnlib.interfaces.IDisposable
-		 */
-		function dispose():void;
+		function pluginRisesFault(caller:INetPlugin, data:Object = null):void;
 
-		/**
-		 * Callback to pass result from server
-		 * @param result
-		 */
-		function onResult(result:Object):void;
-
-		/**
-		 * Callback to pass fault from server
-		 * @param fault
-		 */
-		function onFault(fault:Object):void;
+		function pluginRisesComplete(caller:INetPlugin, data:Object = null):void;
 	}
 }

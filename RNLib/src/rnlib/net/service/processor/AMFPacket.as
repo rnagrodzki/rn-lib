@@ -18,60 +18,41 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.service.processor
 {
-	import flash.events.Event;
+	import rnlib.interfaces.IDisposable;
 
 	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
+	 * @private
+	 * An AMFPacket represents a single AMF request made over an HTTP or
+	 * HTTPS connection. An AMFPacket can have multiple AMFHeaders followed by a
+	 * batch of multiple AMFMessages.
 	 */
-	public class NetPluginEvent extends Event
+	public class AMFPacket implements IDisposable
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
-
-		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
-
-		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
-
-		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
-
-		public var data:Object;
-
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function AMFPacket(version:uint = 0)
 		{
-			super(type, bubbles, cancelable);
-			this.data = data;
+			this.version = version;
 		}
 
-		override public function clone():Event
+		public var version:uint;
+		public var headers:Array = []; // Array of AMFHeader
+		public var messages:Array = []; // Array of AMFMessage
+
+		public function dispose():void
 		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
+			for each (var header:AMFHeader in headers)
+			{
+				header.dispose();
+			}
+
+			for each (var message:AMFMessage in messages)
+			{
+				message.dispose();
+			}
+
+			headers = null;
+			messages = null;
 		}
 	}
 }

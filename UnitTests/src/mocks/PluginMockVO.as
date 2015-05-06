@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
+ * Copyright (c) 2014. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,38 +18,26 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+
+package mocks
 {
-	public interface INetPlugin
+	import rnlib.net.plugins.INetPluginVO;
+
+	public class PluginMockVO implements INetPluginVO
 	{
-		/**
-		 * Method called by RemoteAmfService o start
-		 * plugin lifecycle.
-		 * @param owner
-		 * @param vo Param transfer from args remote method.
-		 *
-		 * @see rnlib.net.plugins.NetPluginEvent
-		 */
-		function init(owner:INetPluginOwner, vo:INetPluginVO):void;
+		[ArrayElementType("mocks.PluginMockSequenceVO")]
+		public var dataSequence:Array;
 
-		/**
-		 * Method calling by RemoteAmfService on end of life
-		 * plugin.
-		 *
-		 * @see rnlib.interfaces.IDisposable
-		 */
-		function dispose():void;
+		private var _args:Array;
 
-		/**
-		 * Callback to pass result from server
-		 * @param result
-		 */
-		function onResult(result:Object):void;
+		public function get args():Array
+		{
+			return _args;
+		}
 
-		/**
-		 * Callback to pass fault from server
-		 * @param fault
-		 */
-		function onFault(fault:Object):void;
+		public function set args(value:Array):void
+		{
+			_args = value;
+		}
 	}
 }

@@ -18,60 +18,31 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.plugins.examples
 {
-	import flash.events.Event;
+	import flash.net.FileReference;
 
-	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
-	 */
-	public class NetPluginEvent extends Event
+	import rnlib.net.plugins.*;
+
+	public class FileReferencePluginVO implements INetPluginVO
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
-
-		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
-
-		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
-
-		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
-
-		public var data:Object;
-
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function FileReferencePluginVO(fileReference:FileReference = null)
 		{
-			super(type, bubbles, cancelable);
-			this.data = data;
+			this.fileReference = fileReference;
 		}
 
-		override public function clone():Event
+		public var fileReference:FileReference;
+
+		private var _args:Array;
+
+		public function get args():Array
 		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
+			return _args;
+		}
+
+		public function set args(value:Array):void
+		{
+			_args = value;
 		}
 	}
 }

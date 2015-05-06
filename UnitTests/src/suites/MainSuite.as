@@ -23,12 +23,16 @@
  */
 package suites
 {
-	import tests.amf.callingRemote.CallingRemote;
-
+	import tests.net.CallRemoteMethodFinishedWithFault;
+	import tests.net.CallRemoteMethodFinishedWithResult;
+	import tests.net.PluginFinishedWithResult;
+	
 	[Suite]
 	[RunWith("org.flexunit.runners.Suite")]
 	public class MainSuite
 	{
-		public var callingRemote:CallingRemote;
+		public var returningResult:CallRemoteMethodFinishedWithResult;
+		public var returningFault:CallRemoteMethodFinishedWithFault;
+		public var plugin:PluginFinishedWithResult;
 	}
 }

@@ -1,5 +1,5 @@
 /***************************************************************************************************
- * Copyright (c) 2013. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
+ * Copyright (c) 2014. Rafał Nagrodzki (e-mail: rafal[at]nagrodzki.net)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,38 +18,34 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+
+package rnlib.net.service.helpers
 {
-	public interface INetPlugin
+	import rnlib.interfaces.IDisposable;
+	import rnlib.net.cache.rules.ICacheRule;
+
+	public class MethodDescriptorVO implements IDisposable
 	{
+		public var name:String;
+		public var result:Function;
+		public var fault:Function;
+		public var cacheRule:ICacheRule;
 		/**
-		 * Method called by RemoteAmfService o start
-		 * plugin lifecycle.
-		 * @param owner
-		 * @param vo Param transfer from args remote method.
-		 *
-		 * @see rnlib.net.plugins.NetPluginEvent
+		 * If function have to be mock add here reference to mock generation function
 		 */
-		function init(owner:INetPluginOwner, vo:INetPluginVO):void;
+		public var mockGenerationFunc:Function = null;
 
-		/**
-		 * Method calling by RemoteAmfService on end of life
-		 * plugin.
-		 *
-		 * @see rnlib.interfaces.IDisposable
-		 */
-		function dispose():void;
+		public function MethodDescriptorVO(name:String = null)
+		{
+			this.name = name;
+		}
 
-		/**
-		 * Callback to pass result from server
-		 * @param result
-		 */
-		function onResult(result:Object):void;
-
-		/**
-		 * Callback to pass fault from server
-		 * @param fault
-		 */
-		function onFault(fault:Object):void;
+		public function dispose():void
+		{
+			name = null;
+			result = null;
+			fault = null;
+			cacheRule = null;
+		}
 	}
 }

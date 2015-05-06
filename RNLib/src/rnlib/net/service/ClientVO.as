@@ -18,60 +18,20 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.service
 {
-	import flash.events.Event;
-
 	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
+	 * @private
 	 */
-	public class NetPluginEvent extends Event
+	public class ClientVO
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
-
-		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
-
-		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
-
-		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
-
-		public var data:Object;
-
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function ClientVO(name:String = null, arguments:* = null)
 		{
-			super(type, bubbles, cancelable);
-			this.data = data;
+			this.name = name;
+			this.arguments = arguments;
 		}
 
-		override public function clone():Event
-		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
-		}
+		public var name:String;
+		public var arguments:*;
 	}
 }

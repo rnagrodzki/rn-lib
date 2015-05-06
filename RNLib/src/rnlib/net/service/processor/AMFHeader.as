@@ -18,60 +18,36 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.service.processor
 {
-	import flash.events.Event;
+	import rnlib.interfaces.IDisposable;
 
 	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
+	 * @private
+	 * An AMF packet level header. Request and response headers have an identical
+	 * structure.
+	 *
+	 * When making use of by-reference serialization, the reference tables are
+	 * reset for each AMFHeader. Note that the header name String is never sent by
+	 * reference and does not participate in by-reference serialization.
 	 */
-	public class NetPluginEvent extends Event
+	public class AMFHeader implements IDisposable
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
-
-		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
-
-		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
-
-		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
-
-		public var data:Object;
-
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function AMFHeader(name:String, mustUnderstand:Boolean = false, data:* = undefined)
 		{
-			super(type, bubbles, cancelable);
+			this.name = name;
+			this.mustUnderstand = mustUnderstand;
 			this.data = data;
 		}
 
-		override public function clone():Event
+		public var name:String;
+		public var mustUnderstand:Boolean;
+		public var data:*;
+
+		public function dispose():void
 		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
+			name = null;
+			data = null;
 		}
 	}
 }

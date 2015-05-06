@@ -18,60 +18,72 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **************************************************************************************************/
-package rnlib.net.plugins
+package rnlib.net.service
 {
 	import flash.events.Event;
 
 	/**
-	 * Life of plugin inside amf service can be control
-	 * only by dispatching events.
+	 * Event dispatching by <code>RemoteAMFService.</code>
+	 *
+	 * @see rnlib.net.service.RemoteService
 	 */
-	public class NetPluginEvent extends Event
+	public class ServiceEvent extends Event
 	{
-		/**
-		 * Plugin was bring to life.
-		 * Data property of event contains instance of new plugin.
-		 *
-		 * @see #data
-		 */
-		public static const PLUGIN_CREATED:String = "pluginCreated";
+		public static const RECONNECT:String = "reconnect";
+		public static const CONNECTED:String = "connected";
+		public static const DISCONNECTED:String = "disconnected";
+		public static const PARSE_ERROR:String = "parseError";
 
 		/**
-		 * Plugin was initialize with vo.
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
+		 * Service received header from server
 		 */
-		public static const PLUGIN_INITIALIZED:String = "pluginInitialized";
-
+		public static const HEADER:String = "header";
 
 		/**
-		 * Plugin was destroyed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
+		 * Service received response from server
 		 */
-		public static const PLUGIN_DISPOSED:String = "pluginDisposed";
+		public static const RESULT:String = "result";
 
 		/**
-		 * Plugin finish his job and will be disposed
-		 * Data property of event contains instance of plugin.
-		 *
-		 * @see #data
+		 * Service received fault from server
 		 */
-		public static const PREPARE_TO_DISPOSE:String = "prepareToDispose";
+		public static const FAULT:String = "fault";
 
+		/**
+		 * Unique identifier of remote call.
+		 * <p>If not set has default value.</p>
+		 *
+		 * @default -1
+		 */
+		public var uid:int = -1;
+
+		/**
+		 * Data passed to event.
+		 */
 		public var data:Object;
 
-		public function NetPluginEvent(type:String, data:Object = null, bubbles:Boolean = false, cancelable:Boolean = false)
+		public var extraArgs:Array;
+
+		public function ServiceEvent(type:String,
+		                             uid:int = -1,
+		                             data:Object = null,
+		                             bubbles:Boolean = false,
+		                             cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
+			this.uid = uid;
 			this.data = data;
 		}
 
+		/**
+		 * Clone event.
+		 * @return
+		 */
 		override public function clone():Event
 		{
-			return new NetPluginEvent(type, data, bubbles, cancelable);
+			var event:ServiceEvent = new ServiceEvent(type, uid, data, bubbles, cancelable);
+			event.extraArgs = extraArgs;
+			return event;
 		}
 	}
 }
